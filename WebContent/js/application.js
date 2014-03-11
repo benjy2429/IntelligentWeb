@@ -195,8 +195,10 @@ $(window).load(function() {
 				$.each( JSON.parse(data), function() {
 					result += "<img class='tweetImgSmall' src='" + this.profileImageUrl + "'/>";
 					//result += this.name + " @" + this.screenName + "<br>";
-				});
-				alert("YO");
+				});				
+				if (tweet.find('.retweetCount').val() > 10) {
+					result += " + " + (tweet.find('.retweetCount').val()-10) + " more";
+				}
 				if (!result) {
 					$("#retweetsFor" + tweetId).html("No retweets!");
 				} else {

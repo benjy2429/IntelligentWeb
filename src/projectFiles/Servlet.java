@@ -186,11 +186,10 @@ public class Servlet extends HttpServlet {
     			} catch ( NumberFormatException nfe ) {
     				System.out.println( "WARNING: Invalid days parameter, defaulting to 0 (live stream)" );
     			}
-
     			User user = query.getTwitterUser( request.getParameter("username") );
     			json = gson.toJson( user );
     			json += "\n";
-    			List<Checkin> result = query.getUserVenues( request.getParameter("username"), days );
+    			List<CompleteVenue> result = query.getUserVenues( user.getScreenName(), days );
     			json += gson.toJson( result );
     		} catch ( TwitterException te ) {
     			json = gson.toJson(te.getErrorMessage() );

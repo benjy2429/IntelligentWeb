@@ -13,12 +13,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import exceptions.FileException;
-import fi.foyt.foursquare.api.FoursquareApi;
-import fi.foyt.foursquare.api.FoursquareApiException;
-import fi.foyt.foursquare.api.Result;
-import fi.foyt.foursquare.api.entities.Checkin;
-import fi.foyt.foursquare.api.entities.CompactVenue;
-import fi.foyt.foursquare.api.entities.VenuesSearchResult;
+import fi.foyt.foursquare.api.*;
+import fi.foyt.foursquare.api.entities.*;
 import twitter4j.*;
 
 public class Queries {
@@ -223,8 +219,8 @@ public class Queries {
 	 * @param days - Days in the past to search for checkins (0 uses live streaming)
 	 * @return List of Checkins also containing venue information
 	 */
-	public List<Checkin> getUserVenues(String username, int days) throws Exception, TwitterException, FoursquareApiException { //TODO Use twitter streaming api if days==0
-		List<Checkin> resultList = new LinkedList<Checkin>();
+	public List<CompleteVenue> getUserVenues(String username, int days) throws Exception, TwitterException, FoursquareApiException { //TODO Use twitter streaming api if days==0
+		List<CompleteVenue> resultList = new LinkedList<CompleteVenue>();
 		
 		// Calculate date minus days parameter
 		Calendar cal = Calendar.getInstance();
@@ -247,9 +243,13 @@ public class Queries {
 					
 					// Get venue data from foursquare checkin
 					if (fsResult.getMeta().getCode() == 200) {
-						//CompactVenue venue = fsResult.getResult().getVenue();
-						//resultString += venue.getName() + ", " + venue.getLocation().getCity() + " (" + url.getExpandedURL() + ")<br>"; //TODO return more venue information
-						resultList.add( fsResult.getResult() );
+						//resultList.add( fsResult.getResult() );
+						
+						Result<CompleteVenue> venues = foursquare.venue( fsResult.getResult().getVenue().getId() );
+						
+						if (venues.getMeta().getCode() == 200) {
+							resultList.add( venues.getResult() );
+						}
 					}
 				} catch (Exception e) {
 					//URL does not match 4sq.com

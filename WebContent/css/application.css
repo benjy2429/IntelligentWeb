@@ -75,6 +75,14 @@ body {
 	font-weight: bold;
 }
 
+.tweetStats {
+	color: #bbb;
+}
+
+.getRetweets {
+	margin-left: 5px;
+}
+
 .wordRank {
 	width:60px;
 	height:60px;
