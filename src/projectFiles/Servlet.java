@@ -15,6 +15,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import projectFiles.Queries.Term;
+
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 
@@ -160,14 +162,11 @@ public class Servlet extends HttpServlet {
 				//users.add("Channel4News");
 				//users.add("itvnews");
 
-				String result = "";
-				List<String> frequentTerms;
+				List<Term> frequentTerms;
 				frequentTerms = query.getDiscussedTopics( users, keywords, days );
-				for(String frequentTerm : frequentTerms){
-					result += frequentTerm + "<br/>";
-				}
-				json = gson.toJson(result);				
-				
+				json = gson.toJson(frequentTerms);		
+				json += "\n";
+				json += gson.toJson(query.getTwitterUsers(users));
 			} catch (TwitterException e) {
 				json = gson.toJson("Error communicating with Twitter");
 				e.printStackTrace();
