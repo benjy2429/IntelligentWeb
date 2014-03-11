@@ -72,7 +72,7 @@ $(window).load(function() {
 					result += "<a href='' class='viewUserCounts'>See individual user counts</a>";
 					result += "</div>";
 					result += "<div class='userCounts'>";
-					$.each( this.userCounts , function() {
+					$.each( this.userCounts , function() { 
 						var screenName = this.t;
 						var i = 0;
 						var index = -1;
