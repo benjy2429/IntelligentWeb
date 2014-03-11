@@ -90,8 +90,6 @@ $(window).load(function() {
 				var json = data.split("\n");
 				var result = "";
 				
-		$("body").append(json[1]);
-				
 				// Twitter user info
 				var user = JSON.parse(json[0]);
 				result += "<div class='tweet'>";
@@ -99,7 +97,7 @@ $(window).load(function() {
 				result += "<div class='tweetContent'><div class='tweetUser'>" + user.name + "</div>(@" + user.screenName + ")</div>";
 				result += "</div>";
 				
-				// Checkins
+				// Venues
 				data = JSON.parse(json[1]);
 				$("#map-canvas").show();
 				//$("dynamicText").html("<div id='map-canvas'></div>");
@@ -107,14 +105,14 @@ $(window).load(function() {
 				var bounds = new google.maps.LatLngBounds();
 				
 				$.each( data, function() {
-					var d = new Date(0);
-					d.setSeconds(this.createdAt);
-					//result += d.toUTCString();
 					result += "<div class='venue'>";
-					result += "<img class='venueImg' src='" + "'/>";
+					result += (this.photos.groups[1].items.length > 0) ? "<img class='venueImg' src='" + this.photos.groups[1].items[0].url + "'/>" : "";
 					result += "<div class='venueContent'>";
 					result += "<span class='venueName'>" + this.name + ", </span>";
-					result += this.location.address + ", " + this.location.city + "<br>";
+					result += (this.location.address) ? this.location.address : "";
+					result += (this.location.address && this.location.city) ? ", " : "";
+					result += (this.location.city) ? this.location.city : "";
+					result += "<br>";
 					
 					var categories = [];
 					$.each( this.categories, function() {
@@ -122,7 +120,7 @@ $(window).load(function() {
 					});
 					result += categories.join(", ") + "<br>";
 					result += (this.url) ? "<a href='" + this.url + "'>" + this.url + "</a><br>" : "";
-					result += (this.description) ? this.description : "No description available";
+					result += (this.description) ? this.description : "";
 					result += "</div>";
 					result += "</div>";
 					
