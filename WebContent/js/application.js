@@ -20,36 +20,39 @@ $(window).load(function() {
 				var tweets = JSON.parse(json[1]);
 
 				var result = "";
-				var i = 0;
-				$.each( tweets , function() {
-					result += "<div class='tweet'>";
-					result += "<form class='retweetersForm'><input type='hidden' name='formId' value='retweetersForm'>";
-					result += "<input type='hidden' class='tweetId' name='tweetId' value='" + tweetIds[i] + "'>";
-					result += "<input type='hidden' class='retweetCount' name='retweetCount' value='" + this.retweetCount + "'></form>";
-					result += "<img class='tweetImg' src='" + this.user.profileImageUrl + "'/>";
-					result += "<div class='tweetContent'>";
-					result += "<div class='tweetUser'>" + this.user.name + " (@<span class='tweetScreenName'>" + this.user.screenName + "</span>)</div>";
-					result += "<div class='tweetText'>" + this.text + "</div>";
-					result += "<div class='tweetStats'>" + this.createdAt + " ";
-					result += "<span class='glyphicon glyphicon-star' title='Favourites' style='margin-left:10px;'></span> " + this.favoriteCount + " ";
-					result += "<span class='glyphicon glyphicon-retweet' title='Retweets' style='margin:0 5px 0 10px;'></span> ";
-					if ($.isEmptyObject(this.retweetedStatus) && this.retweetCount > 0) {
-						result += "<span class='retweets' id='retweetsFor" + tweetIds[i] + "'>" + this.retweetCount + " <a href='#' class='getRetweets'>See who retweeted this</a></span>";
-					} else {
-						result += "0";
-					}
-					result += "</div>";
-					result += "</div>";
-					result += "</div>";
-					i++;
-				});
-				$("#dynamicText").html(result);
 				
-				/*
-				$(".tweet").click(function() {
-					alert( this.find(".tweetScreenName").text() );
-				});
-				*/
+				if (tweetIds.length > 0 && tweets.length > 0) {
+					
+					var i = 0;
+					$.each( tweets , function() {
+						result += "<div class='tweet'>";
+						result += "<form class='retweetersForm'><input type='hidden' name='formId' value='retweetersForm'>";
+						result += "<input type='hidden' class='tweetId' name='tweetId' value='" + tweetIds[i] + "'>";
+						result += "<input type='hidden' class='retweetCount' name='retweetCount' value='" + this.retweetCount + "'></form>";
+						result += "<img class='tweetImg' src='" + this.user.profileImageUrl + "'/>";
+						result += "<div class='tweetContent'>";
+						result += "<div class='tweetUser'>" + this.user.name + " (@<span class='tweetScreenName'>" + this.user.screenName + "</span>)</div>";
+						result += "<div class='tweetText'>" + this.text + "</div>";
+						result += "<div class='tweetStats'>" + this.createdAt + " ";
+						result += "<span class='glyphicon glyphicon-star' title='Favourites' style='margin-left:10px;'></span> " + this.favoriteCount + " ";
+						result += "<span class='glyphicon glyphicon-retweet' title='Retweets' style='margin:0 5px 0 10px;'></span> ";
+						if ($.isEmptyObject(this.retweetedStatus) && this.retweetCount > 0) {
+							result += "<span class='retweets' id='retweetsFor" + tweetIds[i] + "'>" + this.retweetCount + " <a href='#' class='getRetweets'>See who retweeted this</a></span>";
+						} else {
+							result += "0";
+						}
+						result += "</div>";
+						result += "</div>";
+						result += "</div>";
+						i++;
+					});
+					
+				} else {
+					result += "No matching tweets found. Try searching for a different term, or increasing the location radius."
+				}
+
+				$("#dynamicText").html(result);
+
 			},
 			error: function(xhr,textStatus,errorThrown){
 				$("#dynamicText").html(errorThrown);
@@ -87,6 +90,8 @@ $(window).load(function() {
 				var json = data.split("\n");
 				var result = "";
 				
+		$("body").append(json[1]);
+				
 				// Twitter user info
 				var user = JSON.parse(json[0]);
 				result += "<div class='tweet'>";
@@ -97,6 +102,7 @@ $(window).load(function() {
 				// Checkins
 				data = JSON.parse(json[1]);
 				$("#map-canvas").show();
+				//$("dynamicText").html("<div id='map-canvas'></div>");
 				var map = new google.maps.Map(document.getElementById("map-canvas"), {mapTypeId: google.maps.MapTypeId.ROADMAP});
 				var bounds = new google.maps.LatLngBounds();
 				
@@ -107,31 +113,28 @@ $(window).load(function() {
 					result += "<div class='venue'>";
 					result += "<img class='venueImg' src='" + "'/>";
 					result += "<div class='venueContent'>";
-					result += "<span class='venueName'>" + this.venue.name + ", </span>";
-					result += this.venue.location.address + ", " + this.venue.location.city + "<br>";
+					result += "<span class='venueName'>" + this.name + ", </span>";
+					result += this.location.address + ", " + this.location.city + "<br>";
 					
 					var categories = [];
-					$.each( this.venue.categories, function() {
+					$.each( this.categories, function() {
 						categories.push( "<img src='" + this.icon + "' height='15' style='vertical-align:text-top' /> " + this.name );
 					});
 					result += categories.join(", ") + "<br>";
-					result += (this.venue.url) ? "<a href='" + this.venue.url + "'>" + this.venue.url + "</a><br>" : "";
-					result += (this.venue.description) ? this.venue.description : "No description available"; //TODO Get complete venue object for description
+					result += (this.url) ? "<a href='" + this.url + "'>" + this.url + "</a><br>" : "";
+					result += (this.description) ? this.description : "No description available";
 					result += "</div>";
 					result += "</div>";
 					
 			        var marker = new google.maps.Marker({
-			            position: new google.maps.LatLng(this.venue.location.lat, this.venue.location.lng),
+			            position: new google.maps.LatLng(this.location.lat, this.location.lng),
 			            map: map,
-			            title: this.venue.name
+			            title: this.name
 			        });
 			        
 			        var infowindow = new google.maps.InfoWindow({
-			        	content: "<div class='mapInfobox'><b>" + this.venue.name + "</b><br>"
-			        		+ this.venue.location.address + ", " + this.venue.location.city + "<br>"
-			        		+ "<span style='color:#aaa'>" + d.toUTCString() + "</span><br><br>"
-			        		+ "<img src='" + this.user.photo + "' width='50' /> "
-			        		+ "\"" + this.shout + "\""
+			        	content: "<div class='mapInfobox'><b>" + this.name + "</b><br>"
+			        		+ this.location.address + ", " + this.location.city
 			        		+ "</div>"
 		        	});
 			        
@@ -195,7 +198,5 @@ $(window).load(function() {
 		e.preventDefault();
 		
 	});	
-	
-	$("body").append('<span class="glyphicon glyphicon-search"></span>');
 	
 });
