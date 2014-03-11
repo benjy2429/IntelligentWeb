@@ -20,28 +20,37 @@ $(window).load(function() {
 				var tweets = JSON.parse(json[1]);
 
 				var result = "";
-				var i = 0;
-				$.each( tweets , function() {
-					result += "<div class='tweet'>";
-					result += "<form class='retweetersForm'><input type='hidden' name='formId' value='retweetersForm'>";
-					result += "<input type='hidden' class='tweetId' name='tweetId' value='" + tweetIds[i] + "'></form>";
-					result += "<img class='tweetImg' src='" + this.user.profileImageUrl + "'/>";
-					result += "<div class='tweetContent'>";
-					result += "<div class='tweetUser'>" + this.user.name + " (@<span class='tweetScreenName'>" + this.user.screenName + "</span>)</div>";
-					result += "<div class='tweetText'>" + this.text + "</div>";
-					result += "<a href='' class='retweets'>See who retweeted this</a>";
-					result += "</div>";
-					result += "<div id='retweetsFor" + tweetIds[i] + "'></div>";
-					result += "</div>";
-					i++;
-				});
+				if (tweetIds.length > 0 && tweets.length > 0) {
+					
+					var i = 0;
+					$.each( tweets , function() {
+						result += "<div class='tweet'>";
+						result += "<form class='retweetersForm'><input type='hidden' name='formId' value='retweetersForm'>";
+						result += "<input type='hidden' class='tweetId' name='tweetId' value='" + tweetIds[i] + "'>";
+						result += "<input type='hidden' class='retweetCount' name='retweetCount' value='" + this.retweetCount + "'></form>";
+						result += "<img class='tweetImg' src='" + this.user.profileImageUrl + "'/>";
+						result += "<div class='tweetContent'>";
+						result += "<div class='tweetUser'>" + this.user.name + " (@<span class='tweetScreenName'>" + this.user.screenName + "</span>)</div>";
+						result += "<div class='tweetText'>" + this.text + "</div>";
+						result += "<div class='tweetStats'>" + this.createdAt + " ";
+						result += "<span class='glyphicon glyphicon-star' title='Favourites' style='margin-left:10px;'></span> " + this.favoriteCount + " ";
+						result += "<span class='glyphicon glyphicon-retweet' title='Retweets' style='margin:0 5px 0 10px;'></span> ";
+						if ($.isEmptyObject(this.retweetedStatus) && this.retweetCount > 0) {
+							result += "<span class='retweets' id='retweetsFor" + tweetIds[i] + "'>" + this.retweetCount + " <a href='#' class='getRetweets'>See who retweeted this</a></span>";
+						} else {
+							result += "0";
+						}
+						result += "</div>";
+						result += "</div>";
+						result += "</div>";
+						i++;
+					});
+					
+				} else {
+					result += "No matching tweets found. Try searching for a different term, or increasing the location radius."
+				}
+
 				$("#dynamicText").html(result);
-				
-				/*
-				$(".tweet").click(function() {
-					alert( this.find(".tweetScreenName").text() );
-				});
-				*/
 			},
 			error: function(xhr,textStatus,errorThrown){
 				$("#dynamicText").html(errorThrown);
@@ -77,14 +86,13 @@ $(window).load(function() {
 						var i = 0;
 						var index = -1;
 						$.each( userObjects , function() {
-							if(this.screenName.toLowerCase() == screenName){
+							if(this.screenName.toLowerCase() == screenName.toLowerCase()){
 								index = i;
 							}
 							i++;
 						});
 						if (index > -1){
 							var user = userObjects[index];
-							alert(user);
 							result +=  user.name + " (@<span class='tweetScreenName'>" + user.screenName + "</span>) : " + this.u + "<br/>";
 						}
 					});
@@ -128,44 +136,30 @@ $(window).load(function() {
 					result += "<div class='venue'>";
 					result += (this.photos.groups[1].items.length > 0) ? "<img class='venueImg' src='" + this.photos.groups[1].items[0].url + "'/>" : "";
 					result += "<div class='venueContent'>";
-<<<<<<< HEAD
 					result += "<span class='venueName'>" + this.name + ", </span>";
 					result += (this.location.address) ? this.location.address : "";
 					result += (this.location.address && this.location.city) ? ", " : "";
 					result += (this.location.city) ? this.location.city : "";
-					result += "<br>";
-=======
-					result += "<span class='venueName'>" + this.venue.name + ", </span>";
-					result += this.venue.location.address + ", " + this.venue.location.city + "<br>";
->>>>>>> branch 'master' of https://github.com/benjy2429/IntelligentWebAssignment.git
-					
+					result += "<br>";			
 					var categories = [];
-					$.each( this.venue.categories, function() {
+					$.each( this.categories, function() {
 						categories.push( "<img src='" + this.icon + "' height='15' style='vertical-align:text-top' /> " + this.name );
 					});
 					result += categories.join(", ") + "<br>";
-<<<<<<< HEAD
 					result += (this.url) ? "<a href='" + this.url + "'>" + this.url + "</a><br>" : "";
 					result += (this.description) ? this.description : "";
-=======
-					result += (this.venue.url) ? "<a href='" + this.venue.url + "'>" + this.venue.url + "</a><br>" : "";
-					result += (this.venue.description) ? this.venue.description : "No description available"; //TODO Get complete venue object for description
->>>>>>> branch 'master' of https://github.com/benjy2429/IntelligentWebAssignment.git
 					result += "</div>";
 					result += "</div>";
 					
 			        var marker = new google.maps.Marker({
-			            position: new google.maps.LatLng(this.venue.location.lat, this.venue.location.lng),
+			            position: new google.maps.LatLng(this.location.lat, this.location.lng),
 			            map: map,
-			            title: this.venue.name
+			            title: this.name
 			        });
 			        
 			        var infowindow = new google.maps.InfoWindow({
-			        	content: "<div class='mapInfobox'><b>" + this.venue.name + "</b><br>"
-			        		+ this.venue.location.address + ", " + this.venue.location.city + "<br>"
-			        		+ "<span style='color:#aaa'>" + d.toUTCString() + "</span><br><br>"
-			        		+ "<img src='" + this.user.photo + "' width='50' /> "
-			        		+ "\"" + this.shout + "\""
+			        	content: "<div class='mapInfobox'><b>" + this.name + "</b><br>"
+			        		+ this.location.address + ", " + this.location.city
 			        		+ "</div>"
 		        	});
 			        
@@ -190,9 +184,10 @@ $(window).load(function() {
 		loadXMLDoc(parameters);
 	});
 	
-	$(".results").on('click', '.retweets', function(e) {	
-		var tweet = $(this).parent().parent();
+	$(".results").on('click', '.getRetweets', function(e) {
+		var tweet = $(this).parent().parent().parent().parent();
 		var tweetId = tweet.find('.tweetId').val();
+		$("#retweetsFor" + tweetId).html("Loading..");
 
 		$.ajax({
 			url: 'Servlet',
@@ -201,9 +196,9 @@ $(window).load(function() {
 			data: tweet.find('.retweetersForm').serialize(),
 			success: function(data){
 				
-				var result = "";
+				var result = " ";
 				$.each( JSON.parse(data), function() {
-					result += "<img class='tweetImgSmall' src='" + this.profileImageUrl + "'/>";
+					result += "<a href='#' data-toggle='tooltip' title='" + this.name + "'><img class='tweetImgSmall' src='" + this.profileImageUrl + "'/></a>";
 					//result += this.name + " @" + this.screenName + "<br>";
 				});				
 				if (tweet.find('.retweetCount').val() > 10) {
@@ -214,6 +209,7 @@ $(window).load(function() {
 				} else {
 					$("#retweetsFor" + tweetId).html(result);
 				}
+				$("[data-toggle='tooltip']").tooltip({ placement: 'bottom' });
 
 			},
 			error: function(xhr,textStatus,errorThrown){
