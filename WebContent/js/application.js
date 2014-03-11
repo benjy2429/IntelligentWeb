@@ -121,9 +121,12 @@ $(window).load(function() {
 				
 				// Twitter user info
 				var user = JSON.parse(json[0]);
-				result += "<div class='tweet'>";
-				result += "<img src='" + user.profileImageUrl + "' class='tweetImg' />";
-				result += "<div class='tweetContent'><div class='tweetUser'>" + user.name + "</div>(@" + user.screenName + ")</div>";
+				result += "<div class='tweet' style=''>";
+				result += "<img class='tweetImg' src='" + user.profileImageUrl + "' />";
+				result += "<div class='tweetContent'>";
+				result += "<h2 style='margin:0;'>" + user.name + "'s Latest Foursquare Check-ins</h2>";
+				result += "@" + user.screenName;
+				result += "</div>";
 				result += "</div>";
 				
 				// Venues
