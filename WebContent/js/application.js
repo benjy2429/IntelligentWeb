@@ -24,14 +24,22 @@ $(window).load(function() {
 				$.each( tweets , function() {
 					result += "<div class='tweet'>";
 					result += "<form class='retweetersForm'><input type='hidden' name='formId' value='retweetersForm'>";
-					result += "<input type='hidden' class='tweetId' name='tweetId' value='" + tweetIds[i] + "'></form>";
+					result += "<input type='hidden' class='tweetId' name='tweetId' value='" + tweetIds[i] + "'>";
+					result += "<input type='hidden' class='retweetCount' name='retweetCount' value='" + this.retweetCount + "'></form>";
 					result += "<img class='tweetImg' src='" + this.user.profileImageUrl + "'/>";
 					result += "<div class='tweetContent'>";
 					result += "<div class='tweetUser'>" + this.user.name + " (@<span class='tweetScreenName'>" + this.user.screenName + "</span>)</div>";
 					result += "<div class='tweetText'>" + this.text + "</div>";
-					result += "<a href='' class='retweets'>See who retweeted this</a>";
+					result += "<div class='tweetStats'>" + this.createdAt + " ";
+					result += "<span class='glyphicon glyphicon-star' title='Favourites' style='margin-left:10px;'></span> " + this.favoriteCount + " ";
+					result += "<span class='glyphicon glyphicon-retweet' title='Retweets' style='margin:0 5px 0 10px;'></span> ";
+					if ($.isEmptyObject(this.retweetedStatus) && this.retweetCount > 0) {
+						result += "<span class='retweets' id='retweetsFor" + tweetIds[i] + "'>" + this.retweetCount + " <a href='#' class='getRetweets'>See who retweeted this</a></span>";
+					} else {
+						result += "0";
+					}
 					result += "</div>";
-					result += "<div id='retweetsFor" + tweetIds[i] + "'></div>";
+					result += "</div>";
 					result += "</div>";
 					i++;
 				});
@@ -148,9 +156,11 @@ $(window).load(function() {
 		loadXMLDoc(parameters);
 	});
 	
-	$(".results").on('click', '.retweets', function(e) {	
-		var tweet = $(this).parent().parent();
+	$(".results").on('click', '.getRetweets', function(e) {
+		var tweet = $(this).parent().parent().parent().parent();
 		var tweetId = tweet.find('.tweetId').val();
+		
+		$("#retweetsFor" + tweetId).html("Loading..");
 
 		$.ajax({
 			url: 'Servlet',
@@ -158,18 +168,23 @@ $(window).load(function() {
 			datatype: 'json',
 			data: tweet.find('.retweetersForm').serialize(),
 			success: function(data){
-				
-				var result = "";
+				var result = " ";
 				$.each( JSON.parse(data), function() {
-					result += "<img class='tweetImgSmall' src='" + this.profileImageUrl + "'/>";
+					result += "<a href='#' data-toggle='tooltip' title='" + this.name + "'><img class='tweetImgSmall' src='" + this.profileImageUrl + "'/></a>";
 					//result += this.name + " @" + this.screenName + "<br>";
 				});
-
+				
+				if (tweet.find('.retweetCount').val() > 10) {
+					result += " + " + (tweet.find('.retweetCount').val()-10) + " more";
+				}
+				
 				if (!result) {
 					$("#retweetsFor" + tweetId).html("No retweets!");
 				} else {
 					$("#retweetsFor" + tweetId).html(result);
 				}
+				
+				$("[data-toggle='tooltip']").tooltip({ placement: 'bottom' });
 
 			},
 			error: function(xhr,textStatus,errorThrown){
@@ -179,6 +194,8 @@ $(window).load(function() {
 		
 		e.preventDefault();
 		
-	});
+	});	
+	
+	$("body").append('<span class="glyphicon glyphicon-search"></span>');
 	
 });

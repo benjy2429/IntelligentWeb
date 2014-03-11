@@ -48,10 +48,9 @@ body {
 }
 
 .tweet {
-	min-height: 70px;
-	padding: 10px;
-	margin-bottom: 10px;
-	cursor: pointer;
+	min-height: 100px;
+	padding: 20px 10px;
+	border-bottom: 1px solid #e7e7e7;
 }
 
 .tweet:hover {
@@ -59,12 +58,19 @@ body {
 }
 
 .tweetImg {
-	height: 50px;
+	height: 60px;
 	float: left;
 }
 
 .tweetImgSmall {
-	height: 30px;
+	height: 20px;
+	padding-right: 3px;
+	opacity: 0.5;
+	vertical-align: top;
+}
+
+.tweetImgSmall:hover {
+	opacity: 1;
 }
 
 .tweetContent {
@@ -73,6 +79,14 @@ body {
 
 .tweetUser {
 	font-weight: bold;
+}
+
+.tweetStats {
+	color: #bbb;
+}
+
+.getRetweets {
+	margin-left: 5px;
 }
 
 .venue {
