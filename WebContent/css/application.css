@@ -47,14 +47,14 @@ body {
 	padding-right: 50px;
 }
 
-.tweet {
+.tweet, .frequentWord {
 	min-height: 70px;
 	padding: 10px;
 	margin-bottom: 10px;
 	cursor: pointer;
 }
 
-.tweet:hover {
+.tweet:hover, .frequentWord:hover{
 	background-color: #f4f8f9;
 }
 
@@ -73,6 +73,17 @@ body {
 
 .tweetUser {
 	font-weight: bold;
+}
+
+.wordRank {
+	width:60px;
+	height:60px;
+	float: left;
+	font-size: 50px;
+}
+
+.userCounts{
+	display: none;
 }
 
 .venue {

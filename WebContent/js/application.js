@@ -59,7 +59,39 @@ $(window).load(function() {
 			datatype: 'json',
 			data: $('#form2').serialize(),
 			success: function(data){
-				$("#dynamicText").html( JSON.parse(data) );
+				var json = data.split("\n");
+				var terms = JSON.parse(json[0]);
+				var userObjects = JSON.parse(json[1]);
+				var result = "";
+				$.each( terms , function() {
+					result += "<div class='frequentWord'>";
+					result += "<div class='wordRank'>" + this.rank +".</div>";
+					result += "<div class='termStats'>";
+					result += "<div class='term'>Term: " + this.term  + "</div>";
+					result += "<div class='termCount'>Number of occurances: " + this.totalCount + "</div>";
+					result += "<a href='' class='viewUserCounts'>See individual user counts</a>";
+					result += "</div>";
+					result += "<div class='userCounts'>";
+					$.each( this.userCounts , function() {
+						var screenName = this.t;
+						var i = 0;
+						var index = -1;
+						$.each( userObjects , function() {
+							if(this.screenName.toLowerCase() == screenName){
+								index = i;
+							}
+							i++;
+						});
+						if (index > -1){
+							var user = userObjects[index];
+							alert(user);
+							result +=  user.name + " (@<span class='tweetScreenName'>" + user.screenName + "</span>) : " + this.u + "<br/>";
+						}
+					});
+					result += "</div>";
+					result += "</div>";
+				});
+				$("#dynamicText").html( result );
 			},
 			error: function(jqXHR,textStatus,errorThrown){
 				$("#dynamicText").html(errorThrown);
@@ -164,7 +196,7 @@ $(window).load(function() {
 					result += "<img class='tweetImgSmall' src='" + this.profileImageUrl + "'/>";
 					//result += this.name + " @" + this.screenName + "<br>";
 				});
-
+				alert("YO");
 				if (!result) {
 					$("#retweetsFor" + tweetId).html("No retweets!");
 				} else {
@@ -179,6 +211,19 @@ $(window).load(function() {
 		
 		e.preventDefault();
 		
+	});
+	
+	$(".results").on('click', '.viewUserCounts', function(e) {	
+		var link = $(this);
+		var frequentWord = link.parent().parent();
+		frequentWord.find('.userCounts').slideToggle(300, function() {
+	        if (link.is(':visible')) {
+	             link.text("Hide individual user counts");                
+	        } else {
+	             link.text("See individual user counts");                
+	        }
+		});
+		e.preventDefault();
 	});
 	
 });

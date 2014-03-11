@@ -52,6 +52,10 @@ public class Queries {
 		return twitter.showUser(username);
 	}
 
+	public List<User> getTwitterUsers(List<String> users) throws TwitterException {
+		String[] userNamesArray = new String[users.size()];
+		return twitter.lookupUsers(users.toArray(userNamesArray));
+	}
 	
 	// 1. Tracking public discussions on specific topics
 	/** 
@@ -119,17 +123,7 @@ public class Queries {
 	 * @throws TwitterException - An error relating to the use of the twitter API
 	 * @throws FileException - An error that has occurred as a result of accessing files on the server
 	 */
-	public LinkedList<String> getDiscussedTopics(LinkedList<String> users, int termsDesired, int daySpan) throws FileException, TwitterException {
-		//Define a tuple for use in storing counts about keywords
-		class Pair<T, U> {         
-			public final T t;
-			public final U u;
-
-			public Pair(T t, U u) {         
-				this.t= t;
-				this.u= u;
-			}
-		}
+	public LinkedList<Term> getDiscussedTopics(LinkedList<String> users, int termsDesired, int daySpan) throws FileException, TwitterException {
 		//Calculate the date "daySpan" days ago
 		Calendar cal = Calendar.getInstance();
 		cal.add( Calendar.DAY_OF_YEAR, -daySpan);
@@ -191,9 +185,9 @@ public class Queries {
 					result=twitter.search(query);
 				}
 			}
-		}
+		}		
 		//All the words have been appropriately added to the data structure so now we find the most frequent terms
-		LinkedList<String> frequentTerms = new LinkedList<String>();
+		LinkedList<Term> frequentTerms = new LinkedList<Term>();
 		//For as many words as needed, the most used word is obtained, utilised then removed so the next most frequent can be obtained
 		for(int i=0; i<termsDesired;i++){
 			String mostCommonWord = "";
@@ -207,12 +201,14 @@ public class Queries {
 			}
 			//If there are less terms than desired then we dont need to try and generate a string for null data
 			if(!mostCommonWord.equals("")){
-				String newString = (i+1) +". " + mostCommonWord + " - Total count: " + highestCount + " {";
+				Term newTerm = new Term();
+				newTerm.rank = i+1;
+				newTerm.term = mostCommonWord;
+				newTerm.totalCount = highestCount;
 				for (Entry<String, Integer> userCountEntry : termUserMap.get(mostCommonWord).u.entrySet()) {
-					newString += " " + userCountEntry.getKey() + ":" + userCountEntry.getValue();
+					newTerm.userCounts.add(new Pair<String,Integer>(userCountEntry.getKey(), userCountEntry.getValue()));
 				}
-				newString += " }";
-				frequentTerms.add(newString);
+				frequentTerms.add(newTerm);
 			}
 			termUserMap.remove(mostCommonWord);
 		}
@@ -335,5 +331,24 @@ public class Queries {
 		}
 		
 		return resultString;
+	}
+	
+	
+	//Define a tuple for use in storing counts about keywords
+	class Pair<T, U> {         
+		public final T t;
+		public final U u;
+
+		public Pair(T t, U u) {         
+			this.t= t;
+			this.u= u;
+		}
+	}
+	
+	class Term{
+		public int rank;
+		public String term;
+		public int totalCount;
+		public LinkedList<Pair<String,Integer>> userCounts = new LinkedList<Pair<String,Integer>>();
 	}
 }
