@@ -164,7 +164,7 @@ $(window).load(function() {
 					result += "<img class='tweetImgSmall' src='" + this.profileImageUrl + "'/>";
 					//result += this.name + " @" + this.screenName + "<br>";
 				});
-				alert("Hi Ben!");
+
 				if (!result) {
 					$("#retweetsFor" + tweetId).html("No retweets!");
 				} else {
