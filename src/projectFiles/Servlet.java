@@ -1,0 +1,212 @@
+package projectFiles;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import com.google.gson.*;
+import com.google.gson.reflect.TypeToken;
+
+import twitter4j.*;
+import twitter4j.conf.*;
+import exceptions.*;
+import fi.foyt.foursquare.api.*;
+import fi.foyt.foursquare.api.entities.*;
+
+/**
+ * Servlet implementation class Queries
+ */
+public class Servlet extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+       
+	/** 
+	 * confTwitter provides the oAuth configuration settings for a Twitter connection
+	 * @return ConfigurationBuilder
+	 */
+	private ConfigurationBuilder confTwitter() {
+		String consumerKey = "VyRPGrHFjTPxJlDuB0HkA";
+		String consumerSecret = "DXTnfQbFupg9HQS1PQQwx09u43nZu2zbKH3ruFbuoc";
+		String accessToken = "2365733802-3yvuA54Jpbfik236KWfJaKwfJcpzAuALWAoQBF3";
+		String accessTokenSecret = "MMfdUr2zuBeXxeoRf1GFcsj2pOxYfXdhheogV34D6xrbt";
+		ConfigurationBuilder cb = new ConfigurationBuilder();
+		cb.setDebugEnabled(true)
+		.setOAuthConsumerKey(consumerKey)
+		.setOAuthConsumerSecret(consumerSecret)
+		.setOAuthAccessToken(accessToken)
+		.setOAuthAccessTokenSecret(accessTokenSecret)
+		.setJSONStoreEnabled(true);	
+		return cb;
+	}
+    
+	/** 
+	 * initTwitter provides a TwitterAPI connection
+	 * @return TwitterFactory
+	 */
+	private Twitter initTwitter() throws TwitterException{
+		return (new TwitterFactory(confTwitter().build()).getInstance());
+	}
+	
+	/**
+	 * initTwitterStream provides a TwitterStreamAPI connection
+	 * @return TwitterStreamFactory
+	 * @throws Exception
+	 */
+	private TwitterStream initTwitterStream() throws TwitterException{
+		return (new TwitterStreamFactory(confTwitter().build()).getInstance());
+	}
+	
+	/**
+	 * initFoursquare provides a connection to Foursquare
+	 * @return FoursquareApi
+	 * @throws Exception
+	 */
+	private FoursquareApi initFoursquare() throws FoursquareApiException {
+		String clientId = "4QG35KZ2EGKKO4QD3F5TJ1UPA13Y5FZUNK1HLKKAXTLG52KU";
+		String clientSecret = "WVKWQA031AG1USNFX0I5WULNQ2X3ZPHX0BEG52KGJCIBDU1F";
+		String redirectUrl = "http://lukeheavens.co.uk/"; 
+		FoursquareApi fs = new FoursquareApi( clientId, clientSecret, redirectUrl );
+		fs.setoAuthToken( "1R2QORAMBVJ3SS0MTCGG1FUROFW0MFPMKXB5HHOQUJLQ3JWL" );
+		return fs;
+	}
+
+
+	
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		response.setContentType("text/html");
+		ServletContext context = getServletContext();
+		RequestDispatcher rd = context.getRequestDispatcher("/queryInterface.html");
+		rd.forward(request, response);
+	}
+	
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		PrintWriter out = response.getWriter();		
+    	String formId = request.getParameter("formId");    	
+    	Gson gson = new Gson();
+    	String json = "";
+    	    	if(formId.equals("topicForm")){
+    		try {
+    			Queries query = new Queries( initTwitter() );
+
+    			Double lat, lon, radius;
+    			try {
+    				lat = Double.parseDouble( request.getParameter("lat") );
+    				lon = Double.parseDouble( request.getParameter("lon") );
+    				radius = Double.parseDouble( request.getParameter("radius") );
+    			} catch ( NumberFormatException nfe ) {
+    				System.out.println( "WARNING: Invalid location parameters, performing query without geolocation data" );
+    				lat = Double.NaN;
+    				lon = Double.NaN;
+    				radius = Double.NaN;
+    			}
+
+    			List<Status> result = query.getTrendingTweets( request.getParameter("query"), lat, lon, radius );
+    			//Have to parse ids as string and send them separately as twitter4j does not support the id_str parameter and javascript cannot handle type long
+    			ArrayList<String> tweetIds = new ArrayList<String>();
+    			for(Status status : result) {
+    				tweetIds.add(String.valueOf(status.getId()));
+    			}
+    			json = gson.toJson( tweetIds );
+    			json += "\n";
+    			json += gson.toJson( result );
+    		} catch ( TwitterException te ) {
+    			json = gson.toJson( te.getErrorMessage() );
+    		}
+    		
+    	} else if (formId.equals("retweetersForm")){
+    		try {
+    			Queries query = new Queries(initTwitter());
+    			long tweetId = Long.parseLong( request.getParameter("tweetId") );
+    			List<User> retweeters = query.getRetweeters(tweetId);
+        		json = gson.toJson(retweeters);
+    		} catch (TwitterException te) {
+    			json = gson.toJson( te.getErrorMessage() );
+    			System.out.println( te.getStatusCode() + te.getErrorMessage() + te.getStackTrace().toString());
+    		} catch (NumberFormatException nfe) {
+    			json = gson.toJson( nfe.getMessage() );
+    		} catch (Exception e) {
+    			json = gson.toJson( e.getMessage() );
+    		}
+
+    		
+    	} else if (formId.equals("discussionForm")){
+			try {
+        		Queries query = new Queries(initTwitter()); 
+				LinkedList<String> users = new LinkedList<String>( Arrays.asList( request.getParameter("users").split(" ") ) );
+				
+				int keywords = Integer.parseInt( request.getParameter("keywords") );
+				int days = Integer.parseInt( request.getParameter("days") );
+    						
+				//users.add("Science_Factoid");
+				//users.add("CathalSheridan");
+				//users.add("twalsh92");
+				//users.add("Sarah_Falconer");
+				//users.add("Jonomnom");
+				//users.add("thomasdeanwhite");
+				//users.add("chloe100893");
+				//users.add("luke_heavens");
+				
+				//users.add("BBCBreaking");
+				//users.add("Channel4News");
+				//users.add("itvnews");
+
+				String result = "";
+				List<String> frequentTerms;
+				frequentTerms = query.getDiscussedTopics( users, keywords, days );
+				for(String frequentTerm : frequentTerms){
+					result += frequentTerm + "<br/>";
+				}
+				json = gson.toJson(result);				
+				
+			} catch (TwitterException e) {
+				json = gson.toJson("Error communicating with Twitter");
+				e.printStackTrace();
+			} catch (FileException e){
+				json = gson.toJson("Error accessing files on the server");
+				e.printStackTrace();
+			} catch ( NumberFormatException nfe ) {
+				json = gson.toJson("Error, keywords and days must be integers");
+			}
+			
+    	} else if (formId.equals("userVenueForm")){
+    		try {
+    			Queries query = new Queries( initTwitter(), initFoursquare() );
+    			int days = 0;
+    			try {
+    				days = Integer.parseInt( request.getParameter("days") );
+    			} catch ( NumberFormatException nfe ) {
+    				System.out.println( "WARNING: Invalid days parameter, defaulting to 0 (live stream)" );
+    			}
+
+    			User user = query.getTwitterUser( request.getParameter("username") );
+    			json = gson.toJson( user );
+    			json += "\n";
+    			List<Checkin> result = query.getUserVenues( request.getParameter("username"), days );
+    			json += gson.toJson( result );
+    		} catch ( TwitterException te ) {
+    			json = gson.toJson(te.getErrorMessage() );
+    		} catch ( FoursquareApiException fse ) {
+    			json = gson.toJson(fse.getMessage() );
+    		} catch ( Exception e ) {
+    			json = gson.toJson(e.getMessage() );
+    		}
+
+    	} else if (formId.equals("venuesForm")){
+    		json = gson.toJson("No action implemented");
+    	}
+    	
+		out.print( json );
+    	out.close();
+	}
+
+}

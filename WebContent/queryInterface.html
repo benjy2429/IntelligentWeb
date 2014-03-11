@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>Query Interface</title>
+
+	<!-- Stylesheets -->
+	<link rel="stylesheet" type="text/css" href="./css/application.css">
+	<link rel="stylesheet" type="text/css" href="./css/bootstrap.min.css">
+
+</head>
+
+<body>
+		
+	<nav class="navbar navbar-default navbar-static-top" role="navigation">
+	  <div class="container-fluid">
+	    <a class="navbar-brand" href="Servlet">Query Interface</a>
+	  </div>
+	</nav>
+
+	<div class="container-fluid wrapper">
+			
+		<div class="formWrapper">		
+			
+			<div class="panel-group" id="accordion">
+			  <div class="panel panel-success">
+			    <div class="panel-heading">
+			      <h4 class="panel-title">
+			        <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
+			          Search by topics
+			        </a>
+			      </h4>
+			    </div>
+			    <div id="collapseOne" class="panel-collapse collapse in">
+			      <div class="panel-body">
+			        			
+					<form id="form1" class="forms" method="post" action="">
+						<input name="formId" id="topicForm" type="hidden" value="topicForm">
+						<div class="form-group">
+							<label for="query" class="control-label">query = </label>
+							<input name="query" id="query" type="text" class="form-control">
+						</div>
+						<div class="form-group">
+							<label for="lat" class="control-label">lat = </label>
+							<input name="lat" id="lat" type="number" class="form-control">
+						</div>
+						<div class="form-group">
+							<label for="lon" class="control-label">lon = </label>
+							<input name="lon" id="lon" type="number" class="form-control">
+						</div>
+						<div class="form-group">
+							<label for="radius" class="control-label">radius = </label>
+							<input name="radius" id="radius" type="number" class="form-control">
+						</div>
+						<div class="form-group">
+							<button type="submit" id="form1Submit" class="btn btn-default">Submit</button>
+							<button type="reset" class="btn btn-default">Reset</button>
+						</div>
+					</form>
+
+			      </div>
+			    </div>
+			  </div>
+			  
+			  <div class="panel panel-info">
+			    <div class="panel-heading">
+			      <h4 class="panel-title">
+			        <a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo">
+			          Search by discussion
+			        </a>
+			      </h4>
+			    </div>
+			    <div id="collapseTwo" class="panel-collapse collapse">
+			      <div class="panel-body">
+			      			      	
+					<form id="form2" class="forms" method="post" action="">
+						<input name="formId" id="discussionForm" type="hidden" value="discussionForm">
+						<div class="form-group">
+							<label for="users" class="control-label">users = </label>
+							<input name="users" id="users" type="text" class="form-control">
+						</div>
+						<div class="form-group">
+							<label for="keywords" class="control-label">no keywords = </label>
+							<input name="keywords" id="keywords" type="number" class="form-control">
+						</div>
+						<div class="form-group">
+							<label for="days" class="control-label">days = </label>
+							<input name="days" id="days" type="number" class="form-control">
+						</div>
+						<div class="form-group">
+							<button type="submit" id="form2Submit" class="btn btn-default">Submit</button>
+							<button type="reset" class="btn btn-default">Reset</button>
+						</div>
+					</form>
+
+			      </div>
+			    </div>
+			  </div>	  
+			  
+			  <div class="panel panel-warning">
+			    <div class="panel-heading">
+			      <h4 class="panel-title">
+			        <a data-toggle="collapse" data-parent="#accordion" href="#collapseThree">
+			          Search by user
+			        </a>
+			      </h4>
+			    </div>
+			    <div id="collapseThree" class="panel-collapse collapse">
+			      <div class="panel-body">
+
+					<form id="form3" class="forms" method="post" action="">
+						<input name="formId" id="userVenueForm" type="hidden" value="userVenueForm">
+						<div class="form-group">
+							<label for="username" class="control-label">username = </label>
+							<input name="username" id="username" type="text" class="form-control">
+						</div>
+						<div class="form-group">
+							<label for="days" class="control-label">days = </label>
+							<input name="days" id="days2" type="number" class="form-control">
+						</div>
+						<div class="form-group">
+							<button type="submit" id="form3Submit" class="btn btn-default">Submit</button>
+							<button type="reset" class="btn btn-default">Reset</button>
+						</div>
+					</form>
+
+			      </div>
+			    </div>
+			  </div>
+			  
+  			  <div class="panel panel-danger">
+			    <div class="panel-heading">
+			      <h4 class="panel-title">
+			        <a data-toggle="collapse" data-parent="#accordion" href="#collapseFour">
+			          Search by venue
+			        </a>
+			      </h4>
+			    </div>
+			    <div id="collapseFour" class="panel-collapse collapse">
+			      <div class="panel-body">
+
+					<form id="form4" class="forms" method="post" action="">
+						<input name="formId" id="venuesForm" type="hidden" value="venuesForm">
+						<div class="form-group">
+							<button type="submit" id="form4submit" class="btn btn-default">Submit</button>
+							<button type="reset" class="btn btn-default">Reset</button>
+						</div>
+					</form>
+
+			      </div>
+			    </div>
+			  </div>
+			</div>
+	
+		</div>
+	
+		<div class="row">
+			<div class="results">
+				<h2>Results</h2>
+				<div id="map-canvas"></div>
+				<div id="dynamicText">Use the forms on the left to get some results</div>
+			</div>
+		</div>
+	
+	</div>
+	
+	
+	<!-- Javascript -->
+	<script type="text/javascript" src="./js/jquery-2.1.0.min.js"></script>
+	<script type="text/javascript" src="./js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAQSRWiDPQTAeFTilEGZuyouNaF0biz7ks&sensor=false"></script>
+	<script type="text/javascript" src="./js/application.js"></script>
+
+</body>
+</html>
