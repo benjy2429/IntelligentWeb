@@ -64,6 +64,8 @@ body {
 
 .tweetImgSmall {
 	height: 30px;
+	padding: 0 2px;
+	vertical-align: middle;
 }
 
 .tweetContent {

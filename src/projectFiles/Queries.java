@@ -44,10 +44,22 @@ public class Queries {
 	}
 	
 	
+	/**
+	 * getTwitterUser finds a user by their Twitter screen name and returns their user object
+	 * @param username - The user's Twitter screen name
+	 * @return A user object for the given username
+	 * @throws TwitterException
+	 */
 	public User getTwitterUser(String username) throws TwitterException {
 		return twitter.showUser(username);
 	}
 
+	/**
+	 * getTwitterUsers finds multiple Twitter users by a list of Twitter screen names 
+	 * @param users - A List of Twitter screen names
+	 * @return A list of Twitter user objects for the given usernames
+	 * @throws TwitterException
+	 */
 	public List<User> getTwitterUsers(List<String> users) throws TwitterException {
 		String[] userNamesArray = new String[users.size()];
 		return twitter.lookupUsers(users.toArray(userNamesArray));
@@ -74,18 +86,6 @@ public class Queries {
 		//query.setResultType(Query.POPULAR); //TODO Check result ordering
 		
 		QueryResult result = twitter.search(query);
-		
-		/*
-		for (Status tweet : result.getTweets()) {
-			resultString += "@" + tweet.getUser().getScreenName() + ": " + tweet.getText() + "<br>";
-			
-			/*TODO UNCOMMENT FOR RETWEETER USERNAMES
-			long[] retweeters = twitter.getRetweeterIds( tweet.getId(), 10, -1 ).getIDs();
-			for ( int i=0; i<retweeters.length; i++ ) {
-				resultString += "&#9;" + twitter.showUser( retweeters[i] ).getName() + "<br>";
-			}		
-		}
-		*/
 
 		return result.getTweets();
 	}
@@ -258,6 +258,68 @@ public class Queries {
 		}
 		return resultList;
 	}
+	
+	public List<Status> getLiveUserVenues(String username, TwitterStream twitterStream) throws Exception, TwitterException, FoursquareApiException { //TODO Use twitter streaming api if days==0
+		final List<Status> resultList = new LinkedList<Status>();
+		
+
+		StatusListener listener = new StatusListener() {
+			@Override public void onStatus(Status status) {
+				resultList.add(status);
+				//System.out.println("@" + status.getUser().getScreenName() + " - " + status.getText()); 
+				}
+			@Override public void onDeletionNotice(StatusDeletionNotice statusDeletionNotice) {
+				System.out.println("Got a status deletion notice id:" + statusDeletionNotice.getStatusId()); }
+			@Override public void onTrackLimitationNotice(int numberOfLimitedStatuses) {
+				System.out.println("Got track limitation notice:" + numberOfLimitedStatuses); }
+			@Override public void onScrubGeo(long userId, long upToStatusId) { 
+				System.out.println("Got scrub_geo event userId:" + userId + " upToStatusId:" + upToStatusId); }
+			@Override public void onStallWarning(StallWarning warning) { 
+				System.out.println("Got stall warning:" + warning); }
+			@Override public void onException(Exception ex) { ex.printStackTrace(); }
+		};
+		twitterStream.addListener(listener);
+		
+		int count = 0;
+		long[] idToFollow = new long[0];
+		String[] stringsToTrack = new String[1];
+		stringsToTrack[0] = "foursquare";
+		double[][] locationsToTrack = new double[0][0];
+		twitterStream.filter(new FilterQuery(count, idToFollow, stringsToTrack, locationsToTrack));
+		
+		/*
+		
+		Query query = new Query("from:" + username + " foursquare").since( dateFormat.format( cal.getTime() ) );
+		QueryResult result = twitter.search(query);
+
+		// Cycle through matching tweets
+		for (Status tweet : result.getTweets()) { //TODO Check if need to iterate through pages
+			
+			// Extract foursquare links and retrieve foursquare checkin information
+			for (URLEntity url : tweet.getURLEntities()) {
+				try {
+					String[] fsParams = expandFoursquareUrl( url.getExpandedURL() );
+					Result<Checkin> fsResult = foursquare.checkin( fsParams[0], fsParams[1] );
+					
+					// Get venue data from foursquare checkin
+					if (fsResult.getMeta().getCode() == 200) {
+						//resultList.add( fsResult.getResult() );
+						
+						Result<CompleteVenue> venues = foursquare.venue( fsResult.getResult().getVenue().getId() );
+						
+						if (venues.getMeta().getCode() == 200) {
+							resultList.add( venues.getResult() );
+						}
+					}
+				} catch (Exception e) {
+					//URL does not match 4sq.com
+				}
+			}
+		}
+		*/
+		return resultList;
+	}
+
 	
 	
 	/**
