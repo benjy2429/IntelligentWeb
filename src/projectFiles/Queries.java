@@ -301,6 +301,7 @@ public class Queries {
 	 * @return
 	 */
 	//TODO REWRITE TO SEARCH VIA TWITTER FIRST - CANNOT GET CHECKINS DIRECTLY FROM A FOURSQUARE VENUE
+	/*
 	public String getUsersAtVenue(double latitude, double longitude, String location, String venueName, int days) { //TODO Use streaming api if days==0
 		String resultString = "";
 		try {
@@ -331,6 +332,20 @@ public class Queries {
 		}
 		
 		return resultString;
+	}
+	*/
+	
+	
+	// 3. Who is visiting venues in a specific geographic area (or visiting a named venue) or have done so in the last X days
+	public List<User> getUsersAtVenue(String venueName, long lat, long lon, int days) {
+		
+		if (days > 0) {
+			
+		} else {
+			//TODO Use twitter streaming api
+		}
+		
+		return null;
 	}
 	
 	
