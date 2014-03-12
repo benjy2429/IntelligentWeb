@@ -299,6 +299,7 @@ public class Queries {
 	 * @param venueName - Name of venue
 	 * @param days - Number of past days to search 
 	 * @return
+	 * @throws TwitterException 
 	 */
 	//TODO REWRITE TO SEARCH VIA TWITTER FIRST - CANNOT GET CHECKINS DIRECTLY FROM A FOURSQUARE VENUE
 	/*
@@ -337,9 +338,28 @@ public class Queries {
 	
 	
 	// 3. Who is visiting venues in a specific geographic area (or visiting a named venue) or have done so in the last X days
-	public List<User> getUsersAtVenue(String venueName, long lat, long lon, int days) {
+	public List<User> getUsersAtVenue(String venueName, long latitude, long longitude, int days) throws TwitterException {
 		
-		if (days > 0) {
+		if (days > 0) {	
+			
+			GeoQuery geoQuery;
+			
+			// If lat and lon
+			if ( !Double.isNaN(latitude) && !Double.isNaN(longitude) ) {
+				GeoLocation geo = new GeoLocation(latitude, longitude);
+				geoQuery = new GeoQuery(geo);
+			} else {
+				geoQuery = new GeoQuery("");
+				geoQuery.setQuery(venueName);
+			}
+			
+			Place place = twitter.searchPlaces(geoQuery).get(0);
+			
+			Query query = new Query(place.getId());
+			twitter.search(query);
+			
+			//TODO Implement
+			
 			
 		} else {
 			//TODO Use twitter streaming api
