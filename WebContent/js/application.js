@@ -94,7 +94,7 @@ $(window).load(function() {
 						if (index > -1){
 							var user = userObjects[index];
 							result += "<div class='userCount'>";
-							result += "<a href='#' data-toggle='modal' data-target='#userProfile" + user.screenName + "' class='visitProfile' title='" + user.name + "'>";
+							result += "<a href='#' data-screen-name='" + user.screenName + "' data-modal-generated='false' data-tweets-populated='false' data-toggle='modal' data-target='#userProfile" + user.screenName + "' class='visitProfile' title='" + user.name + "'>";
 							result += "<img class='tweetImgSmall' src='" + user.profileImageUrl + "'/> " + user.name + " (@<span class='tweetScreenName'>" + user.screenName + "</span>)";
 							result += "</a> : " + this.u;
 							result += "</div>";
@@ -245,6 +245,22 @@ $(window).load(function() {
 		e.preventDefault();
 	});
 	
+	$(".results").on('click', '.visitProfile', function(e) {	
+		var link = $(this);
+		var screenName = link.data("screen-name");
+		var modalGen = link.data("modal-generated");
+		var tweetsGen = link.data("tweets-populated");
+		alert(screenName + " " + modalGen + " " + tweetsGen);
+		if (modalGen == "false"){
+			alert("would now generate modal for " + screenName);
+		}
+		if (tweetsGen == "false"){
+			alert("would now generate tweets for " + screenName);
+			link.text("OMG HI");
+		}
+	});
+	
+	
 	function generateModelBox(user){
 		result = "" +
 		"<div class='modal fade' id='userProfile" + user.screenName + "' tabindex='-1' role='dialog' aria-labelledby='"+user.screenName+"modalLabel' aria-hidden='true'>" +
@@ -255,8 +271,11 @@ $(window).load(function() {
 		        "<h4 class='modal-title' id='"+user.screenName+"modalLabel'>Profile for " + user.name + " (@" + user.screenName + ") </h4>" +
 		      "</div>" +
 		      "<div class='modal-body'>" +
-
-		      //Model body
+		      	
+		      	//Model body
+		      	"<div id='profileTweetsFor" + user.screenName + "'>" +
+		      
+		      	"</div>" + 
 		      
 		      "</div>" +
 		      "<div class='modal-footer'>" +
@@ -267,6 +286,17 @@ $(window).load(function() {
 		  "</div>" +
 		"</div>";
 		$("#modalWindows").append( result );
+		$("a[data-target='#userProfile" + user.screenName + "']").data('modal-generated', 'true');
 	}
+	
+	/*
+	function populateModalTweets(screenName, tweets){
+		result = "";
+		$.each( tweets, function() {
+			result += "<p>" + this.text "</p>";
+		});
+		$("#profileTweetsFor" + screenName).append( result );
+		$("a[data-target='#userProfile" + user.screenName + "']").data('tweets-populated', 'true');
+	}*/
 	
 });
