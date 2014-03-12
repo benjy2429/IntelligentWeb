@@ -76,8 +76,8 @@ $(window).load(function() {
 					result += "<div class='frequentWord'>";
 					result += "<div class='wordRank'>" + this.rank +".</div>";
 					result += "<div class='termStats'>";
-					result += "<div class='term'>Term: " + this.term  + "</div>";
-					result += "<div class='termCount'>Number of occurances: " + this.totalCount + "</div>";
+					result += "<span class='term'>\"" + this.term  + "\"</span>";
+					result += "<span class='termCount'>Number of occurances: " + this.totalCount + "</span>";
 					result += "<a href='' class='viewUserCounts'>See individual user counts</a>";
 					result += "</div>";
 					result += "<div class='userCounts'>";
@@ -93,13 +93,14 @@ $(window).load(function() {
 						});
 						if (index > -1){
 							var user = userObjects[index];
-							result +=  user.name + " (@<span class='tweetScreenName'>" + user.screenName + "</span>) : " + this.u + "<br/>";
+							result +=  "<div class='userCount'><a href='#' data-toggle='tooltip' title='" + user.name + "'><img class='tweetImgSmall' src='" + user.profileImageUrl + "'/></a> " + user.name + " (@<span class='tweetScreenName'>" + user.screenName + "</span>) : " + this.u + "</div>";
 						}
 					});
 					result += "</div>";
 					result += "</div>";
 				});
 				$("#dynamicText").html( result );
+				$("[data-toggle='tooltip']").tooltip({ placement: 'bottom' });
 			},
 			error: function(jqXHR,textStatus,errorThrown){
 				$("#dynamicText").html(errorThrown);
@@ -227,11 +228,12 @@ $(window).load(function() {
 	$(".results").on('click', '.viewUserCounts', function(e) {	
 		var link = $(this);
 		var frequentWord = link.parent().parent();
+		var isVisible = link.is(':visible');
 		frequentWord.find('.userCounts').slideToggle(300, function() {
-	        if (link.is(':visible')) {
+	        if (isVisible) {
 	             link.text("Hide individual user counts");                
 	        } else {
-	             link.text("See individual user counts");                
+	             link.text("Show individual user counts");               
 	        }
 		});
 		e.preventDefault();

@@ -70,7 +70,7 @@ body {
 	margin-left: 70px;
 }
 
-.tweetUser {
+.tweetUser, .term {
 	font-weight: bold;
 }
 
@@ -83,14 +83,35 @@ body {
 }
 
 .wordRank {
-	width:60px;
-	height:60px;
+	width: 55px;
+	height: 60px;
 	float: left;
-	font-size: 50px;
+	font-size: 40px;
+	margin-right: 20px;
+	text-align: right;
+}
+
+.termStats{
+	margin-top: 18px;
+}
+
+.termCount{
+	margin:0px 20px;
+	font-style: italic;
+}
+
+.viewUserCounts{
+	font-style: italic;
 }
 
 .userCounts{
 	display: none;
+	margin-left:90px;
+	margin-top:15px;
+}
+
+.userCount{
+	margin-bottom: 15px;
 }
 
 .venue {
