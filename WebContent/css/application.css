@@ -92,11 +92,16 @@ body {
 }
 
 .termStats{
-	margin-top: 19px;
+	margin-top: 18px;
 }
 
 .termCount{
 	margin:0px 20px;
+	font-style: italic;
+}
+
+.viewUserCounts{
+	font-style: italic;
 }
 
 .userCounts{

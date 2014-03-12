@@ -93,7 +93,7 @@ $(window).load(function() {
 						});
 						if (index > -1){
 							var user = userObjects[index];
-							result +=  "<div class='userCount'><a href='#' data-toggle='tooltip' title='" + user.name + "'><img class='tweetImgSmall' src='" + user.profileImageUrl + "'/></a>" + user.name + " (@<span class='tweetScreenName'>" + user.screenName + "</span>) : " + this.u + "</div>";
+							result +=  "<div class='userCount'><a href='#' data-toggle='tooltip' title='" + user.name + "'><img class='tweetImgSmall' src='" + user.profileImageUrl + "'/></a> " + user.name + " (@<span class='tweetScreenName'>" + user.screenName + "</span>) : " + this.u + "</div>";
 						}
 					});
 					result += "</div>";
@@ -228,11 +228,12 @@ $(window).load(function() {
 	$(".results").on('click', '.viewUserCounts', function(e) {	
 		var link = $(this);
 		var frequentWord = link.parent().parent();
+		var isVisible = link.is(':visible');
 		frequentWord.find('.userCounts').slideToggle(300, function() {
-	        if (link.is(':visible')) {
+	        if (isVisible) {
 	             link.text("Hide individual user counts");                
 	        } else {
-	             link.text("See individual user counts");                
+	             link.text("Show individual user counts");               
 	        }
 		});
 		e.preventDefault();
