@@ -47,7 +47,7 @@ $(window).load(function() {
 					});
 					
 				} else {
-					result += "No matching tweets found. Try searching for a different term, or increasing the location radius."
+					result += "No matching tweets found. Try searching for a different term, or increasing the location radius.";
 				}
 
 				$("#dynamicText").html(result);
@@ -78,7 +78,7 @@ $(window).load(function() {
 					result += "<div class='termStats'>";
 					result += "<span class='term'>\"" + this.term  + "\"</span>";
 					result += "<span class='termCount'>Number of occurances: " + this.totalCount + "</span>";
-					result += "<a href='' class='viewUserCounts'>See individual user counts</a>";
+					result += "<a href='#' class='viewUserCounts'>Show individual user counts</a>";
 					result += "</div>";
 					result += "<div class='userCounts'>";
 					$.each( this.userCounts , function() { 
@@ -93,14 +93,20 @@ $(window).load(function() {
 						});
 						if (index > -1){
 							var user = userObjects[index];
-							result +=  "<div class='userCount'><a href='#' data-toggle='tooltip' title='" + user.name + "'><img class='tweetImgSmall' src='" + user.profileImageUrl + "'/></a> " + user.name + " (@<span class='tweetScreenName'>" + user.screenName + "</span>) : " + this.u + "</div>";
+							result += "<div class='userCount'>";
+							result += "<a href='#' data-toggle='modal' data-target='#userProfile" + user.screenName + "' class='visitProfile' title='" + user.name + "'>";
+							result += "<img class='tweetImgSmall' src='" + user.profileImageUrl + "'/> " + user.name + " (@<span class='tweetScreenName'>" + user.screenName + "</span>)";
+							result += "</a> : " + this.u;
+							result += "</div>";
 						}
 					});
 					result += "</div>";
 					result += "</div>";
 				});
 				$("#dynamicText").html( result );
-				$("[data-toggle='tooltip']").tooltip({ placement: 'bottom' });
+				$.each( userObjects , function() {
+					generateModelBox(this);
+				});
 			},
 			error: function(jqXHR,textStatus,errorThrown){
 				$("#dynamicText").html(errorThrown);
@@ -227,10 +233,10 @@ $(window).load(function() {
 	
 	$(".results").on('click', '.viewUserCounts', function(e) {	
 		var link = $(this);
-		var frequentWord = link.parent().parent();
-		var isVisible = link.is(':visible');
-		frequentWord.find('.userCounts').slideToggle(300, function() {
-	        if (isVisible) {
+		var userCounts = link.parent().parent().find('.userCounts');
+		var isVisible = userCounts.is(':visible');
+		userCounts.slideToggle(300, function() {
+	        if (!isVisible) {
 	             link.text("Hide individual user counts");                
 	        } else {
 	             link.text("Show individual user counts");               
@@ -238,5 +244,29 @@ $(window).load(function() {
 		});
 		e.preventDefault();
 	});
+	
+	function generateModelBox(user){
+		result = "" +
+		"<div class='modal fade' id='userProfile" + user.screenName + "' tabindex='-1' role='dialog' aria-labelledby='"+user.screenName+"modalLabel' aria-hidden='true'>" +
+		  "<div class='modal-dialog'>" +
+		    "<div class='modal-content'>" +
+		      "<div class='modal-header'>" +
+		        "<button type='button' class='close' data-dismiss='modal' aria-hidden='true'>&times;</button>" +
+		        "<h4 class='modal-title' id='"+user.screenName+"modalLabel'>Profile for " + user.name + " (@" + user.screenName + ") </h4>" +
+		      "</div>" +
+		      "<div class='modal-body'>" +
+
+		      //Model body
+		      
+		      "</div>" +
+		      "<div class='modal-footer'>" +
+		       "<button type='button' class='btn btn-default' data-dismiss='modal'>Close</button>" +
+		        "<button type='button' class='btn btn-primary'>Save changes</button>" +
+		      "</div>" +
+		    "</div>" +
+		  "</div>" +
+		"</div>";
+		$("#modalWindows").append( result );
+	}
 	
 });

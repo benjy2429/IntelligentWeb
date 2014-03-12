@@ -114,6 +114,10 @@ body {
 	margin-bottom: 15px;
 }
 
+.visitProfile{
+	font-weight:bold;
+}
+
 .venue {
 	min-height: 120px;
 	padding: 20px 10px 0;
