@@ -48,14 +48,13 @@ body {
 }
 
 .tweet, .frequentWord {
-	min-height: 70px;
-	padding: 10px;
-	margin-bottom: 10px;
-	cursor: pointer;
+	min-height: 90px;
+	padding: 20px 10px 10px;
+	border-bottom: 1px solid #e7e7e7;
 }
 
 .tweet:hover, .frequentWord:hover{
-	background-color: #f4f8f9;
+	/*background-color: #f4f8f9;*/
 }
 
 .tweetImg {
@@ -111,9 +110,9 @@ body {
 }
 
 .venue {
-	min-height: 100px;
-	padding: 10px;
-	margin-bottom: 10px;
+	min-height: 120px;
+	padding: 20px 10px 0;
+	border-bottom: 1px solid #e7e7e7;
 }
 
 .venueImg {
