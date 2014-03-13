@@ -1,5 +1,5 @@
 $(window).load(function() {
-
+	var FADESPEED = 500;
 	
 	// Prevent forms from performing default action
 	$("form").on("submit", function(e) {
@@ -8,7 +8,10 @@ $(window).load(function() {
 	
 	
 	$("#form1Submit").click(function() {
-		$("#dynamicText").html("Loading...");
+		$("#map-canvas").fadeOut(FADESPEED);
+		$("#dynamicText").fadeOut(FADESPEED, function() {
+	        $(this).html("Loading...").fadeIn(FADESPEED);
+	    });
 		$.ajax({
 			url: 'Servlet',
 			type: 'post',
@@ -18,7 +21,8 @@ $(window).load(function() {
 				var json = data.split("\n");
 				var tweetIds = JSON.parse(json[0]);
 				var tweets = JSON.parse(json[1]);
-
+				$("#resultsTitle").text("Results");
+				$("#resultsInfo").text("Below are the most recent results for your query:");
 				var result = "";
 				if (tweetIds.length > 0 && tweets.length > 0) {
 					
@@ -60,7 +64,9 @@ $(window).load(function() {
 					result += "No matching tweets found. Try searching for a different term, or increasing the location radius.";
 				}
 
-				$("#dynamicText").html(result);
+				$("#dynamicText").fadeOut(FADESPEED, function() {
+			        $(this).html(result).fadeIn(FADESPEED);
+			    });
 			},
 			error: function(xhr,textStatus,errorThrown){
 				$("#dynamicText").html(errorThrown);
@@ -71,7 +77,10 @@ $(window).load(function() {
 	
 	
 	$("#form2Submit").click(function() {
-		$("#dynamicText").html("Loading...");
+		$("#map-canvas").fadeOut(FADESPEED);
+		$("#dynamicText").fadeOut(FADESPEED, function() {
+	        $(this).html("Loading...").fadeIn(FADESPEED);
+	    });
 		$.ajax({
 			url: 'Servlet',
 			type: 'post',
@@ -81,7 +90,14 @@ $(window).load(function() {
 				var json = data.split("\n");
 				var terms = JSON.parse(json[0]);
 				var userObjects = JSON.parse(json[1]);
+				$("#resultsTitle").text("Results");
+				if(terms.length > 0){
+					$("#resultsInfo").text("Below are the " + terms.length + " most frequently used terms:");
+				} else {
+					$("#resultsInfo").text("There are no frequently used terms from this period!");
+				}
 				var result = "";
+				result += "<div style='border-bottom: 1px solid #e7e7e7;'></div>";
 				$.each( terms , function() {
 					result += "<div class='frequentWord'>";
 					result += "<div class='wordRank'>" + this.rank +".</div>";
@@ -105,7 +121,7 @@ $(window).load(function() {
 							var user = userObjects[index];
 							result += "<div class='userCount'>";
 							result += "<a href='#' data-screen-name='" + user.screenName + "' data-modal-generated='false' data-tweets-populated='false' data-toggle='modal' data-target='#userProfile" + user.screenName + "' class='visitProfile' title='" + user.name + "'>";
-							result += "<img class='tweetImgSmall' src='" + user.profileImageUrl + "'/> " + user.name + " (@<span class='tweetScreenName'>" + user.screenName + "</span>)";
+							result += "<img class='tweetImgSmall' src='" + user.profileImageUrl + "'/>" + user.name + " (@<span class='tweetScreenName'>" + user.screenName + "</span>)";
 							result += "</a> : " + this.u;
 							result += "</div>";
 						}
@@ -113,7 +129,9 @@ $(window).load(function() {
 					result += "</div>";
 					result += "</div>";
 				});
-				$("#dynamicText").html( result );
+				$("#dynamicText").fadeOut(FADESPEED, function() {
+			        $(this).html(result).fadeIn(FADESPEED);
+			    });
 				$.each( userObjects , function() {
 					generateModelBox(this);
 				});
@@ -126,7 +144,9 @@ $(window).load(function() {
 	
 	
 	$("#form3Submit").click(function() {
-		$("#dynamicText").html("Loading...");
+		$("#dynamicText").fadeOut(FADESPEED, function() {
+	        $(this).html("Loading...").fadeIn(FADESPEED);
+	    });
 		$.ajax({
 			url: 'Servlet',
 			type: 'post',
@@ -134,10 +154,13 @@ $(window).load(function() {
 			data: $('#form3').serialize(),
 			success: function(data){
 				var json = data.split("\n");
-				var result = "";
-				
-				// Twitter user info
 				var user = JSON.parse(json[0]);
+				var venues = JSON.parse(json[1]);
+				$("#resultsTitle").text("Results");
+				$("#resultsInfo").text("");				
+				var result = "";
+				// Twitter user info
+				
 				result += "<div class='tweet' style=''>";
 				result += "<img class='tweetImg' src='" + user.profileImageUrl + "' />";
 				result += "<div class='tweetContent'>";
@@ -147,12 +170,12 @@ $(window).load(function() {
 				result += "</div>";
 				
 				// Venues
-				data = JSON.parse(json[1]);
-				$("#map-canvas").show();
+				
+				$("#map-canvas").fadeIn(FADESPEED);
 				var map = new google.maps.Map(document.getElementById("map-canvas"), {mapTypeId: google.maps.MapTypeId.ROADMAP});
 				var bounds = new google.maps.LatLngBounds();
-				
-				$.each( data, function() {
+
+				$.each( venues, function() {
 					result += "<div class='venue'>";
 					result += (this.photos.groups[1].items.length > 0) ? "<img class='venueImg' src='" + this.photos.groups[1].items[0].url + "'/>" : "";
 					result += "<div class='venueContent'>";
@@ -190,7 +213,9 @@ $(window).load(function() {
 			        bounds.extend(marker.position);
 			        
 				});
-				$("#dynamicText").html(result);
+				$("#dynamicText").fadeOut(FADESPEED, function() {
+			        $(this).html(result).fadeIn(FADESPEED);
+			    });
 				map.fitBounds(bounds);
 			},
 			error: function(xhr,textStatus,errorThrown){
@@ -207,8 +232,9 @@ $(window).load(function() {
 	$(".results").on('click', '.getRetweets', function(e) {
 		var tweet = $(this).parent().parent().parent().parent();
 		var tweetId = tweet.find('.tweetId').val();
-		$("#retweetsFor" + tweetId).html("Loading..");
-
+		$("#retweetsFor" + tweetId).fadeOut(FADESPEED, function() {
+	        $(this).html("Loading..").fadeIn(FADESPEED);
+	    });
 		$.ajax({
 			url: 'Servlet',
 			type: 'post',
@@ -227,9 +253,12 @@ $(window).load(function() {
 				if (!result) {
 					$("#retweetsFor" + tweetId).html("No retweets!");
 				} else {
-					$("#retweetsFor" + tweetId).html(result);
+				    $("#retweetsFor" + tweetId).fadeOut(FADESPEED, function() {
+				        $(this).html(result).fadeIn(FADESPEED);
+				        $("[data-toggle='tooltip']").tooltip({ placement: 'bottom' });
+				    });
 				}
-				$("[data-toggle='tooltip']").tooltip({ placement: 'bottom' });
+				
 
 			},
 			error: function(xhr,textStatus,errorThrown){

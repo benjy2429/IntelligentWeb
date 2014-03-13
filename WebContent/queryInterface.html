@@ -14,7 +14,7 @@
 		
 	<nav class="navbar navbar-default navbar-static-top" role="navigation">
 	  <div class="container-fluid">
-	    <a class="navbar-brand" href="queryInterface.html">Query Interface</a>
+	    <a class="navbar-brand" href="queryInterface.html">COM3504 The Intelligent Web: Querying The Social Web - Ben Carr & Luke Heavens</a>
 	  </div>
 	</nav>
 
@@ -38,7 +38,7 @@
 						<input name="requestId" id="topicForm" type="hidden" value="topicForm">
 						<div class="form-group">
 							<label for="query" class="control-label">query = </label>
-							<input name="query" id="query" type="text" class="form-control">
+							<input name="query" id="query" type="text" class="form-control" value="from:bbcnews">
 						</div>
 						<div class="form-group">
 							<label for="lat" class="control-label">lat = </label>
@@ -116,11 +116,11 @@
 						<input name="requestId" id="userVenueForm" type="hidden" value="userVenueForm">
 						<div class="form-group">
 							<label for="username" class="control-label">username = </label>
-							<input name="username" id="username" type="text" class="form-control">
+							<input name="username" id="username" type="text" class="form-control" value="stevewoz">
 						</div>
 						<div class="form-group">
 							<label for="days" class="control-label">days = </label>
-							<input name="days" id="days2" type="number" class="form-control">
+							<input name="days" id="days2" type="number" class="form-control" value="2">
 						</div>
 						<div class="form-group">
 							<button type="submit" id="form3Submit" class="btn btn-default">Submit</button>
@@ -160,9 +160,10 @@
 	
 		<div class="row">
 			<div class="results">
-				<h2>Results</h2>
+				<h2 id="resultsTitle">Hello you!</h2>
 				<div id="map-canvas"></div>
-				<div id="dynamicText">Use the forms on the left to get some results</div>
+				<div id="resultsInfo">Use the forms on the left to get some results</div>
+				<div id="dynamicText"></div>
 			</div>
 		</div>
 	
