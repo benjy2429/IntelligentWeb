@@ -64,7 +64,7 @@ public class Servlet extends HttpServlet {
 	 * @return TwitterStreamFactory
 	 * @throws Exception
 	 */
-	private TwitterStream initTwitterStream() throws TwitterException{
+	private TwitterStream initTwitterStream() throws TwitterException {
 		return (new TwitterStreamFactory(confTwitter().build()).getInstance());
 	}
 	
@@ -88,7 +88,7 @@ public class Servlet extends HttpServlet {
 		response.setContentType("text/html");
 		ServletContext context = getServletContext();
 		RequestDispatcher rd = context.getRequestDispatcher("/queryInterface.html");
-		rd.forward(request, response);
+		rd.forward(request, response);		
 	}
 	
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -186,11 +186,19 @@ public class Servlet extends HttpServlet {
     			} catch ( NumberFormatException nfe ) {
     				System.out.println( "WARNING: Invalid days parameter, defaulting to 0 (live stream)" );
     			}
+    			
     			User user = query.getTwitterUser( request.getParameter("username") );
     			json = gson.toJson( user );
     			json += "\n";
-    			List<CompleteVenue> result = query.getUserVenues( user.getScreenName(), days );
-    			json += gson.toJson( result );
+    			if (days > 0) {
+	    			List<CompleteVenue> result = query.getUserVenues( user.getScreenName(), days );
+	    			json += gson.toJson( result );
+    			} else if (days == 0) {
+	    			//List<Status> result = query.getLiveUserVenues( user.getScreenName(), initTwitterStream() );
+	    			json += gson.toJson( null );
+    			} else {
+    				throw new Exception("Days must be greater or equal to zero");
+    			}
     		} catch ( TwitterException te ) {
     			json = gson.toJson(te.getErrorMessage() );
     		} catch ( FoursquareApiException fse ) {
