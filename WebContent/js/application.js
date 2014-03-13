@@ -25,12 +25,22 @@ $(window).load(function() {
 					var i = 0;
 					$.each( tweets , function() {
 						result += "<div class='tweet'>";
-						result += "<form class='retweetersForm'><input type='hidden' name='formId' value='retweetersForm'>";
+						result += "<form class='retweetersForm'><input type='hidden' name='requestId' value='retweetersForm'>";
 						result += "<input type='hidden' class='tweetId' name='tweetId' value='" + tweetIds[i] + "'>";
 						result += "<input type='hidden' class='retweetCount' name='retweetCount' value='" + this.retweetCount + "'></form>";
+						
+						result += "<a href='#' data-screen-name='" + this.user.screenName + "' data-modal-generated='false' data-tweets-populated='false' data-toggle='modal' data-target='#userProfile" + this.user.screenName + "' class='visitProfile' title='" + this.user.name + "'>";
 						result += "<img class='tweetImg' src='" + this.user.profileImageUrl + "'/>";
+						result += "</a>";
+						
 						result += "<div class='tweetContent'>";
-						result += "<div class='tweetUser'>" + this.user.name + " (@<span class='tweetScreenName'>" + this.user.screenName + "</span>)</div>";
+						
+						result += "<div class='tweetUser'>"; 
+						result += "<a href='#' data-screen-name='" + this.user.screenName + "' data-modal-generated='false' data-tweets-populated='false' data-toggle='modal' data-target='#userProfile" + this.user.screenName + "' class='visitProfile' title='" + this.user.name + "'>";
+						result += this.user.name + " (@<span class='tweetScreenName'>" + this.user.screenName + "</span>)";
+						result += "</a>";
+						result +="</div>";
+						
 						result += "<div class='tweetText'>" + this.text + "</div>";
 						result += "<div class='tweetStats'>" + this.createdAt + " ";
 						result += "<span class='glyphicon glyphicon-star' title='Favourites' style='margin-left:10px;'></span> " + this.favoriteCount + " ";
@@ -190,7 +200,7 @@ $(window).load(function() {
 	});
 	
 	$("#form4Submit").click(function() {
-		var parameters = "formId=" + encodeURIComponent(document.getElementsByName("formId")[3].value);
+		var parameters = "requestId=" + encodeURIComponent(document.getElementsByName("requestId")[3].value);
 		loadXMLDoc(parameters);
 	});
 	
@@ -247,16 +257,35 @@ $(window).load(function() {
 	
 	$(".results").on('click', '.visitProfile', function(e) {	
 		var link = $(this);
-		var screenName = link.data("screen-name");
-		var modalGen = link.data("modal-generated");
-		var tweetsGen = link.data("tweets-populated");
-		alert(screenName + " " + modalGen + " " + tweetsGen);
-		if (modalGen == "false"){
-			alert("would now generate modal for " + screenName);
+		var screenName = link.attr("data-screen-name");
+		if (link.attr("data-modal-generated") == "false"){
+			$.ajax({
+				url: 'Servlet',
+				type: 'post',
+				datatype: 'json',
+				data: "requestId=fetchUserForProfile&screenName="+ screenName + "",
+				success: function(data){
+					generateModelBox(JSON.parse(data));
+					$("#userProfile" + screenName).modal("show"); //If generating modal then the click event to show it might not be executed if model hasnt yet been defined, hence we ensure it is shown after construction
+				},
+				error: function(xhr,textStatus,errorThrown){
+					alert("Error fetching profile information for user");
+				}
+			});
 		}
-		if (tweetsGen == "false"){
-			alert("would now generate tweets for " + screenName);
-			link.text("OMG HI");
+		if (link.attr("data-tweets-populated") == "false"){
+			$.ajax({
+				url: 'Servlet',
+				type: 'post',
+				datatype: 'json',
+				data: "requestId=fetchTweetsForProfile&screenName="+ screenName,
+				success: function(data){
+					populateModalTweets(screenName, JSON.parse(data));
+				},
+				error: function(xhr,textStatus,errorThrown){
+					$("#profileTweetsFor" + screenName).html("Error fetching tweets for user profile");
+				}
+			});
 		}
 	});
 	
@@ -274,7 +303,7 @@ $(window).load(function() {
 		      	
 		      	//Model body
 		      	"<div id='profileTweetsFor" + user.screenName + "'>" +
-		      
+		      		"<p>Loading tweets...</p>" +
 		      	"</div>" + 
 		      
 		      "</div>" +
@@ -286,17 +315,17 @@ $(window).load(function() {
 		  "</div>" +
 		"</div>";
 		$("#modalWindows").append( result );
-		$("a[data-target='#userProfile" + user.screenName + "']").data('modal-generated', 'true');
+		$("a[data-target='#userProfile" + user.screenName + "']").attr('data-modal-generated', 'true');
 	}
 	
-	/*
+	
 	function populateModalTweets(screenName, tweets){
 		result = "";
 		$.each( tweets, function() {
-			result += "<p>" + this.text "</p>";
+			result += "<p>" + this.text + "</p>";
 		});
-		$("#profileTweetsFor" + screenName).append( result );
-		$("a[data-target='#userProfile" + user.screenName + "']").data('tweets-populated', 'true');
-	}*/
+		$("#profileTweetsFor" + screenName).html( result );
+		$("a[data-target='#userProfile" + screenName + "']").attr('data-tweets-populated', 'true');
+	}
 	
 });
