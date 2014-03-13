@@ -423,34 +423,40 @@ public class Queries {
 	
 	
 	// 3. Who is visiting venues in a specific geographic area (or visiting a named venue) or have done so in the last X days
-	public List<User> getUsersAtVenue(String venueName, long latitude, long longitude, int days) throws TwitterException {
+	public LinkedList<Status> getUsersAtVenue(String venueName, double latitude, double longitude, double radius, int days) throws TwitterException {
+		LinkedList<Status> tweets = new LinkedList<Status>();
 		
 		if (days > 0) {	
 			
-			GeoQuery geoQuery;
+			Query query= new Query(); 
 			
-			// If lat and lon
-			if ( !Double.isNaN(latitude) && !Double.isNaN(longitude) ) {
-				GeoLocation geo = new GeoLocation(latitude, longitude);
-				geoQuery = new GeoQuery(geo);
-			} else {
-				geoQuery = new GeoQuery("");
-				geoQuery.setQuery(venueName);
+			// Add geolocation if available
+			if ( !Double.isNaN(latitude) && !Double.isNaN(longitude) && !Double.isNaN(radius) ) {
+				query.setGeoCode(new GeoLocation(latitude, longitude), radius, Query.KILOMETERS); //TODO Maybe add ability to choose between Km or Miles
+				query.setQuery( "foursquare" );
+			} else if ( !venueName.isEmpty() ) {
+				query.setQuery( "foursquare " + venueName );
 			}
 			
-			Place place = twitter.searchPlaces(geoQuery).get(0);
+			// Calculate date minus days parameter
+			Calendar cal = Calendar.getInstance();
+			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+			cal.add( Calendar.DAY_OF_YEAR, -days);
+			query.since( dateFormat.format( cal.getTime() ) );
 			
-			Query query = new Query(place.getId());
-			twitter.search(query);
+			//query.setCount(10);
 			
-			//TODO Implement
-			
+			QueryResult result = twitter.search(query);
+
+			for (Status status : result.getTweets()) {
+				tweets.add(status);
+			}			
 			
 		} else {
 			//TODO Use twitter streaming api
 		}
 		
-		return null;
+		return tweets;
 	}
 	
 	

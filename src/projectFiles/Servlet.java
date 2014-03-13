@@ -209,7 +209,37 @@ public class Servlet extends HttpServlet {
     		}
 
     	} else if (requestId.equals("venuesForm")){
-    		json = gson.toJson("No action implemented");
+			try {
+				Queries query = new Queries( initTwitter() );
+				
+				int days = 0;
+				try {
+					days = Integer.parseInt( request.getParameter("days") );
+				} catch ( NumberFormatException nfe ) {
+					System.out.println( "WARNING: Invalid days parameter, defaulting to 0 (live stream)" );
+				}
+				
+    			Double lat, lon, radius;
+    			String venueName = "";
+    			try {
+    				lat = Double.parseDouble( request.getParameter("lat") );
+    				lon = Double.parseDouble( request.getParameter("lon") );
+    				radius = Double.parseDouble( request.getParameter("radius") );
+    			} catch ( NumberFormatException nfe ) {
+    				System.out.println( "WARNING: Invalid location parameters, performing query with venue name" );
+    				lat = Double.NaN;
+    				lon = Double.NaN;
+    				radius = Double.NaN;
+    				venueName = request.getParameter("venueName");
+    			}
+				
+				List<Status> tweets = query.getUsersAtVenue(venueName, lat, lon, radius, days);
+				json = gson.toJson(tweets);
+				
+			} catch (TwitterException te) {
+				json = gson.toJson(te.getErrorMessage() );
+			}
+    		
     	} else if (requestId.equals("fetchUserForProfile")){
 			try {
 	    		Queries query = new Queries(initTwitter()); 

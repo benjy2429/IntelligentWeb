@@ -104,8 +104,8 @@ body {
 }
 
 .termStats{
-	margin-top: 17px;
-	float: left;
+	padding-top: 17px;
+	margin-left: 75px;
 }
 
 .termCount{
@@ -149,4 +149,62 @@ body {
 
 .venueName {
 	font-weight: bold;
+}
+
+.modal-header {
+	background-image: url("https://abs.twimg.com/a/1394610173/img/t1/grey_header_web.jpg");
+	background-color: #bbb;
+	background-size: cover;
+	color: #fff;
+	text-shadow: 0px 1px 1px rgba(0, 0, 0, 0.5);
+	font-weight: bold;
+	position: relative;
+	height: 150px;
+} 
+
+button.close {
+	color: #fff !important;
+	text-shadow: 0px 1px 1px rgba(0, 0, 0, 0.5) !important;
+	opacity: 1 !important;
+}
+
+.userProfileBannerDark {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	top: 0;
+	left: 0;
+	background-color: rgba(0,0,0,0.5);
+	padding: 15px;
+	overflow: hidden;
+}
+
+.userProfileStats {
+	margin: 0 !important;
+	padding: 15px 0;
+	box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+	font-weight: bold; 
+}
+
+.userProfileStats div {
+	border-left: 1px solid #e7e7e7;
+}
+
+.profileTweets {
+	margin-top: -15px;
+	overflow-x: hidden;
+	overflow-y: scroll;
+	max-height: 400px;
+}
+
+.modalTweet {
+	padding: 15px 0;
+	border-bottom: 1px solid #E7E7E7;
+}
+
+.profileLink {
+	text-align: center;
+	display: inline-block;
+	width: 100%;
+	margin-top: 15px;
 }

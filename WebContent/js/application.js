@@ -1,5 +1,7 @@
 $(window).load(function() {
-	var FADESPEED = 500;
+	var FADESPEED = 250;
+	var LOADING_IMG = "<img src='./img/loading.gif' style='vertical-align:text-top;margin-right:5px;' /> Loading..";
+	var LOADING_IMG_BIG = "<div style='margin-top:20px;'><img src='./img/big_loading.gif' style='vertical-align:middle;margin-right:10px;' /> Loading..</div>";
 	
 	// Prevent forms from performing default action
 	$("form").on("submit", function(e) {
@@ -10,7 +12,7 @@ $(window).load(function() {
 	$("#form1Submit").click(function() {
 		$("#map-canvas").fadeOut(FADESPEED);
 		$("#dynamicText").fadeOut(FADESPEED, function() {
-	        $(this).html("Loading...").fadeIn(FADESPEED);
+	        $(this).html(LOADING_IMG_BIG).fadeIn(FADESPEED);
 	    });
 		$.ajax({
 			url: 'Servlet',
@@ -79,7 +81,7 @@ $(window).load(function() {
 	$("#form2Submit").click(function() {
 		$("#map-canvas").fadeOut(FADESPEED);
 		$("#dynamicText").fadeOut(FADESPEED, function() {
-	        $(this).html("Loading...").fadeIn(FADESPEED);
+	        $(this).html(LOADING_IMG_BIG).fadeIn(FADESPEED);
 	    });
 		$.ajax({
 			url: 'Servlet',
@@ -97,7 +99,6 @@ $(window).load(function() {
 					$("#resultsInfo").text("There are no frequently used terms from this period!");
 				}
 				var result = "";
-				result += "<div style='border-bottom: 1px solid #e7e7e7;'></div>";
 				$.each( terms , function() {
 					result += "<div class='frequentWord'>";
 					result += "<div class='wordRank'>" + this.rank +".</div>";
@@ -145,7 +146,7 @@ $(window).load(function() {
 	
 	$("#form3Submit").click(function() {
 		$("#dynamicText").fadeOut(FADESPEED, function() {
-	        $(this).html("Loading...").fadeIn(FADESPEED);
+	        $(this).html(LOADING_IMG_BIG).fadeIn(FADESPEED);
 	    });
 		$.ajax({
 			url: 'Servlet',
@@ -224,16 +225,77 @@ $(window).load(function() {
 		});
 	});
 	
+	
 	$("#form4Submit").click(function() {
-		var parameters = "requestId=" + encodeURIComponent(document.getElementsByName("requestId")[3].value);
-		loadXMLDoc(parameters);
+		$("#map-canvas").fadeOut(FADESPEED);
+		$("#dynamicText").fadeOut(FADESPEED, function() {
+	        $(this).html(LOADING_IMG_BIG).fadeIn(FADESPEED);
+	    });
+		$.ajax({
+			url: 'Servlet',
+			type: 'post',
+			datatype: 'json',
+			data: $('#form4').serialize(),
+			success: function(data){
+				tweets = JSON.parse(data);
+				result = "";
+				if (tweets.length > 0) {
+					var i = 0;
+					$.each( tweets , function() {
+						result += "<div class='tweet'>";
+						result += "<form class='retweetersForm'><input type='hidden' name='requestId' value='retweetersForm'>";
+						result += "<input type='hidden' class='tweetId' name='tweetId' value='" + this.user.id + "'>";
+						result += "<input type='hidden' class='retweetCount' name='retweetCount' value='" + this.retweetCount + "'></form>";
+						
+						result += "<a href='#' data-screen-name='" + this.user.screenName + "' data-modal-generated='false' data-tweets-populated='false' data-toggle='modal' data-target='#userProfile" + this.user.screenName + "' class='visitProfile' title='" + this.user.name + "'>";
+						result += "<img class='tweetImg' src='" + this.user.profileImageUrl + "'/>";
+						result += "</a>";
+						
+						result += "<div class='tweetContent'>";
+						
+						result += "<div class='tweetUser'>"; 
+						result += "<a href='#' data-screen-name='" + this.user.screenName + "' data-modal-generated='false' data-tweets-populated='false' data-toggle='modal' data-target='#userProfile" + this.user.screenName + "' class='visitProfile' title='" + this.user.name + "'>";
+						result += this.user.name + " (@<span class='tweetScreenName'>" + this.user.screenName + "</span>)";
+						result += "</a>";
+						result +="</div>";
+						
+						result += "<div class='tweetText'>" + this.text + "</div>";
+						result += "<div class='tweetStats'>" + this.createdAt + " ";
+						result += "<span class='glyphicon glyphicon-star' title='Favourites' style='margin-left:10px;'></span> " + this.favoriteCount + " ";
+						result += "<span class='glyphicon glyphicon-retweet' title='Retweets' style='margin:0 5px 0 10px;'></span> ";
+						if ($.isEmptyObject(this.retweetedStatus) && this.retweetCount > 0) {
+							result += "<span class='retweets' id='retweetsFor" + tweetIds[i] + "'>" + this.retweetCount + " <a href='#' class='getRetweets'>See who retweeted this</a></span>";
+						} else {
+							result += "0";
+						}
+						result += "</div>";
+						result += "</div>";
+						result += "</div>";
+						i++;
+					});
+					
+				} else {
+					result += "No users found. Try searching increasing the location radius or the number of days to search .";
+				}
+
+				$("#dynamicText").fadeOut(FADESPEED, function() {
+			        $(this).html(result).fadeIn(FADESPEED);
+			    });
+
+			},
+			error: function(xhr,textStatus,errorThrown){
+				$("#dynamicText").html(errorThrown);
+			}
+		});
+		
 	});
+	
 	
 	$(".results").on('click', '.getRetweets', function(e) {
 		var tweet = $(this).parent().parent().parent().parent();
 		var tweetId = tweet.find('.tweetId').val();
 		$("#retweetsFor" + tweetId).fadeOut(FADESPEED, function() {
-	        $(this).html("Loading..").fadeIn(FADESPEED);
+	        $(this).html(LOADING_IMG).fadeIn(FADESPEED);
 	    });
 		$.ajax({
 			url: 'Servlet',
@@ -324,21 +386,35 @@ $(window).load(function() {
 		"<div class='modal fade' id='userProfile" + user.screenName + "' tabindex='-1' role='dialog' aria-labelledby='"+user.screenName+"modalLabel' aria-hidden='true'>" +
 		  "<div class='modal-dialog'>" +
 		    "<div class='modal-content'>" +
-		      "<div class='modal-header'>" +
-		        "<button type='button' class='close' data-dismiss='modal' aria-hidden='true'>&times;</button>" +
-		        "<h4 class='modal-title' id='"+user.screenName+"modalLabel'>Profile for " + user.name + " (@" + user.screenName + ") </h4>" +
+		      "<div class='modal-header'";
+		      result += (user.profileBannerImageUrl) ? " style='background-image:url(\"" + user.profileBannerImageUrl + "/web\")'>" : ">";
+      		  	result += "<div class='userProfileBannerDark'>" +
+	  			  "<button type='button' class='close' data-dismiss='modal' aria-hidden='true'>&times;</button>" +
+					"<div class='media'>" +
+					"<a class='pull-left' href='#'>" +
+						"<img class='media-object tweetImg' src='" + user.profileImageUrl + "' alt='...'>" +
+					"</a>" +
+					"<div class='media-body'>" +
+						"<h4 class='media-heading'><b>" + user.name + "</b> (@" + user.screenName + ")</h4>";
+						result += (user.description) ? "<p>" + user.description + "</p>" : "";
+					result += "</div>" +
+				  "</div>" +
+				"</div>" +
 		      "</div>" +
-		      "<div class='modal-body'>" +
-		      	
+		      "<div class='row userProfileStats'>" +		      
+		      	"<div class='col-md-2 col-sm-2'>Tweets<br>" + user.statusesCount + "</div>" +
+		      	"<div class='col-md-2 col-sm-2'>Following<br>" + user.friendsCount + "</div>" +
+		      	"<div class='col-md-2 col-sm-2'>Followers<br>" + user.followersCount + "</div>";
+		      	result += (user.location) ? "<div class='col-md-3 col-sm-3'>Hometown<br>" + user.location + "</div>" : "";
+		      result += "</div>" +
+		      "<div class='modal-body'>" +		      
 		      	//Model body
-		      	"<div id='profileTweetsFor" + user.screenName + "'>" +
-		      		"<p>Loading tweets...</p>" +
+		      	"<div id='profileTweetsFor" + user.screenName + "' class='profileTweets'>" +
+		      		LOADING_IMG_BIG +
 		      	"</div>" + 
+		      	
+		      	"<a href='http://twitter.com/" + user.screenName + "/' class='profileLink'>Visit " + user.name + "'s profile on Twitter</a>" +
 		      
-		      "</div>" +
-		      "<div class='modal-footer'>" +
-		       "<button type='button' class='btn btn-default' data-dismiss='modal'>Close</button>" +
-		        "<button type='button' class='btn btn-primary'>Save changes</button>" +
 		      "</div>" +
 		    "</div>" +
 		  "</div>" +
@@ -349,9 +425,15 @@ $(window).load(function() {
 	
 	
 	function populateModalTweets(screenName, tweets){
+		lastLocationFound = false;
 		result = "";
+		result += "<h3>Latest Tweets</h3>";
 		$.each( tweets, function() {
-			result += "<p>" + this.text + "</p>";
+			result += "<div class='modalTweet'>" + this.text + "</div>";
+			if (!lastLocationFound && this.place) {
+				$("#userProfile" + screenName).find(".userProfileStats").append("<div class='col-md-3 col-sm-3'>Last Location<br><span class='profileLastLocation'>" + this.place.name + "</span></div>");
+				lastLocationFound = true;
+			}
 		});
 		$("#profileTweetsFor" + screenName).html( result );
 		$("a[data-target='#userProfile" + screenName + "']").attr('data-tweets-populated', 'true');

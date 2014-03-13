@@ -146,7 +146,31 @@
 					<form id="form4" class="forms" method="post" action="">
 						<input name="requestId" id="venuesForm" type="hidden" value="venuesForm">
 						<div class="form-group">
-							<button type="submit" id="form4submit" class="btn btn-default">Submit</button>
+							<label for="venueName" class="control-label">venue name = </label>
+							<input name="venueName" id="venueName" type="text" class="form-control">
+						</div>
+						<div class="form-group">
+							<label for="lat" class="control-label">lat = </label>
+							<input name="lat" id="lat2" type="number" class="form-control">
+						</div>
+						<div class="form-group">
+							<label for="lon" class="control-label">lon = </label>
+							<input name="lon" id="lon2" type="number" class="form-control">
+						</div>
+						<div class="form-group">
+							<label for="radius" class="control-label">radius = </label>
+							
+							<div class="input-group">
+  								<input name="radius" id="radius2" type="number" class="form-control">
+  								<span class="input-group-addon">km</span>
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="days" class="control-label">days = </label>
+							<input name="days" id="days3" type="number" class="form-control" value = "2">
+						</div>
+						<div class="form-group">
+							<button type="submit" id="form4Submit" class="btn btn-default">Submit</button>
 							<button type="reset" class="btn btn-default">Reset</button>
 						</div>
 					</form>
