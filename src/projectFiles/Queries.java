@@ -65,6 +65,13 @@ public class Queries {
 		return twitter.lookupUsers(users.toArray(userNamesArray));
 	}
 	
+	public List<Status> getUsersTweets(String screenName) throws TwitterException{
+		Query query = new Query("from:" + screenName);
+		query.setCount(100);
+		QueryResult result = twitter.search(query);
+		return result.getTweets();
+	}
+	
 	// 1. Tracking public discussions on specific topics
 	/** 
 	 * getTrendingTweets finds any tweets which match the query (and geolocation if available)

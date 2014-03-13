@@ -93,10 +93,10 @@ public class Servlet extends HttpServlet {
 	
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		PrintWriter out = response.getWriter();		
-    	String formId = request.getParameter("formId");    	
+    	String requestId = request.getParameter("requestId");    	
     	Gson gson = new Gson();
     	String json = "";
-    	    	if(formId.equals("topicForm")){
+    	    	if(requestId.equals("topicForm")){
     		try {
     			Queries query = new Queries( initTwitter() );
 
@@ -125,7 +125,7 @@ public class Servlet extends HttpServlet {
     			json = gson.toJson( te.getErrorMessage() );
     		}
     		
-    	} else if (formId.equals("retweetersForm")){
+    	} else if (requestId.equals("retweetersForm")){
     		try {
     			Queries query = new Queries(initTwitter());
     			long tweetId = Long.parseLong( request.getParameter("tweetId") );
@@ -141,7 +141,7 @@ public class Servlet extends HttpServlet {
     		}
 
     		
-    	} else if (formId.equals("discussionForm")){
+    	} else if (requestId.equals("discussionForm")){
 			try {
         		Queries query = new Queries(initTwitter()); 
 				LinkedList<String> users = new LinkedList<String>( Arrays.asList( request.getParameter("users").split(" ") ) );
@@ -177,7 +177,7 @@ public class Servlet extends HttpServlet {
 				json = gson.toJson("Error, keywords and days must be integers");
 			}
 			
-    	} else if (formId.equals("userVenueForm")){
+    	} else if (requestId.equals("userVenueForm")){
     		try {
     			Queries query = new Queries( initTwitter(), initFoursquare() );
     			int days = 0;
@@ -208,8 +208,24 @@ public class Servlet extends HttpServlet {
     			json = gson.toJson(e.getMessage() );
     		}
 
-    	} else if (formId.equals("venuesForm")){
+    	} else if (requestId.equals("venuesForm")){
     		json = gson.toJson("No action implemented");
+    	} else if (requestId.equals("fetchUserForProfile")){
+			try {
+	    		Queries query = new Queries(initTwitter()); 
+				User user = query.getTwitterUser(request.getParameter("screenName"));
+				json = gson.toJson( user );
+    		} catch ( TwitterException te ) {
+    			json = gson.toJson(te.getErrorMessage() );
+			}
+    	} else if (requestId.equals("fetchTweetsForProfile")){
+			try {
+	    		Queries query = new Queries(initTwitter()); 
+				List<Status> tweets = query.getUsersTweets(request.getParameter("screenName"));
+				json = gson.toJson(tweets);
+    		} catch ( TwitterException te ) {
+    			json = gson.toJson(te.getErrorMessage() );
+			}
     	}
     	
 		out.print( json );

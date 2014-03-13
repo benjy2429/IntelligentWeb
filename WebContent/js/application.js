@@ -1,5 +1,5 @@
 $(window).load(function() {
-
+	var FADESPEED = 500;
 	
 	// Prevent forms from performing default action
 	$("form").on("submit", function(e) {
@@ -8,7 +8,10 @@ $(window).load(function() {
 	
 	
 	$("#form1Submit").click(function() {
-		$("#dynamicText").html("Loading...");
+		$("#map-canvas").fadeOut(FADESPEED);
+		$("#dynamicText").fadeOut(FADESPEED, function() {
+	        $(this).html("Loading...").fadeIn(FADESPEED);
+	    });
 		$.ajax({
 			url: 'Servlet',
 			type: 'post',
@@ -18,19 +21,30 @@ $(window).load(function() {
 				var json = data.split("\n");
 				var tweetIds = JSON.parse(json[0]);
 				var tweets = JSON.parse(json[1]);
-
+				$("#resultsTitle").text("Results");
+				$("#resultsInfo").text("Below are the most recent results for your query:");
 				var result = "";
 				if (tweetIds.length > 0 && tweets.length > 0) {
 					
 					var i = 0;
 					$.each( tweets , function() {
 						result += "<div class='tweet'>";
-						result += "<form class='retweetersForm'><input type='hidden' name='formId' value='retweetersForm'>";
+						result += "<form class='retweetersForm'><input type='hidden' name='requestId' value='retweetersForm'>";
 						result += "<input type='hidden' class='tweetId' name='tweetId' value='" + tweetIds[i] + "'>";
 						result += "<input type='hidden' class='retweetCount' name='retweetCount' value='" + this.retweetCount + "'></form>";
+						
+						result += "<a href='#' data-screen-name='" + this.user.screenName + "' data-modal-generated='false' data-tweets-populated='false' data-toggle='modal' data-target='#userProfile" + this.user.screenName + "' class='visitProfile' title='" + this.user.name + "'>";
 						result += "<img class='tweetImg' src='" + this.user.profileImageUrl + "'/>";
+						result += "</a>";
+						
 						result += "<div class='tweetContent'>";
-						result += "<div class='tweetUser'>" + this.user.name + " (@<span class='tweetScreenName'>" + this.user.screenName + "</span>)</div>";
+						
+						result += "<div class='tweetUser'>"; 
+						result += "<a href='#' data-screen-name='" + this.user.screenName + "' data-modal-generated='false' data-tweets-populated='false' data-toggle='modal' data-target='#userProfile" + this.user.screenName + "' class='visitProfile' title='" + this.user.name + "'>";
+						result += this.user.name + " (@<span class='tweetScreenName'>" + this.user.screenName + "</span>)";
+						result += "</a>";
+						result +="</div>";
+						
 						result += "<div class='tweetText'>" + this.text + "</div>";
 						result += "<div class='tweetStats'>" + this.createdAt + " ";
 						result += "<span class='glyphicon glyphicon-star' title='Favourites' style='margin-left:10px;'></span> " + this.favoriteCount + " ";
@@ -50,7 +64,9 @@ $(window).load(function() {
 					result += "No matching tweets found. Try searching for a different term, or increasing the location radius.";
 				}
 
-				$("#dynamicText").html(result);
+				$("#dynamicText").fadeOut(FADESPEED, function() {
+			        $(this).html(result).fadeIn(FADESPEED);
+			    });
 			},
 			error: function(xhr,textStatus,errorThrown){
 				$("#dynamicText").html(errorThrown);
@@ -61,7 +77,10 @@ $(window).load(function() {
 	
 	
 	$("#form2Submit").click(function() {
-		$("#dynamicText").html("Loading...");
+		$("#map-canvas").fadeOut(FADESPEED);
+		$("#dynamicText").fadeOut(FADESPEED, function() {
+	        $(this).html("Loading...").fadeIn(FADESPEED);
+	    });
 		$.ajax({
 			url: 'Servlet',
 			type: 'post',
@@ -71,7 +90,14 @@ $(window).load(function() {
 				var json = data.split("\n");
 				var terms = JSON.parse(json[0]);
 				var userObjects = JSON.parse(json[1]);
+				$("#resultsTitle").text("Results");
+				if(terms.length > 0){
+					$("#resultsInfo").text("Below are the " + terms.length + " most frequently used terms:");
+				} else {
+					$("#resultsInfo").text("There are no frequently used terms from this period!");
+				}
 				var result = "";
+				result += "<div style='border-bottom: 1px solid #e7e7e7;'></div>";
 				$.each( terms , function() {
 					result += "<div class='frequentWord'>";
 					result += "<div class='wordRank'>" + this.rank +".</div>";
@@ -95,7 +121,7 @@ $(window).load(function() {
 							var user = userObjects[index];
 							result += "<div class='userCount'>";
 							result += "<a href='#' data-screen-name='" + user.screenName + "' data-modal-generated='false' data-tweets-populated='false' data-toggle='modal' data-target='#userProfile" + user.screenName + "' class='visitProfile' title='" + user.name + "'>";
-							result += "<img class='tweetImgSmall' src='" + user.profileImageUrl + "'/> " + user.name + " (@<span class='tweetScreenName'>" + user.screenName + "</span>)";
+							result += "<img class='tweetImgSmall' src='" + user.profileImageUrl + "'/>" + user.name + " (@<span class='tweetScreenName'>" + user.screenName + "</span>)";
 							result += "</a> : " + this.u;
 							result += "</div>";
 						}
@@ -103,7 +129,9 @@ $(window).load(function() {
 					result += "</div>";
 					result += "</div>";
 				});
-				$("#dynamicText").html( result );
+				$("#dynamicText").fadeOut(FADESPEED, function() {
+			        $(this).html(result).fadeIn(FADESPEED);
+			    });
 				$.each( userObjects , function() {
 					generateModelBox(this);
 				});
@@ -116,7 +144,9 @@ $(window).load(function() {
 	
 	
 	$("#form3Submit").click(function() {
-		$("#dynamicText").html("Loading...");
+		$("#dynamicText").fadeOut(FADESPEED, function() {
+	        $(this).html("Loading...").fadeIn(FADESPEED);
+	    });
 		$.ajax({
 			url: 'Servlet',
 			type: 'post',
@@ -124,10 +154,13 @@ $(window).load(function() {
 			data: $('#form3').serialize(),
 			success: function(data){
 				var json = data.split("\n");
-				var result = "";
-				
-				// Twitter user info
 				var user = JSON.parse(json[0]);
+				var venues = JSON.parse(json[1]);
+				$("#resultsTitle").text("Results");
+				$("#resultsInfo").text("");				
+				var result = "";
+				// Twitter user info
+				
 				result += "<div class='tweet' style=''>";
 				result += "<img class='tweetImg' src='" + user.profileImageUrl + "' />";
 				result += "<div class='tweetContent'>";
@@ -137,12 +170,12 @@ $(window).load(function() {
 				result += "</div>";
 				
 				// Venues
-				data = JSON.parse(json[1]);
-				$("#map-canvas").show();
+				
+				$("#map-canvas").fadeIn(FADESPEED);
 				var map = new google.maps.Map(document.getElementById("map-canvas"), {mapTypeId: google.maps.MapTypeId.ROADMAP});
 				var bounds = new google.maps.LatLngBounds();
-				
-				$.each( data, function() {
+
+				$.each( venues, function() {
 					result += "<div class='venue'>";
 					result += (this.photos.groups[1].items.length > 0) ? "<img class='venueImg' src='" + this.photos.groups[1].items[0].url + "'/>" : "";
 					result += "<div class='venueContent'>";
@@ -180,7 +213,9 @@ $(window).load(function() {
 			        bounds.extend(marker.position);
 			        
 				});
-				$("#dynamicText").html(result);
+				$("#dynamicText").fadeOut(FADESPEED, function() {
+			        $(this).html(result).fadeIn(FADESPEED);
+			    });
 				map.fitBounds(bounds);
 			},
 			error: function(xhr,textStatus,errorThrown){
@@ -190,15 +225,16 @@ $(window).load(function() {
 	});
 	
 	$("#form4Submit").click(function() {
-		var parameters = "formId=" + encodeURIComponent(document.getElementsByName("formId")[3].value);
+		var parameters = "requestId=" + encodeURIComponent(document.getElementsByName("requestId")[3].value);
 		loadXMLDoc(parameters);
 	});
 	
 	$(".results").on('click', '.getRetweets', function(e) {
 		var tweet = $(this).parent().parent().parent().parent();
 		var tweetId = tweet.find('.tweetId').val();
-		$("#retweetsFor" + tweetId).html("Loading..");
-
+		$("#retweetsFor" + tweetId).fadeOut(FADESPEED, function() {
+	        $(this).html("Loading..").fadeIn(FADESPEED);
+	    });
 		$.ajax({
 			url: 'Servlet',
 			type: 'post',
@@ -217,9 +253,12 @@ $(window).load(function() {
 				if (!result) {
 					$("#retweetsFor" + tweetId).html("No retweets!");
 				} else {
-					$("#retweetsFor" + tweetId).html(result);
+				    $("#retweetsFor" + tweetId).fadeOut(FADESPEED, function() {
+				        $(this).html(result).fadeIn(FADESPEED);
+				        $("[data-toggle='tooltip']").tooltip({ placement: 'bottom' });
+				    });
 				}
-				$("[data-toggle='tooltip']").tooltip({ placement: 'bottom' });
+				
 
 			},
 			error: function(xhr,textStatus,errorThrown){
@@ -247,16 +286,35 @@ $(window).load(function() {
 	
 	$(".results").on('click', '.visitProfile', function(e) {	
 		var link = $(this);
-		var screenName = link.data("screen-name");
-		var modalGen = link.data("modal-generated");
-		var tweetsGen = link.data("tweets-populated");
-		alert(screenName + " " + modalGen + " " + tweetsGen);
-		if (modalGen == "false"){
-			alert("would now generate modal for " + screenName);
+		var screenName = link.attr("data-screen-name");
+		if (link.attr("data-modal-generated") == "false"){
+			$.ajax({
+				url: 'Servlet',
+				type: 'post',
+				datatype: 'json',
+				data: "requestId=fetchUserForProfile&screenName="+ screenName + "",
+				success: function(data){
+					generateModelBox(JSON.parse(data));
+					$("#userProfile" + screenName).modal("show"); //If generating modal then the click event to show it might not be executed if model hasnt yet been defined, hence we ensure it is shown after construction
+				},
+				error: function(xhr,textStatus,errorThrown){
+					alert("Error fetching profile information for user");
+				}
+			});
 		}
-		if (tweetsGen == "false"){
-			alert("would now generate tweets for " + screenName);
-			link.text("OMG HI");
+		if (link.attr("data-tweets-populated") == "false"){
+			$.ajax({
+				url: 'Servlet',
+				type: 'post',
+				datatype: 'json',
+				data: "requestId=fetchTweetsForProfile&screenName="+ screenName,
+				success: function(data){
+					populateModalTweets(screenName, JSON.parse(data));
+				},
+				error: function(xhr,textStatus,errorThrown){
+					$("#profileTweetsFor" + screenName).html("Error fetching tweets for user profile");
+				}
+			});
 		}
 	});
 	
@@ -274,7 +332,7 @@ $(window).load(function() {
 		      	
 		      	//Model body
 		      	"<div id='profileTweetsFor" + user.screenName + "'>" +
-		      
+		      		"<p>Loading tweets...</p>" +
 		      	"</div>" + 
 		      
 		      "</div>" +
@@ -286,17 +344,17 @@ $(window).load(function() {
 		  "</div>" +
 		"</div>";
 		$("#modalWindows").append( result );
-		$("a[data-target='#userProfile" + user.screenName + "']").data('modal-generated', 'true');
+		$("a[data-target='#userProfile" + user.screenName + "']").attr('data-modal-generated', 'true');
 	}
 	
-	/*
+	
 	function populateModalTweets(screenName, tweets){
 		result = "";
 		$.each( tweets, function() {
-			result += "<p>" + this.text "</p>";
+			result += "<p>" + this.text + "</p>";
 		});
-		$("#profileTweetsFor" + screenName).append( result );
-		$("a[data-target='#userProfile" + user.screenName + "']").data('tweets-populated', 'true');
-	}*/
+		$("#profileTweetsFor" + screenName).html( result );
+		$("a[data-target='#userProfile" + screenName + "']").attr('data-tweets-populated', 'true');
+	}
 	
 });
