@@ -194,7 +194,8 @@ public class Servlet extends HttpServlet {
 	    			List<CompleteVenue> result = query.getUserVenues( user.getScreenName(), days );
 	    			json += gson.toJson( result );
     			} else if (days == 0) {
-	    			//List<Status> result = query.getLiveUserVenues( user.getScreenName(), initTwitterStream() );
+	    			List<Status> result = query.getLiveUserVenues( user.getScreenName(), initTwitterStream() );
+	    			for (Status tweet : result) System.out.println(tweet.getText());
 	    			json += gson.toJson( null );
     			} else {
     				throw new Exception("Days must be greater or equal to zero");

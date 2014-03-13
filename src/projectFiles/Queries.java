@@ -260,13 +260,19 @@ public class Queries {
 	}
 	
 	public List<Status> getLiveUserVenues(String username, TwitterStream twitterStream) throws Exception, TwitterException, FoursquareApiException { //TODO Use twitter streaming api if days==0
+		final Object lock = new Object();
 		final List<Status> resultList = new LinkedList<Status>();
 		
 
 		StatusListener listener = new StatusListener() {
 			@Override public void onStatus(Status status) {
 				resultList.add(status);
-				//System.out.println("@" + status.getUser().getScreenName() + " - " + status.getText()); 
+				if (resultList.size() >= 5) {
+					synchronized (lock) {
+						lock.notify();
+					}
+				}
+				System.out.println("@" + status.getUser().getScreenName() + " - " + status.getText()); 
 				}
 			@Override public void onDeletionNotice(StatusDeletionNotice statusDeletionNotice) {
 				System.out.println("Got a status deletion notice id:" + statusDeletionNotice.getStatusId()); }
@@ -286,6 +292,16 @@ public class Queries {
 		stringsToTrack[0] = "foursquare";
 		double[][] locationsToTrack = new double[0][0];
 		twitterStream.filter(new FilterQuery(count, idToFollow, stringsToTrack, locationsToTrack));
+		
+		try {
+			synchronized (lock) {
+				lock.wait();
+			}
+		} catch (InterruptedException ie) {
+			System.out.println("Closing twitterstream..");
+		}
+		
+		twitterStream.shutdown();
 		
 		/*
 		
