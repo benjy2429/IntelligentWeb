@@ -8,6 +8,13 @@ $(window).load(function() {
 		e.preventDefault();
 	});
 	
+	$("#enableLoc").click(function() { 
+	    if ($(this).is(':checked')) {
+	    	$("#locationFields").show(FADESPEED);
+	    } else {
+	    	$("#locationFields").hide(FADESPEED);
+	    }
+	});
 	
 	$("#form1Submit").click(function() {
 		$("#map-canvas").fadeOut(FADESPEED);

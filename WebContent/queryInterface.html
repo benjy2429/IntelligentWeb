@@ -37,23 +37,29 @@
 					<form id="form1" class="forms" method="post" action="">
 						<input name="requestId" id="topicForm" type="hidden" value="topicForm">
 						<div class="form-group">
-							<label for="query" class="control-label">query = </label>
+							<label for="query" class="control-label">Enter a search query:</label>
 							<input name="query" id="query" type="text" class="form-control" value="from:bbcnews">
-						</div>
+						</div>	
 						<div class="form-group">
-							<label for="lat" class="control-label">lat = </label>
-							<input name="lat" id="lat" type="number" class="form-control">
+							<label for="enableLoc" class="control-label">Filter by location:</label>
+							<input name="enableLoc" id="enableLoc" type="checkbox" style="vertical-align: text-bottom;">
 						</div>
-						<div class="form-group">
-							<label for="lon" class="control-label">lon = </label>
-							<input name="lon" id="lon" type="number" class="form-control">
-						</div>
-						<div class="form-group">
-							<label for="radius" class="control-label">radius = </label>
-							
-							<div class="input-group">
-  								<input name="radius" id="radius" type="number" class="form-control">
-  								<span class="input-group-addon">km</span>
+						<div id="locationFields" style="display:none;">
+							<div class="form-group">
+								<label for="lat" class="control-label">Enter latitude: </label>
+								<input name="lat" id="lat" type="number" class="form-control">
+							</div>
+							<div class="form-group">
+								<label for="lon" class="control-label">Enter longitude: </label>
+								<input name="lon" id="lon" type="number" class="form-control">
+							</div>
+							<div class="form-group">
+								<label for="radius" class="control-label">Acceptable radius:</label>
+								
+								<div class="input-group">
+	  								<input name="radius" id="radius" type="number" class="form-control">
+	  								<span class="input-group-addon">km</span>
+								</div>
 							</div>
 						</div>
 						<div class="form-group">
@@ -84,11 +90,11 @@
 							<input name="users" id="users" type="text" class="form-control" value="bbcnews itvnews channel4news">
 						</div>
 						<div class="form-group">
-							<label for="keywords" class="control-label">no keywords = </label>
+							<label for="keywords" class="control-label">Keywords to find:</label>
 							<input name="keywords" id="keywords" type="number" class="form-control" value="10">
 						</div>
 						<div class="form-group">
-							<label for="days" class="control-label">days = </label>
+							<label for="days" class="control-label">Number of days to search:</label>
 							<input name="days" id="days" type="number" class="form-control" value = "2">
 						</div>
 						<div class="form-group">
