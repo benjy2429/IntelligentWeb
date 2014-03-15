@@ -174,7 +174,6 @@ $(window).load(function() {
 	});
 			
 	function getUserVenues(userRequest, map, bounds) {
-alert("POLLING!");
 		$.ajax({
 			url: 'Servlet',
 			type: 'post',
