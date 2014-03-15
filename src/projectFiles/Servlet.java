@@ -142,6 +142,11 @@ public class Servlet extends HttpServlet {
     	String json = "";
     	    	if(requestId.equals("topicForm")){
     		try {
+    			if (twitterStream != null) {
+    				twitterStream.getTwitterStream().shutdown();
+    				twitterStream = null;
+    			}
+    			
     			Queries query = new Queries( initTwitter() );
 
     			Double lat, lon, radius;
@@ -171,6 +176,7 @@ public class Servlet extends HttpServlet {
     		
     	} else if (requestId.equals("retweetersForm")){
     		try {
+    			
     			Queries query = new Queries(initTwitter());
     			long tweetId = Long.parseLong( request.getParameter("tweetId") );
     			List<User> retweeters = query.getRetweeters(tweetId);
@@ -187,6 +193,11 @@ public class Servlet extends HttpServlet {
     		
     	} else if (requestId.equals("discussionForm")){
 			try {
+    			if (twitterStream != null) {
+    				twitterStream.getTwitterStream().shutdown();
+    				twitterStream = null;
+    			}
+				
         		Queries query = new Queries(initTwitter()); 
 				LinkedList<String> users = new LinkedList<String>( Arrays.asList( request.getParameter("users").split(" ") ) );
 				
@@ -231,19 +242,51 @@ public class Servlet extends HttpServlet {
     				System.out.println( "WARNING: Invalid days parameter, defaulting to 0 (live stream)" );
     			}
     			
-    			User user = query.getTwitterUser( request.getParameter("username") );
-    			json = gson.toJson( user );
-    			json += "\n";
+    			User user = query.getTwitterUser( request.getParameter("username") );  		
+    			
+    			// Send user if requested (Only needed first time for streaming)
+    			if ( request.getParameter("userRequest").equals("1") ) {
+	    			json = gson.toJson( user );
+	    			json += "\n";
+    			}
+    			
+    			
     			if (days > 0) {
+        			if (twitterStream != null) {
+        				twitterStream.getTwitterStream().shutdown();
+        				twitterStream = null;
+        			}
+        			
 	    			List<CompleteVenue> result = query.getUserVenues( user.getScreenName(), days );
 	    			json += gson.toJson( result );
+	    			
     			} else if (days == 0) {
-	    			List<Status> result = query.getLiveUserVenues( user.getScreenName(), initTwitterStream() );
-	    			for (Status tweet : result) System.out.println(tweet.getText());
-	    			json += gson.toJson( null );
+	    			if (twitterStream == null || twitterStream.isShutdown()) {
+	    				try {	    	    			
+	    	    			// Open live stream
+	    					System.out.println("Opening Twitter stream..");
+	    					twitterStream = new StreamingQueries( initTwitterStream(), initFoursquare() );
+	    					twitterStream.addUserVenuesListener( user.getId() );
+	    					System.out.println("Twitter stream opened");
+	    					
+	    					// Get venues visited today
+	    	    			List<CompleteVenue> result = query.getUserVenues( user.getScreenName(), days );
+	    	    			json += gson.toJson( result );
+
+	    				} catch (TwitterException e) {
+	    					e.printStackTrace();
+	    				}
+	    			} else {
+		    			json += gson.toJson( twitterStream.getVenues() );
+	    				twitterStream.clearLists();
+	    			}  
+    			
+    			
     			} else {
-    				throw new Exception("Days must be greater or equal to zero");
-    			}
+     				throw new Exception("Days must be greater or equal to zero");
+     			}
+		
+	    			
     		} catch ( TwitterException te ) {
     			json = gson.toJson(te.getErrorMessage() );
     		} catch ( FoursquareApiException fse ) {
@@ -254,6 +297,11 @@ public class Servlet extends HttpServlet {
 
     	} else if (requestId.equals("venuesForm")){
 			try {
+    			if (twitterStream != null) {
+    				twitterStream.getTwitterStream().shutdown();
+    				twitterStream = null;
+    			}
+    			
 				Queries query = new Queries( initTwitter() );
 				
 				int days = 0;

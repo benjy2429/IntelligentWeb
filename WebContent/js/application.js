@@ -2,6 +2,7 @@ $(window).load(function() {
 	var FADESPEED = 250;
 	var LOADING_IMG = "<img src='./img/loading.gif' style='vertical-align:text-top;margin-right:5px;' /> Loading..";
 	var LOADING_IMG_BIG = "<div style='margin-top:20px;'><img src='./img/big_loading.gif' style='vertical-align:middle;margin-right:10px;' /> Loading..</div>";
+	var streamFunctionId; 
 	
 	// Prevent forms from performing default action
 	$("form").on("submit", function(e) {
@@ -149,43 +150,59 @@ $(window).load(function() {
 			}
 		});
 	});
+
 	
 	
 	$("#form3Submit").click(function() {
+		var map = new google.maps.Map(document.getElementById("map-canvas"), {mapTypeId: google.maps.MapTypeId.ROADMAP});
+		var bounds = new google.maps.LatLngBounds();
+		
 		$("#dynamicText").fadeOut(FADESPEED, function() {
 	        $(this).html(LOADING_IMG_BIG).fadeIn(FADESPEED);
 	    });
+		
+		getUserVenues(true, map, bounds);
+		
+		if ($("#days2").val() == "0") {
+			$("#userRequest").val("0");
+			streamFunction = setInterval(function() { getUserVenues(false, map, bounds); }, 20000);
+		}
+	});
+			
+	function getUserVenues(userRequest, map, bounds) {
 		$.ajax({
 			url: 'Servlet',
 			type: 'post',
 			datatype: 'json',
 			data: $('#form3').serialize(),
 			success: function(data){
-				var json = data.split("\n");
-				var user = JSON.parse(json[0]);
-				var venues = JSON.parse(json[1]);
+				var result = "";
+				var venues;
 				$("#resultsTitle").text("Results");
 				$("#resultsInfo").text("");				
-				var result = "";
-				// Twitter user info
-				
-				result += "<div class='tweet' style=''>";
-				result += "<img class='tweetImg' src='" + user.profileImageUrl + "' />";
-				result += "<div class='tweetContent'>";
-				result += "<h2 style='margin:0;'>" + user.name + "'s Latest Foursquare Check-ins</h2>";
-				result += "@" + user.screenName;
-				result += "</div>";
-				result += "</div>";
+			
+				if (userRequest) {
+					var json = data.split("\n");
+					var user = JSON.parse(json[0]);
+					venues = JSON.parse(json[1]);
+					// Twitter user info					
+					result += "<div class='tweet' style=''>";
+					result += "<img class='tweetImg' src='" + user.profileImageUrl + "' />";
+					result += "<div class='tweetContent'>";
+					result += "<h2 style='margin:0;'>" + user.name + "'s Latest Foursquare Check-ins</h2>";
+					result += "@" + user.screenName;
+					result += "</div>";
+					result += "</div>";			
+				} else {
+					venues = JSON.parse(data);
+				}
 				
 				// Venues
-				
 				$("#map-canvas").fadeIn(FADESPEED);
-				var map = new google.maps.Map(document.getElementById("map-canvas"), {mapTypeId: google.maps.MapTypeId.ROADMAP});
-				var bounds = new google.maps.LatLngBounds();
 
 				$.each( venues, function() {
 					result += "<div class='venue'>";
-					result += (this.photos.groups[1].items.length > 0) ? "<img class='venueImg' src='" + this.photos.groups[1].items[0].url + "'/>" : "";
+					result += (this.photos.groups[1] && this.photos.groups[1].items.length > 0) ? "<img class='venueImg' src='" + this.photos.groups[1].items[0].url + "'/>" : "";
 					result += "<div class='venueContent'>";
 					result += "<span class='venueName'>" + this.name + ", </span>";
 					result += (this.location.address) ? this.location.address : "";
@@ -221,16 +238,23 @@ $(window).load(function() {
 			        bounds.extend(marker.position);
 			        
 				});
-				$("#dynamicText").fadeOut(FADESPEED, function() {
-			        $(this).html(result).fadeIn(FADESPEED);
-			    });
+				
+				if (!userRequest) {
+					$(".tweet").after(result).fadeIn(FADESPEED);
+				} else {
+					$("#dynamicText").fadeOut(FADESPEED, function() {
+				        $(this).html(result).fadeIn(FADESPEED);
+				    });
+				}
+				
 				map.fitBounds(bounds);
 			},
 			error: function(xhr,textStatus,errorThrown){
+				
 				$("#dynamicText").html(errorThrown);
 			}
 		});
-	});
+	}
 	
 	
 	$("#form4Submit").click(function() {
