@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
@@ -31,6 +33,9 @@ import fi.foyt.foursquare.api.entities.*;
  */
 public class Servlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
+	
+	private StreamingQueries twitterStream = null;
+	private Timer timer = null;
        
 	/** 
 	 * confTwitter provides the oAuth configuration settings for a Twitter connection
@@ -89,6 +94,45 @@ public class Servlet extends HttpServlet {
 		ServletContext context = getServletContext();
 		RequestDispatcher rd = context.getRequestDispatcher("/queryInterface.html");
 		rd.forward(request, response);		
+		
+		/* STREAM TEST
+		if (twitterStream == null) {
+			try {
+				System.out.println("Opening Twitter stream..");
+				twitterStream = new StreamingQueries( initTwitterStream() );
+				System.out.println("Twitter stream opened");
+			} catch (TwitterException e) {
+				e.printStackTrace();
+			}
+		} else {
+			System.out.println( twitterStream.getTweets() );
+			twitterStream.clearTweets();
+		}
+		if (request.getParameter("stop") != null) {
+			System.out.println("Closing Twitter stream..");
+			twitterStream.getTwitterStream().shutdown();
+			twitterStream = null;
+			System.out.println("Twitter stream closed");
+		}
+		*/
+		
+		/* TIMER TEST
+		class SayHello extends TimerTask {
+		    public void run() {
+		       System.out.println("Hello World!"); 
+		    }
+		 }
+
+		// And From your main() method or any other method
+		if (request.getParameter("go") != null) {
+			timer = new Timer();
+			timer.schedule(new SayHello(), 0, 5000);
+		} else if (request.getParameter("stop") != null) {
+			timer.cancel();
+			timer.purge();
+		}
+		*/
+		
 	}
 	
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
