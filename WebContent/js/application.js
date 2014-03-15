@@ -2,7 +2,7 @@ $(window).load(function() {
 	var FADESPEED = 250;
 	var LOADING_IMG = "<img src='./img/loading.gif' style='vertical-align:text-top;margin-right:5px;' /> Loading..";
 	var LOADING_IMG_BIG = "<div style='margin-top:20px;'><img src='./img/big_loading.gif' style='vertical-align:middle;margin-right:10px;' /> Loading..</div>";
-	var streamFunctionId; 
+	var streamFunctionId = 0; 
 	
 	// Prevent forms from performing default action
 	$("form").on("submit", function(e) {
@@ -18,6 +18,7 @@ $(window).load(function() {
 	});
 	
 	$("#form1Submit").click(function() {
+		clearInterval(streamFunctionId);
 		$("#map-canvas").fadeOut(FADESPEED);
 		$("#dynamicText").fadeOut(FADESPEED, function() {
 	        $(this).html(LOADING_IMG_BIG).fadeIn(FADESPEED);
@@ -87,6 +88,7 @@ $(window).load(function() {
 	
 	
 	$("#form2Submit").click(function() {
+		clearInterval(streamFunctionId);
 		$("#map-canvas").fadeOut(FADESPEED);
 		$("#dynamicText").fadeOut(FADESPEED, function() {
 	        $(this).html(LOADING_IMG_BIG).fadeIn(FADESPEED);
@@ -167,11 +169,12 @@ $(window).load(function() {
 		
 		if ($("#days2").val() == "0") {
 			$("#userRequest").val("0");
-			streamFunction = setInterval(function() { getUserVenues(false, map, bounds); }, 20000);
+			streamFunctionId = setInterval(function() { getUserVenues(false, map, bounds); }, 20000);
 		}
 	});
 			
 	function getUserVenues(userRequest, map, bounds) {
+alert("POLLING!");
 		$.ajax({
 			url: 'Servlet',
 			type: 'post',
@@ -260,6 +263,7 @@ $(window).load(function() {
 	
 	
 	$("#form4Submit").click(function() {
+		clearInterval(streamFunctionId);
 		$("#map-canvas").fadeOut(FADESPEED);
 		$("#dynamicText").fadeOut(FADESPEED, function() {
 	        $(this).html(LOADING_IMG_BIG).fadeIn(FADESPEED);
