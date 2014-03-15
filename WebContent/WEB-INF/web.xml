@@ -45,8 +45,19 @@
     <servlet-name>Servlet</servlet-name>
     <servlet-class>projectFiles.Servlet</servlet-class>
   </servlet>
+  <servlet>
+  	<description>
+  	</description>
+  	<display-name>DatabaseServlet</display-name>
+  	<servlet-name>DatabaseServlet</servlet-name>
+  	<servlet-class>projectFiles.DatabaseServlet</servlet-class>
+  </servlet>
   <servlet-mapping>
     <servlet-name>Servlet</servlet-name>
     <url-pattern>/Servlet</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+  	<servlet-name>DatabaseServlet</servlet-name>
+  	<url-pattern>/DatabaseServlet</url-pattern>
   </servlet-mapping>
 </web-app>
