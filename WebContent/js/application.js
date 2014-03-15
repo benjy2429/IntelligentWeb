@@ -101,7 +101,9 @@ $(window).load(function() {
 				var userObjects = JSON.parse(json[1]);
 				$("#resultsTitle").text("Results");
 				if(terms.length > 0){
-					$("#resultsInfo").text("Below are the " + terms.length + " most frequently used terms:");
+					var html = "Below are the " + terms.length + " most frequently used terms:";
+					html += "<br/><a href='#' id='expandAllCounts'>Expand All</a> | <a href='#' id='collapseAllCounts'>Collapse All</a>";
+					$("#resultsInfo").html(html);
 				} else {
 					$("#resultsInfo").text("There are no frequently used terms from this period!");
 				}
@@ -244,8 +246,10 @@ $(window).load(function() {
 			datatype: 'json',
 			data: $('#form4').serialize(),
 			success: function(data){
-				tweets = JSON.parse(data);
-				result = "";
+				var json = data.split("\n");
+				var tweetIds = JSON.parse(json[0]);
+				var tweets = JSON.parse(json[1]);
+				var result = "";
 				if (tweets.length > 0) {
 					var i = 0;
 					$.each( tweets , function() {
@@ -339,11 +343,26 @@ $(window).load(function() {
 		
 	});
 	
+	$(".results").on('click', '#expandAllCounts', function(e) {
+		var link = $(this);
+		var userCounts = link.parent().parent().find('.userCounts');
+		userCounts.slideDown(FADESPEED);
+		e.preventDefault();
+	});
+	
+	$(".results").on('click', '#collapseAllCounts', function(e) {
+		var link = $(this);
+		var userCounts = link.parent().parent().find('.userCounts');
+		userCounts.slideUp(FADESPEED);
+		e.preventDefault();
+	});
+	
+	
 	$(".results").on('click', '.viewUserCounts', function(e) {	
 		var link = $(this);
 		var userCounts = link.parent().parent().find('.userCounts');
 		var isVisible = userCounts.is(':visible');
-		userCounts.slideToggle(300, function() {
+		userCounts.slideToggle(FADESPEED, function() {
 	        if (!isVisible) {
 	             link.text("Hide individual user counts");                
 	        } else {

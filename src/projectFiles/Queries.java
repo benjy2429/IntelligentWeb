@@ -429,15 +429,18 @@ public class Queries {
 		if (days > 0) {	
 			
 			Query query= new Query(); 
-			
+			String queryText = "";
+			if ( !venueName.isEmpty() ) {
+				queryText = "foursquare " + venueName + " ";
+			} else {
+				queryText = ("foursquare ");
+			}
 			// Add geolocation if available
 			if ( !Double.isNaN(latitude) && !Double.isNaN(longitude) && !Double.isNaN(radius) ) {
 				query.setGeoCode(new GeoLocation(latitude, longitude), radius, Query.KILOMETERS); //TODO Maybe add ability to choose between Km or Miles
-				query.setQuery( "foursquare" );
-			} else if ( !venueName.isEmpty() ) {
-				query.setQuery( "foursquare " + venueName );
-			}
-			
+			} 
+			query.setQuery(queryText);
+
 			// Calculate date minus days parameter
 			Calendar cal = Calendar.getInstance();
 			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");

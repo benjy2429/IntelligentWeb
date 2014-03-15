@@ -264,7 +264,7 @@ public class Servlet extends HttpServlet {
 				}
 				
     			Double lat, lon, radius;
-    			String venueName = "";
+    			String venueName = request.getParameter("venueName");
     			try {
     				lat = Double.parseDouble( request.getParameter("lat") );
     				lon = Double.parseDouble( request.getParameter("lon") );
@@ -274,11 +274,18 @@ public class Servlet extends HttpServlet {
     				lat = Double.NaN;
     				lon = Double.NaN;
     				radius = Double.NaN;
-    				venueName = request.getParameter("venueName");
     			}
 				
 				List<Status> tweets = query.getUsersAtVenue(venueName, lat, lon, radius, days);
-				json = gson.toJson(tweets);
+				
+				//Have to parse ids as string and send them separately as twitter4j does not support the id_str parameter and javascript cannot handle type long
+    			ArrayList<String> tweetIds = new ArrayList<String>();
+    			for(Status status : tweets) {
+    				tweetIds.add(String.valueOf(status.getId()));
+    			}
+    			json = gson.toJson( tweetIds );
+    			json += "\n";
+    			json += gson.toJson( tweets );
 				
 			} catch (TwitterException te) {
 				json = gson.toJson(te.getErrorMessage() );
