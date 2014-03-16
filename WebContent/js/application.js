@@ -2,7 +2,7 @@ $(window).load(function() {
 	var FADESPEED = 250;
 	var LOADING_IMG = "<img src='./img/loading.gif' style='vertical-align:text-top;margin-right:5px;' /> Loading..";
 	var LOADING_IMG_BIG = "<div style='margin-top:20px;'><img src='./img/big_loading.gif' style='vertical-align:middle;margin-right:10px;' /> Loading..</div>";
-	var streamFunctionId; 
+	var streamFunctionId = 0; 
 	
 	// Prevent forms from performing default action
 	$("form").on("submit", function(e) {
@@ -17,7 +17,16 @@ $(window).load(function() {
 	    }
 	});
 	
+	$('#accordion').on('hide.bs.collapse', function (e) {
+		$(e.target).parent().removeClass('panel-info').addClass('panel-default');
+	});
+	$('#accordion').on('show.bs.collapse', function (e) {
+		$(e.target).parent().removeClass('panel-default').addClass('panel-info');
+	});
+
+	
 	$("#form1Submit").click(function() {
+		clearInterval(streamFunctionId);
 		$("#map-canvas").fadeOut(FADESPEED);
 		$("#dynamicText").fadeOut(FADESPEED, function() {
 	        $(this).html(LOADING_IMG_BIG).fadeIn(FADESPEED);
@@ -87,6 +96,7 @@ $(window).load(function() {
 	
 	
 	$("#form2Submit").click(function() {
+		clearInterval(streamFunctionId);
 		$("#map-canvas").fadeOut(FADESPEED);
 		$("#dynamicText").fadeOut(FADESPEED, function() {
 	        $(this).html(LOADING_IMG_BIG).fadeIn(FADESPEED);
@@ -156,22 +166,20 @@ $(window).load(function() {
 	
 	
 	$("#form3Submit").click(function() {
-		var map = new google.maps.Map(document.getElementById("map-canvas"), {mapTypeId: google.maps.MapTypeId.ROADMAP});
-		var bounds = new google.maps.LatLngBounds();
-		
+	
 		$("#dynamicText").fadeOut(FADESPEED, function() {
 	        $(this).html(LOADING_IMG_BIG).fadeIn(FADESPEED);
 	    });
 		
-		getUserVenues(true, map, bounds);
+		getUserVenues(true);
 		
 		if ($("#days2").val() == "0") {
 			$("#userRequest").val("0");
-			streamFunction = setInterval(function() { getUserVenues(false, map, bounds); }, 20000);
+			streamFunctionId = setInterval(function() { getUserVenues(false); }, 20000);
 		}
 	});
 			
-	function getUserVenues(userRequest, map, bounds) {
+	function getUserVenues(userRequest) {
 		$.ajax({
 			url: 'Servlet',
 			type: 'post',
@@ -201,7 +209,9 @@ $(window).load(function() {
 				
 				// Venues
 				$("#map-canvas").fadeIn(FADESPEED);
-
+				var map = new google.maps.Map(document.getElementById("map-canvas"), {mapTypeId: google.maps.MapTypeId.ROADMAP});
+				var bounds = new google.maps.LatLngBounds();
+				
 				$.each( venues, function() {
 					result += "<div class='venue'>";
 					result += (this.photos.groups[1] && this.photos.groups[1].items.length > 0) ? "<img class='venueImg' src='" + this.photos.groups[1].items[0].url + "'/>" : "";
@@ -250,9 +260,10 @@ $(window).load(function() {
 				}
 				
 				map.fitBounds(bounds);
+
 			},
 			error: function(xhr,textStatus,errorThrown){
-				
+				clearInterval(streamFunctionId);
 				$("#dynamicText").html(errorThrown);
 			}
 		});
@@ -260,6 +271,7 @@ $(window).load(function() {
 	
 	
 	$("#form4Submit").click(function() {
+		clearInterval(streamFunctionId);
 		$("#map-canvas").fadeOut(FADESPEED);
 		$("#dynamicText").fadeOut(FADESPEED, function() {
 	        $(this).html(LOADING_IMG_BIG).fadeIn(FADESPEED);

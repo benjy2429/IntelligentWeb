@@ -30,21 +30,18 @@ public class StreamingQueries {
 	 */
 	public StreamingQueries(TwitterStream twitterStream){
 		this.twitterStream = twitterStream;
-		init();
+		incrementShutdownTimer();
 	}
 	
 	
 	public StreamingQueries(TwitterStream twitterStream, FoursquareApi foursquare){
 		this.twitterStream = twitterStream;
 		this.foursquare = foursquare;
-		init();
+		incrementShutdownTimer();
 	}
 	
 	
-	private void init() {
-		tweets = new LinkedList<Status>();
-		venues = new LinkedList<CompleteVenue>();
-		
+	private void incrementShutdownTimer() {	
 		shutdownTime = Calendar.getInstance();
 		shutdownTime.add(Calendar.SECOND, 60);
 	}
@@ -96,6 +93,8 @@ public class StreamingQueries {
 		};
 		twitterStream.addListener(listener);
 		
+		venues = new LinkedList<CompleteVenue>();
+		
 		int count = 0;
 		long[] idToFollow = new long[1]; 
 		idToFollow[0] = userId;
@@ -112,7 +111,7 @@ public class StreamingQueries {
 	 * @return String array of user_id and authorisation code 
 	 * @throws Exception
 	 */
-	private String[] expandFoursquareUrl(String shortUrl) throws Exception {
+	private String[] expandFoursquareUrl(String shortUrl) throws Exception { //TODO use the one in queries class
         URL url = new URL(shortUrl);
         String[] expandedUrl = {"",""};
         
@@ -136,14 +135,12 @@ public class StreamingQueries {
 	
 	
 	public List<Status> getTweets() {
-		shutdownTime = Calendar.getInstance();
-		shutdownTime.add(Calendar.SECOND, 60);	
+		incrementShutdownTimer();
 		return tweets;
 	}
 	
 	public List<CompleteVenue> getVenues() {
-		shutdownTime = Calendar.getInstance();
-		shutdownTime.add(Calendar.SECOND, 60);	
+		incrementShutdownTimer();
 		return venues;
 	}
 	
