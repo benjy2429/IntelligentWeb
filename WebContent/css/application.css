@@ -135,6 +135,7 @@ body {
 	height: 80px;
 	width: 80px;
 	float: left;
+	border-radius: 5px;
 }
 
 .venueContent {
@@ -206,4 +207,13 @@ button.close {
 
 .panel-heading {
 	transition: all 0.35s;
+}
+
+.venueDark {
+	background-color: #eee;
+}
+
+.checkin {
+	min-height: 70px;
+	margin: 10px 10px 0 70px;
 }

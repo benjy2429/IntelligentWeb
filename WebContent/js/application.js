@@ -282,25 +282,80 @@ $(window).load(function() {
 			datatype: 'json',
 			data: $('#form4').serialize(),
 			success: function(data){
+				$("#resultsTitle").text("Results");
+				$("#resultsInfo").text("");		
 				var json = data.split("\n");
 				var venues = JSON.parse(json[0]);
 				var venueTweetsMap = JSON.parse(json[1]);
 				var result = "";
 				var i = 0;
-					$.each(venues, function(venueId,venueObj){
-					    result += "Venue " + venueObj.name + "<br/><ul>";
-					    $.each(venueTweetsMap[venueId], function(id,tweetObj){
-					    	result += "<li>User: " + tweetObj.user.name + "<br/>";
-					    	result += "<ul><li>Date of checkin: " + tweetObj.createdAt + "</li>";
-					    	result += "<li>Message: " + tweetObj.text + "</li></ul>";
-					    });	
-					    result += "</ul><br/>";
-					    i++;
-					});	
+				$("#map-canvas").fadeIn(FADESPEED);
+				var map = new google.maps.Map(document.getElementById("map-canvas"), {mapTypeId: google.maps.MapTypeId.ROADMAP});
+				var bounds = new google.maps.LatLngBounds();
+				
+				result += "<h2 style='margin:20px 0;'>Venues and check-ins in this area</h2>";
+				$.each(venues, function(venueId,venueObj){					    
+					result += "<div class='venue venueDark'>";
+					result += (venueObj.photos.groups[1] && venueObj.photos.groups[1].items.length > 0) ? "<img class='venueImg' src='" + venueObj.photos.groups[1].items[0].url + "'/>" : "";
+					result += "<div class='venueContent'>";
+					result += "<span class='venueName'>" + venueObj.name + ", </span>";
+					result += (venueObj.location.address) ? venueObj.location.address : "";
+					result += (venueObj.location.address && venueObj.location.city) ? ", " : "";
+					result += (venueObj.location.city) ? venueObj.location.city : "";
+					result += "<br>";			
+					var categories = [];
+					$.each( venueObj.categories, function() {
+						categories.push( "<img src='" + this.icon + "' height='15' style='vertical-align:text-top' /> " + this.name );
+					});
+					result += categories.join(", ") + "<br>";
+					result += (venueObj.url) ? "<a href='" + venueObj.url + "'>" + venueObj.url + "</a><br>" : "";
+					result += (venueObj.description) ? venueObj.description : "";
+					result += "</div>";
+					result += "</div>";
+				    
+				    $.each(venueTweetsMap[venueId], function(id,tweetObj){
+						result += "<div class='tweet checkin'>";							
+						result += "<a href='#' data-screen-name='" + tweetObj.user.screenName + "' data-modal-generated='false' data-tweets-populated='false' data-toggle='modal' data-target='#userProfile" + tweetObj.user.screenName + "' class='visitProfile' title='" + tweetObj.user.name + "'>";
+						result += "<img class='tweetImg' src='" + tweetObj.user.profileImageUrl + "'/>";
+						result += "</a>";							
+						result += "<div class='tweetContent'>";							
+						result += "<div class='tweetUser'>"; 
+						result += "<a href='#' data-screen-name='" + tweetObj.user.screenName + "' data-modal-generated='false' data-tweets-populated='false' data-toggle='modal' data-target='#userProfile" + tweetObj.user.screenName + "' class='visitProfile' title='" + tweetObj.user.name + "'>";
+						result += tweetObj.user.name + " (@<span class='tweetScreenName'>" + tweetObj.user.screenName + "</span>)";
+						result += "</a>";
+						result +="</div>";						
+						result += "<div class='tweetText'>" + tweetObj.text + "</div>";
+						result += "<div class='tweetStats'>" + tweetObj.createdAt + "</div>";
+						result += "</div>";
+						result += "</div>";
+				    });	
+				    
+			        var marker = new google.maps.Marker({
+			            position: new google.maps.LatLng(venueObj.location.lat, venueObj.location.lng),
+			            map: map,
+			            title: venueObj.name
+			        });
+			        
+			        var infowindow = new google.maps.InfoWindow({
+			        	content: "<div class='mapInfobox'><b>" + venueObj.name + "</b><br>"
+			        		+ venueObj.location.address + ", " + venueObj.location.city
+			        		+ "</div>"
+		        	});
+			        
+			        google.maps.event.addListener(marker, 'click', function() {
+			        	infowindow.open(map,marker);
+		        	});
+			        
+			        bounds.extend(marker.position);
+			        
+				    i++;
+				});	
 				if(i<=0){
+					$("#map-canvas").fadeOut(FADESPEED);
 					result = "No users have visited this location. Try broadening the search by increasing the location radius or the number of days to search .";
 				}
 				$("#dynamicText").fadeOut(FADESPEED, function() {
+					map.fitBounds(bounds);
 			        $(this).html(result).fadeIn(FADESPEED);
 			    });
 
