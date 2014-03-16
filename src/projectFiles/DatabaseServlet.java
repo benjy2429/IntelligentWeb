@@ -31,7 +31,7 @@ public class DatabaseServlet extends HttpServlet {
 	 	try {
 	 		//Class.forName("org.gjt.mm.mysql.Driver").newInstance();
 			Class.forName("com.mysql.jdbc.Driver").newInstance();
-			String DB="jdbc:mysql://stusql.dcs.shef.ac.uk/stucat039?user=aca11lh&password=lhsheff1!";
+			String DB="jdbc:mysql://stusql.dcs.shef.ac.uk/team007?user=team007&password=a57078a1";
 			Connection conn = DriverManager.getConnection(DB);
 			conn.close();
 		} catch (InstantiationException | IllegalAccessException | ClassNotFoundException  | SQLException e) {
