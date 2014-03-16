@@ -238,32 +238,46 @@ public class Queries {
 		
 		Query query = new Query("from:" + username + " foursquare").since( dateFormat.format( cal.getTime() ) );
 		QueryResult result = twitter.search(query);
-
-		// Cycle through matching tweets
-		for (Status tweet : result.getTweets()) { //TODO Check if need to iterate through pages
-			
-			// Extract foursquare links and retrieve foursquare checkin information
-			for (URLEntity url : tweet.getURLEntities()) {
-				try {
-					String[] fsParams = expandFoursquareUrl( url.getExpandedURL() );
-					Result<Checkin> fsResult = foursquare.checkin( fsParams[0], fsParams[1] );
-					
-					// Get venue data from foursquare checkin
-					if (fsResult.getMeta().getCode() == 200) {
-						//resultList.add( fsResult.getResult() );
-						
-						Result<CompleteVenue> venues = foursquare.venue( fsResult.getResult().getVenue().getId() );
-						
-						if (venues.getMeta().getCode() == 200) {
-							resultList.add( venues.getResult() );
-						}
-					}
-				} catch (Exception e) {
-					//URL does not match 4sq.com
+		
+		while(query!=null){
+			// Cycle through matching tweets
+			for (Status tweet : result.getTweets()) {
+				CompleteVenue venue = getVenueFromTweet(tweet);
+				if(venue!=null){
+					resultList.add(venue);
 				}
+			}
+			//Get next set of tweets if possible
+			query=result.nextQuery();
+			if(query!=null) {
+				result=twitter.search(query);
 			}
 		}
 		return resultList;
+	}
+	
+	private CompleteVenue getVenueFromTweet(Status tweet){
+		// Extract foursquare links and retrieve foursquare checkin information
+		for (URLEntity url : tweet.getURLEntities()) {
+			try {
+				String[] fsParams = expandFoursquareUrl( url.getExpandedURL() );
+				Result<Checkin> fsResult = foursquare.checkin( fsParams[0], fsParams[1] );
+				
+				// Get venue data from foursquare checkin
+				if (fsResult.getMeta().getCode() == 200) {
+					//resultList.add( fsResult.getResult() );
+					
+					Result<CompleteVenue> venues = foursquare.venue( fsResult.getResult().getVenue().getId() );
+					
+					if (venues.getMeta().getCode() == 200) {
+						return venues.getResult();
+					}
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		return null;
 	}
 	
 	
@@ -296,6 +310,8 @@ public class Queries {
 	}
 	
 	
+	
+	
 	// 3. Who is visiting venues in a specific geographic area (or visiting a named venue) or have done so in the last X days
 	/**
 	 * getUsersAtVenue finds users who have vistited a venue in the past X days
@@ -305,6 +321,8 @@ public class Queries {
 	 * @param location - Geolocaiton location name
 	 * @param venueName - Name of venue
 	 * @param days - Number of past days to search 
+	 * @param venueTweets2 
+	 * @param venues 
 	 * @return
 	 * @throws TwitterException 
 	 */
@@ -345,11 +363,8 @@ public class Queries {
 	
 	
 	// 3. Who is visiting venues in a specific geographic area (or visiting a named venue) or have done so in the last X days
-	public LinkedList<Status> getUsersAtVenue(String venueName, double latitude, double longitude, double radius, int days) throws TwitterException {
-		LinkedList<Status> tweets = new LinkedList<Status>();
-		
+	public void getUsersAtVenue(String venueName, double latitude, double longitude, double radius, int days, Map<String, CompleteVenue> venues, Map<String, List<Status>> venueTweets) throws TwitterException {
 		if (days > 0) {	
-			
 			Query query= new Query(); 
 			String queryText = "";
 			if ( !venueName.isEmpty() ) {
@@ -373,15 +388,31 @@ public class Queries {
 			
 			QueryResult result = twitter.search(query);
 
-			for (Status status : result.getTweets()) {
-				tweets.add(status);
-			}			
+			while(query!=null){
+				// Cycle through matching tweets
+				for (Status tweet : result.getTweets()) {
+					CompleteVenue venue = getVenueFromTweet(tweet);
+					if(venue!=null){
+						if(!venues.containsKey(venue.getId())){
+							venues.put(venue.getId(),venue);
+							List<Status> tweetList = new LinkedList<Status>();
+							tweetList.add(tweet);
+							venueTweets.put(venue.getId(), tweetList);
+						} else {
+							venueTweets.get(venue.getId()).add(tweet);
+						} 
+					}
+				}
+				//Get next set of tweets if possible
+				query=result.nextQuery();
+				if(query!=null) {
+					result=twitter.search(query);
+				}
+			}		
 			
 		} else {
 			//TODO Use twitter streaming api
 		}
-		
-		return tweets;
 	}
 	
 	

@@ -5,8 +5,10 @@ import java.io.PrintWriter;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -302,7 +304,7 @@ public class Servlet extends HttpServlet {
     				twitterStream = null;
     			}
     			
-				Queries query = new Queries( initTwitter() );
+				Queries query = new Queries( initTwitter(), initFoursquare() );
 				
 				int days = 0;
 				try {
@@ -323,20 +325,18 @@ public class Servlet extends HttpServlet {
     				lon = Double.NaN;
     				radius = Double.NaN;
     			}
+				Map<String, CompleteVenue> venues= new HashMap<String,CompleteVenue>();
+				Map<String,List<Status>> venueTweets= new HashMap<String, List<Status>>();
+				query.getUsersAtVenue(venueName, lat, lon, radius, days, venues, venueTweets);
 				
-				List<Status> tweets = query.getUsersAtVenue(venueName, lat, lon, radius, days);
-				
-				//Have to parse ids as string and send them separately as twitter4j does not support the id_str parameter and javascript cannot handle type long
-    			ArrayList<String> tweetIds = new ArrayList<String>();
-    			for(Status status : tweets) {
-    				tweetIds.add(String.valueOf(status.getId()));
-    			}
-    			json = gson.toJson( tweetIds );
-    			json += "\n";
-    			json += gson.toJson( tweets );
+    			json = gson.toJson(venues);
+    			json += ("\n");
+    			json += gson.toJson(venueTweets);
 				
 			} catch (TwitterException te) {
 				json = gson.toJson(te.getErrorMessage() );
+			} catch (FoursquareApiException e) {
+				json = gson.toJson(e.getMessage() );
 			}
     		
     	} else if (requestId.equals("fetchUserForProfile")){

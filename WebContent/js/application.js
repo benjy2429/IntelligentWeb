@@ -271,48 +271,24 @@ $(window).load(function() {
 			data: $('#form4').serialize(),
 			success: function(data){
 				var json = data.split("\n");
-				var tweetIds = JSON.parse(json[0]);
-				var tweets = JSON.parse(json[1]);
+				var venues = JSON.parse(json[0]);
+				var venueTweetsMap = JSON.parse(json[1]);
 				var result = "";
-				if (tweets.length > 0) {
-					var i = 0;
-					$.each( tweets , function() {
-						result += "<div class='tweet'>";
-						result += "<form class='retweetersForm'><input type='hidden' name='requestId' value='retweetersForm'>";
-						result += "<input type='hidden' class='tweetId' name='tweetId' value='" + this.user.id + "'>";
-						result += "<input type='hidden' class='retweetCount' name='retweetCount' value='" + this.retweetCount + "'></form>";
-						
-						result += "<a href='#' data-screen-name='" + this.user.screenName + "' data-modal-generated='false' data-tweets-populated='false' data-toggle='modal' data-target='#userProfile" + this.user.screenName + "' class='visitProfile' title='" + this.user.name + "'>";
-						result += "<img class='tweetImg' src='" + this.user.profileImageUrl + "'/>";
-						result += "</a>";
-						
-						result += "<div class='tweetContent'>";
-						
-						result += "<div class='tweetUser'>"; 
-						result += "<a href='#' data-screen-name='" + this.user.screenName + "' data-modal-generated='false' data-tweets-populated='false' data-toggle='modal' data-target='#userProfile" + this.user.screenName + "' class='visitProfile' title='" + this.user.name + "'>";
-						result += this.user.name + " (@<span class='tweetScreenName'>" + this.user.screenName + "</span>)";
-						result += "</a>";
-						result +="</div>";
-						
-						result += "<div class='tweetText'>" + this.text + "</div>";
-						result += "<div class='tweetStats'>" + this.createdAt + " ";
-						result += "<span class='glyphicon glyphicon-star' title='Favourites' style='margin-left:10px;'></span> " + this.favoriteCount + " ";
-						result += "<span class='glyphicon glyphicon-retweet' title='Retweets' style='margin:0 5px 0 10px;'></span> ";
-						if ($.isEmptyObject(this.retweetedStatus) && this.retweetCount > 0) {
-							result += "<span class='retweets' id='retweetsFor" + tweetIds[i] + "'>" + this.retweetCount + " <a href='#' class='getRetweets'>See who retweeted this</a></span>";
-						} else {
-							result += "0";
-						}
-						result += "</div>";
-						result += "</div>";
-						result += "</div>";
-						i++;
-					});
-					
-				} else {
-					result += "No users found. Try searching increasing the location radius or the number of days to search .";
+				alert(venues);
+				var i = 0;
+					$.each(venues, function(venueId,venueObj){
+					    result += "Venue " + venueObj.name + "<br/><ul>";
+					    $.each(venueTweetsMap[venueId], function(id,tweetObj){
+					    	result += "<li>User: " + tweetObj.user.name + "<br/>";
+					    	result += "<ul><li>Date of checkin: " + tweetObj.createdAt + "</li>";
+					    	result += "<li>Message: " + tweetObj.text + "</li></ul>";
+					    });	
+					    result += "</ul><br/>";
+					    i++;
+					});	
+				if(i<=0){
+					result = "No users have visited this location. Try broadening the search by increasing the location radius or the number of days to search .";
 				}
-
 				$("#dynamicText").fadeOut(FADESPEED, function() {
 			        $(this).html(result).fadeIn(FADESPEED);
 			    });
