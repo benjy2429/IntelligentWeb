@@ -14,7 +14,21 @@
 		
 	<nav class="navbar navbar-default navbar-static-top" role="navigation">
 	  <div class="container-fluid">
-	    <a class="navbar-brand" href="queryInterface.html">COM3504 The Intelligent Web: Querying The Social Web - Ben Carr & Luke Heavens</a>
+	    <div class="navbar-header">
+	      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+	        <span class="sr-only">Toggle navigation</span>
+	        <span class="icon-bar"></span>
+	        <span class="icon-bar"></span>
+	        <span class="icon-bar"></span>
+	      </button>
+	      <a class="navbar-brand" href="queryInterface.html">COM3504: The Intelligent Web - Ben Carr & Luke Heavens</a>
+	    </div>
+	    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+	      <ul class="nav navbar-nav navbar-right">
+	        <li class="active"><a href="queryInterface.html">Query the Web</a></li>
+	        <li><a href="databaseInterface.html">Query the Database</a></li>
+	      </ul>
+	    </div>
 	  </div>
 	</nav>
 
@@ -23,7 +37,7 @@
 		<div class="formWrapper">		
 			
 			<div class="panel-group" id="accordion">
-			  <div class="panel panel-success">
+			  <div class="panel panel-info">
 			    <div class="panel-heading">
 			      <h4 class="panel-title">
 			        <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
@@ -72,7 +86,7 @@
 			    </div>
 			  </div>
 			  
-			  <div class="panel panel-info">
+			  <div class="panel panel-default">
 			    <div class="panel-heading">
 			      <h4 class="panel-title">
 			        <a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo">
@@ -86,7 +100,7 @@
 					<form id="form2" class="forms" method="post" action="">
 						<input name="requestId" id="discussionForm" type="hidden" value="discussionForm">
 						<div class="form-group">
-							<label for="users" class="control-label">users = </label>
+							<label for="users" class="control-label">Usernames (separated by spaces)</label>
 							<input name="users" id="users" type="text" class="form-control" value="bbcnews itvnews channel4news">
 						</div>
 						<div class="form-group">
@@ -107,7 +121,7 @@
 			    </div>
 			  </div>	  
 			  
-			  <div class="panel panel-warning">
+			  <div class="panel panel-default">
 			    <div class="panel-heading">
 			      <h4 class="panel-title">
 			        <a data-toggle="collapse" data-parent="#accordion" href="#collapseThree">
@@ -122,11 +136,11 @@
 						<input name="requestId" id="userVenueForm" type="hidden" value="userVenueForm">
 						<input name="userRequest" id="userRequest" type="hidden" value="1">
 						<div class="form-group">
-							<label for="username" class="control-label">username = </label>
+							<label for="username" class="control-label">Username:</label>
 							<input name="username" id="username" type="text" class="form-control" value="stevewoz">
 						</div>
 						<div class="form-group">
-							<label for="days" class="control-label">days = </label>
+							<label for="days" class="control-label">Days to search:</label>
 							<input name="days" id="days2" type="number" class="form-control" value="2">
 						</div>
 						<div class="form-group">
@@ -139,7 +153,7 @@
 			    </div>
 			  </div>
 			  
-  			  <div class="panel panel-danger">
+  			  <div class="panel panel-default">
 			    <div class="panel-heading">
 			      <h4 class="panel-title">
 			        <a data-toggle="collapse" data-parent="#accordion" href="#collapseFour">
@@ -153,19 +167,19 @@
 					<form id="form4" class="forms" method="post" action="">
 						<input name="requestId" id="venuesForm" type="hidden" value="venuesForm">
 						<div class="form-group">
-							<label for="venueName" class="control-label">venue name = </label>
+							<label for="venueName" class="control-label">Venue Name:</label>
 							<input name="venueName" id="venueName" type="text" class="form-control" value="pizza hut">
 						</div>
 						<div class="form-group">
-							<label for="lat" class="control-label">lat = </label>
+							<label for="lat" class="control-label">Enter latitude:</label>
 							<input name="lat" id="lat2" type="number" class="form-control" value="53.41391389">
 						</div>
 						<div class="form-group">
-							<label for="lon" class="control-label">lon = </label>
+							<label for="lon" class="control-label">Enter longitude:</label>
 							<input name="lon" id="lon2" type="number" class="form-control" value="-1.4125872">
 						</div>
 						<div class="form-group">
-							<label for="radius" class="control-label">radius = </label>
+							<label for="radius" class="control-label">Acceptable radius:</label>
 							
 							<div class="input-group">
   								<input name="radius" id="radius2" type="number" class="form-control" value="5">
@@ -173,7 +187,7 @@
 							</div>
 						</div>
 						<div class="form-group">
-							<label for="days" class="control-label">days = </label>
+							<label for="days" class="control-label">Days to search:</label>
 							<input name="days" id="days3" type="number" class="form-control" value = "200">
 						</div>
 						<div class="form-group">
@@ -190,9 +204,9 @@
 	
 		<div class="row">
 			<div class="results">
-				<h2 id="resultsTitle">Hello you!</h2>
+				<h2 id="resultsTitle">Welcome</h2>
 				<div id="map-canvas"></div>
-				<div id="resultsInfo">Use the forms on the left to get some results</div>
+				<div id="resultsInfo">Use the forms on the left to search the social web</div>
 				<div id="dynamicText"></div>
 			</div>
 		</div>

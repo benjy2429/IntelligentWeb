@@ -17,6 +17,14 @@ $(window).load(function() {
 	    }
 	});
 	
+	$('#accordion').on('hide.bs.collapse', function (e) {
+		$(e.target).parent().removeClass('panel-info').addClass('panel-default');
+	});
+	$('#accordion').on('show.bs.collapse', function (e) {
+		$(e.target).parent().removeClass('panel-default').addClass('panel-info');
+	});
+
+	
 	$("#form1Submit").click(function() {
 		clearInterval(streamFunctionId);
 		$("#map-canvas").fadeOut(FADESPEED);
