@@ -286,7 +286,6 @@ $(window).load(function() {
 				var venues = JSON.parse(json[0]);
 				var venueTweetsMap = JSON.parse(json[1]);
 				var result = "";
-				alert(venues);
 				var i = 0;
 					$.each(venues, function(venueId,venueObj){
 					    result += "Venue " + venueObj.name + "<br/><ul>";
