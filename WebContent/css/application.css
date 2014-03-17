@@ -140,7 +140,8 @@ body {
 
 .venueContent {
 	margin-left: 100px;
-	margin-bottom: 20px;
+	min-height: 80px;
+	margin-bottom:20px;
 }
 
 .venueName {
@@ -211,6 +212,12 @@ button.close {
 
 .venueDark {
 	background-color: #eee;
+	margin-bottom:20px;
+}
+
+.showVenueCheckinsContainer{
+	text-align:right;
+	margin-top:-20px;
 }
 
 .checkin {

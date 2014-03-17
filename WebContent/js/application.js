@@ -292,9 +292,12 @@ $(window).load(function() {
 				$("#map-canvas").fadeIn(FADESPEED);
 				var map = new google.maps.Map(document.getElementById("map-canvas"), {mapTypeId: google.maps.MapTypeId.ROADMAP});
 				var bounds = new google.maps.LatLngBounds();
-				
-				result += "<h2 style='margin:20px 0;'>Venues and check-ins in this area</h2>";
-				$.each(venues, function(venueId,venueObj){					    
+				result += "<h2 style='margin:20px 0;'>Check-ins in this area</h2>";
+				result += "<a href='#' id='seeOtherVenues'>See venues in this area</a> | ";
+				result += "<a href='#' id='expandAllCheckins'>Expand all venue check-ins</a> | ";
+				result += "<a href='#' id='collapseAllCheckins'>Collapse all venue check-ins</a>";
+				$.each(venues, function(venueId,venueObj){	
+					result += "<div class='venueSection'>";
 					result += "<div class='venue venueDark'>";
 					result += (venueObj.photos.groups[1] && venueObj.photos.groups[1].items.length > 0) ? "<img class='venueImg' src='" + venueObj.photos.groups[1].items[0].url + "'/>" : "";
 					result += "<div class='venueContent'>";
@@ -311,8 +314,12 @@ $(window).load(function() {
 					result += (venueObj.url) ? "<a href='" + venueObj.url + "'>" + venueObj.url + "</a><br>" : "";
 					result += (venueObj.description) ? venueObj.description : "";
 					result += "</div>";
+					result += "<div class='showVenueCheckinsContainer'>";
+					result += "<a href='#' class='showVenueCheckins'>Show check-ins</a>";
 					result += "</div>";
-				    
+					result += "</div>";
+
+				    result += "<div class='venueCheckins' style='display:none'>";
 				    $.each(venueTweetsMap[venueId], function(id,tweetObj){
 						result += "<div class='tweet checkin'>";							
 						result += "<a href='#' data-screen-name='" + tweetObj.user.screenName + "' data-modal-generated='false' data-tweets-populated='false' data-toggle='modal' data-target='#userProfile" + tweetObj.user.screenName + "' class='visitProfile' title='" + tweetObj.user.name + "'>";
@@ -329,7 +336,7 @@ $(window).load(function() {
 						result += "</div>";
 						result += "</div>";
 				    });	
-				    
+				    result += "</div>";
 			        var marker = new google.maps.Marker({
 			            position: new google.maps.LatLng(venueObj.location.lat, venueObj.location.lng),
 			            map: map,
@@ -349,6 +356,7 @@ $(window).load(function() {
 			        bounds.extend(marker.position);
 			        
 				    i++;
+				    result += "</div>";
 				});	
 				if(i<=0){
 					$("#map-canvas").fadeOut(FADESPEED);
@@ -433,6 +441,39 @@ $(window).load(function() {
 	             link.text("Hide individual user counts");                
 	        } else {
 	             link.text("Show individual user counts");               
+	        }
+		});
+		e.preventDefault();
+	});
+	
+	$(".results").on('click', '#seeOtherVenues', function(e) {
+		alert("Extra feature - Replace dynamic text with data from google maps showing venues in area");
+		e.preventDefault();
+	});
+	
+	$(".results").on('click', '#expandAllCheckins', function(e) {
+		var link = $(this);
+		var venueCheckins = link.parent().find('.venueCheckins');
+		venueCheckins.slideDown(FADESPEED);
+		e.preventDefault();
+	});
+	
+	$(".results").on('click', '#collapseAllCheckins', function(e) {
+		var link = $(this);
+		var venueCheckins = link.parent().find('.venueCheckins');
+		venueCheckins.slideUp(FADESPEED);
+		e.preventDefault();
+	});
+	
+	$(".results").on('click', '.showVenueCheckins', function(e) {	
+		var link = $(this);
+		var venueCheckins = link.parent().parent().parent().find('.venueCheckins');
+		var isVisible = venueCheckins.is(':visible');
+		venueCheckins.slideToggle(FADESPEED, function() {
+	        if (!isVisible) {
+	             link.text("Hide check-ins");                
+	        } else {
+	             link.text("Show check-ins");               
 	        }
 		});
 		e.preventDefault();
