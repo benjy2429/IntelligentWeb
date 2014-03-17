@@ -195,12 +195,16 @@ $(window).load(function() {
 					var json = data.split("\n");
 					var user = JSON.parse(json[0]);
 					venues = JSON.parse(json[1]);
-					// Twitter user info					
+					// Twitter user info	
 					result += "<div class='tweet' style=''>";
+					result += "<a href='#' data-screen-name='" + user.screenName + "' data-modal-generated='false' data-tweets-populated='false' data-toggle='modal' data-target='#userProfile" + user.screenName + "' class='visitProfile' title='" + user.name + "'>";
 					result += "<img class='tweetImg' src='" + user.profileImageUrl + "' />";
+					result += "</a>";
 					result += "<div class='tweetContent'>";
 					result += "<h2 style='margin:0;'>" + user.name + "'s Latest Foursquare Check-ins</h2>";
+					result += "<a href='#' data-screen-name='" + user.screenName + "' data-modal-generated='false' data-tweets-populated='false' data-toggle='modal' data-target='#userProfile" + user.screenName + "' class='visitProfile' title='" + user.name + "'>";
 					result += "@" + user.screenName;
+					result += "</a>";
 					result += "</div>";
 					result += "</div>";			
 				} else {
@@ -524,9 +528,9 @@ $(window).load(function() {
       		  	result += "<div class='userProfileBannerDark'>" +
 	  			  "<button type='button' class='close' data-dismiss='modal' aria-hidden='true'>&times;</button>" +
 					"<div class='media'>" +
-					"<a class='pull-left' href='#'>" +
+					"<div class='pull-left'>" +
 						"<img class='media-object tweetImg' src='" + user.profileImageUrl + "' alt='...'>" +
-					"</a>" +
+					"</div>" +
 					"<div class='media-body'>" +
 						"<h4 class='media-heading'><b>" + user.name + "</b> (@" + user.screenName + ")</h4>";
 						result += (user.description) ? "<p>" + user.description + "</p>" : "";

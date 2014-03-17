@@ -3,6 +3,7 @@ package projectFiles;
 import java.net.HttpURLConnection;
 import java.net.Proxy;
 import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.List;
@@ -103,6 +104,52 @@ public class StreamingQueries {
 		double[][] locationsToTrack = new double[0][0];
 		twitterStream.filter(new FilterQuery(count, idToFollow, stringsToTrack, locationsToTrack));
 	}
+	
+	/*
+	public void addUsersAtVenueListener(String venueName, double latitude, double longitude) {
+	StatusListener listener = new StatusListener() { 
+		@Override public void onStatus(Status status) {
+			if (Calendar.getInstance().getTime().before( shutdownTime.getTime() )) {
+				
+				CompleteVenue venue = getVenueFromTweet(status);
+				if(venue!=null){
+					if(!venues.containsKey(venue.getId())){
+						venues.put(venue.getId(),venue);
+						List<Status> tweetList = new LinkedList<Status>();
+						tweetList.add(tweet);
+						venueTweets.put(venue.getId(), tweetList);
+					} else {
+						venueTweets.get(venue.getId()).add(tweet);
+					} 
+				}		
+				
+			} else {
+				System.out.println("Shutting down Twitter stream..");
+				clearLists();
+				shutdown = true;
+				twitterStream.shutdown();
+			}
+		} 
+		@Override public void onDeletionNotice(StatusDeletionNotice statusDeletionNotice) {}  
+		@Override public void onTrackLimitationNotice(int numberOfLimitedStatuses) {} 
+		@Override public void onScrubGeo(long userId, long upToStatusId) {}   
+		@Override public void onStallWarning(StallWarning warning) {}
+		@Override public void onException(Exception ex) { ex.printStackTrace(); }
+		};
+		twitterStream.addListener(listener);
+		
+		venues = new LinkedList<CompleteVenue>();
+		
+		int count = 0;
+		long[] idToFollow = new long[0]; 
+		String[] stringsToTrack = new String[2];
+		stringsToTrack[0] = "foursquare";
+		if (!venueName.isEmpty()) stringsToTrack[1] = venueName;
+		double[][] locationsToTrack = new double[1][2];
+		if (Double.isNaN(latitude) && Double.isNaN(longitude)) locationsToTrack[0] = new double[]{latitude, longitude};
+		twitterStream.filter(new FilterQuery(count, idToFollow, stringsToTrack, locationsToTrack));
+	}
+	*/
 	
 	
 	/**

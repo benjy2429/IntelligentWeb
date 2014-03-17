@@ -293,14 +293,18 @@ public class Queries {
         
         if (url.getHost().equals("4sq.com")) {
         
-	        HttpURLConnection connection = (HttpURLConnection) url.openConnection(Proxy.NO_PROXY);
-	        connection.setInstanceFollowRedirects(false);
-	        connection.connect();
-	        URL longUrl = new URL( connection.getHeaderField("Location") );
-	        connection.getInputStream().close();
-	        
-	        expandedUrl[0] = longUrl.getPath().replace("?s=", "/").split("/")[3];
-    		expandedUrl[1] = longUrl.getQuery().substring(2,29);
+        	try {
+		        HttpURLConnection connection = (HttpURLConnection) url.openConnection(Proxy.NO_PROXY);
+		        connection.setInstanceFollowRedirects(false);
+		        connection.connect();
+		        URL longUrl = new URL( connection.getHeaderField("Location") );
+		        connection.getInputStream().close();
+		        
+		        expandedUrl[0] = longUrl.getPath().replace("?s=", "/").split("/")[3];
+	    		expandedUrl[1] = longUrl.getQuery().substring(2,29);
+        	} catch (Exception e) {
+        		throw new Exception(e.getMessage());
+        	}
         
         } else {
         	throw new Exception("URL does not match 4sq.com");
@@ -315,54 +319,15 @@ public class Queries {
 	// 3. Who is visiting venues in a specific geographic area (or visiting a named venue) or have done so in the last X days
 	/**
 	 * getUsersAtVenue finds users who have vistited a venue in the past X days
-	 * Either latitude/longitude required OR location name required
+	 * @param venueName - Name of a venue as a String
 	 * @param latitude - Geolocation latitude
 	 * @param longitude - Geolocation longitude
-	 * @param location - Geolocaiton location name
-	 * @param venueName - Name of venue
-	 * @param days - Number of past days to search 
-	 * @param venueTweets2 
-	 * @param venues 
-	 * @return
+	 * @param radius - Geolocation radius from lat/long
+	 * @param days - Days in the past to search for (0 = Live Stream)
+	 * @param venues - Hashmap of venueIds and CompleteVenue objects
+	 * @param venueTweets - Hashmap of tweetIds and Status objects
 	 * @throws TwitterException 
 	 */
-	//TODO REWRITE TO SEARCH VIA TWITTER FIRST - CANNOT GET CHECKINS DIRECTLY FROM A FOURSQUARE VENUE
-	/*
-	public String getUsersAtVenue(double latitude, double longitude, String location, String venueName, int days) { //TODO Use streaming api if days==0
-		String resultString = "";
-		try {
-			Result<VenuesSearchResult> result = null;
-			if ( !Double.isNaN(latitude) && !Double.isNaN(longitude) ) {
-				result = foursquare.venuesSearch(latitude+","+longitude, 10000.0, 0.0, 10000.0, venueName, 15, "checkin", "", "", "", "");
-			} else if ( !location.isEmpty() ) {
-				result = foursquare.venuesSearch(location, venueName, 15, "checkin", "", "", "", "");
-			} else {
-				//TODO Set default location to twitter user location??
-				throw new Exception("Missing required fields");
-			}
-			
-			if (result.getMeta().getCode() == 200) {
-				for (CompactVenue venue : result.getResult().getVenues()) {
-					resultString += venue.getName() + " (" + venue.getLocation().getAddress() + ")<br>";
-					
-					//TODO Get users who have visited in X days
-				}
-			} else {
-				System.out.println(result.getMeta().getCode());
-				System.out.println(result.getMeta().getErrorType());
-				System.out.println(result.getMeta().getErrorDetail());
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			System.out.println( "Error searching for venues" );
-		}
-		
-		return resultString;
-	}
-	*/
-	
-	
-	// 3. Who is visiting venues in a specific geographic area (or visiting a named venue) or have done so in the last X days
 	public void getUsersAtVenue(String venueName, double latitude, double longitude, double radius, int days, Map<String, CompleteVenue> venues, Map<String, List<Status>> venueTweets) throws TwitterException {
 		if (days > 0) {	
 			Query query= new Query(); 
