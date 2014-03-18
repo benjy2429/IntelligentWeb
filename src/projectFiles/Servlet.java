@@ -21,6 +21,7 @@ import twitter4j.conf.*;
 import exceptions.*;
 import fi.foyt.foursquare.api.*;
 import fi.foyt.foursquare.api.entities.*;
+import com.claygregory.api.google.places.Place;
 
 /**
  * Servlet implementation class Queries
@@ -318,7 +319,7 @@ public class Servlet extends HttpServlet {
      				throw new Exception("Days must be greater or equal to zero");
      			}
 
-System.out.println(json);
+				query.getNearbyPlaces(lat, lon, radius);
 				
 			} catch (TwitterException te) {
 				json = gson.toJson(te.getErrorMessage());
@@ -343,6 +344,21 @@ System.out.println(json);
 				json = gson.toJson(tweets);
     		} catch ( TwitterException te ) {
     			json = gson.toJson(te.getErrorMessage() );
+			}
+    	} else if (requestId.equals("getNearbyVenues")){
+			try {
+	    		Queries query = new Queries(initTwitter()); 
+	    		
+				double lat = Double.parseDouble( request.getParameter("lat") );
+				double lon = Double.parseDouble( request.getParameter("lon") );
+				double radius = Double.parseDouble( request.getParameter("radius") );
+    			
+				List<Place> places = query.getNearbyPlaces(lat, lon, radius);
+				json = gson.toJson(places);
+    		} catch ( TwitterException te ) {
+    			json = gson.toJson(te.getErrorMessage());
+			} catch ( NumberFormatException nfe ) {
+				json = gson.toJson(nfe.getMessage());
 			}
     	}
     	

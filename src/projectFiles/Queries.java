@@ -2,7 +2,6 @@ package projectFiles;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.Proxy;
 import java.net.URL;
 import java.text.SimpleDateFormat;
@@ -13,6 +12,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import com.claygregory.api.google.places.*;
+import com.claygregory.api.google.places.Place;
 
 import exceptions.FileException;
 import fi.foyt.foursquare.api.*;
@@ -369,6 +371,25 @@ public class Queries {
 				} 
 			}
 		}
+	}
+	
+	
+	public List<Place> getNearbyPlaces(double lat, double lon, double radius) {
+		List<Place> placeList = new LinkedList<Place>();
+		GooglePlaces placesApi = new GooglePlaces("AIzaSyAQSRWiDPQTAeFTilEGZuyouNaF0biz7ks");
+		PlacesResult result = placesApi.search((float)lat, (float)lon, (int)Math.round(radius*1000), false);
+		
+		if (result.isOkay()) {
+			for (Place place : result) {
+				//System.out.println(place.getName() + ", " + place.getVicinity() + ", " + place.getGeometry().getLocation());
+				placeList.add(place);
+				if (placeList.size() == 10) break;
+			}
+		} else {
+			System.out.println("Error fetching nearby venues!");
+		}
+		
+		return placeList;
 	}
 	
 	

@@ -167,6 +167,7 @@ $(window).load(function() {
 	
 	$("#form3Submit").click(function() {
 		
+		map = new google.maps.Map(document.getElementById("map-canvas"), {mapTypeId: google.maps.MapTypeId.ROADMAP});
 		bounds = new google.maps.LatLngBounds();
 	
 		$("#dynamicText").fadeOut(FADESPEED, function() {
@@ -192,7 +193,7 @@ $(window).load(function() {
 			success: function(data){
 				var result = "";
 				var venues;
-				$("#resultsTitle").text("Results");
+				($("#days3").val() == "0") ? $("#resultsTitle").text("Results - Live Stream (Refreshes every 20 seconds)") : $("#resultsTitle").text("Results");
 				$("#resultsInfo").text("");				
 			
 				if (userRequest) {
@@ -265,7 +266,9 @@ $(window).load(function() {
 				    });
 				}
 				
+				google.maps.event.trigger(map, 'resize');
 				map.fitBounds(bounds);
+				if (map.getZoom() > 15) map.setZoom(15);
 
 			},
 			error: function(xhr,textStatus,errorThrown){
@@ -278,6 +281,7 @@ $(window).load(function() {
 	
 	$("#form4Submit").click(function() {
 		
+		map = new google.maps.Map(document.getElementById("map-canvas"), {mapTypeId: google.maps.MapTypeId.ROADMAP});
 		bounds = new google.maps.LatLngBounds();
 		
 		$("#dynamicText").fadeOut(FADESPEED, function() {
@@ -301,7 +305,7 @@ $(window).load(function() {
 			datatype: 'json',
 			data: $('#form4').serialize(),
 			success: function(data){								
-				($("#days3").val() == "0") ? $("#resultsTitle").text("Results (Live Stream)") : $("#resultsTitle").text("Results");
+				($("#days3").val() == "0") ? $("#resultsTitle").text("Results - Live Stream (Refreshes every 20 seconds)") : $("#resultsTitle").text("Results");
 				$("#resultsInfo").text("");		
 				var json = data.split("\n");
 				var venues = JSON.parse(json[0]);
@@ -311,8 +315,8 @@ $(window).load(function() {
 
 				if ( !$.isEmptyObject(venues) ) {
 					if ( $("#dynamicText").find(".venue").length == 0 ) {
+						result += "<div class='row'><div class='col-md-8'>";
 						result += "<h2 style='margin:20px 0;'>Check-ins in this area</h2>";
-						result += "<a href='#' id='seeOtherVenues'>See venues in this area</a> | ";
 						result += "<a href='#' id='expandAllCheckins'>Expand all venue check-ins</a> | ";
 						result += "<a href='#' id='collapseAllCheckins'>Collapse all venue check-ins</a>";
 					}
@@ -377,13 +381,24 @@ $(window).load(function() {
 				        
 					    i++;
 					    result += "</div>";
-					    
-					    if (!$("#map-canvas").is(":visible")) $("#map-canvas").fadeIn(FADESPEED);
-					    
-						google.maps.event.trigger(map, 'resize');
-						map.fitBounds(bounds);
-						if (map.getZoom() > 15) map.setZoom(15);
+
 					});	
+					if ( $("#dynamicText").find(".venue").length == 0 ) {
+						result += "</div>";
+						result += "<div class='col-md-4'>";
+						result += "<ul class='listGroup nearbyVenues'>";
+						result += "<li class='list-group-item list-group-item-info'><h4 style='margin:5px 0;'>Popular Venues</h4></li>";
+						result += "</ul>";
+						result += "</div></div>";
+						
+						getNearbyVenues($("#lat2").val(), $("#lon2").val(), $("#radius2").val());
+					}
+					
+				    if (!$("#map-canvas").is(":visible")) $("#map-canvas").fadeIn(FADESPEED);
+				    
+					google.maps.event.trigger(map, 'resize');
+					map.fitBounds(bounds);
+					if (map.getZoom() > 15) map.setZoom(15);
 					
 				} else {
 					if ($("#days3").val() != "0") {
@@ -408,6 +423,64 @@ $(window).load(function() {
 			}
 		});
 		
+	}
+	
+	
+	function getNearbyVenues(lat, lon, radius) {
+		var nearbyVenueResult = "";
+		$.ajax({
+			url: 'Servlet',
+			type: 'post',
+			datatype: 'json',
+			data: { "requestId": "getNearbyVenues", "lat": lat, "lon": lon, "radius": radius },
+			success: function(data){								
+				var venues = JSON.parse(data);
+				
+				if ( venues.length > 0 ) {
+					$.each(venues, function(){	
+						nearbyVenueResult += "<li class='list-group-item'>";
+						nearbyVenueResult += "<h4 class='list-group-item-heading'>" + this.name + "</h4>";
+						nearbyVenueResult += "<p class='list-group-item-text'>" + this.vicinity + "</p>";
+						nearbyVenueResult += "</li>";
+							
+						var image = {
+						    url: this.icon,
+						    scaledSize: new google.maps.Size(20, 20),
+						    origin: new google.maps.Point(0,0),
+						    anchor: new google.maps.Point(10, 20)
+						};
+
+						
+				        var marker = new google.maps.Marker({
+				            position: new google.maps.LatLng(this.geometry.location.lat, this.geometry.location.lng),
+				            map: map,
+				            title: this.name,
+				            icon: image
+				        });
+				        
+				        var infowindow = new google.maps.InfoWindow({
+				        	content: "<div class='mapInfobox'><b>" + this.name + "</b><br>"
+				        		+ this.vicinity + "</div>"
+			        	});
+				        
+				        google.maps.event.addListener(marker, 'click', function() {
+				        	infowindow.open(map,marker);
+			        	});
+				        
+				        bounds.extend(marker.position);				
+					});	
+					
+					nearbyVenueResult += "<li class='list-group-item'><span class='text-muted'>Popular venue data from Google Places</span></li>";
+						
+					$(".nearbyVenues").append(nearbyVenueResult);
+					
+				}
+
+			},
+			error: function(xhr,textStatus,errorThrown){
+				console.log(errorThrown);
+			}
+		});		
 	}
 	
 	

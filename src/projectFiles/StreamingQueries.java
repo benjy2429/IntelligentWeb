@@ -39,6 +39,7 @@ public class StreamingQueries {
 	StatusListener listener = new StatusListener() { 
 		@Override public void onStatus(Status status) {
 			if (Calendar.getInstance().getTime().before( shutdownTime.getTime() )) {
+				System.out.println(status.getUser().getScreenName() + "/status/" + status.getId());
 				tweets.add(status);				
 			} else {
 				System.out.println("Shutting down Twitter stream..");
@@ -68,7 +69,7 @@ public class StreamingQueries {
 	StatusListener listener = new StatusListener() { 
 		@Override public void onStatus(Status status) {
 			if (Calendar.getInstance().getTime().before( shutdownTime.getTime() )) {
-	System.out.println(status.getUser().getScreenName() + "/status/" + status.getId());
+				System.out.println(status.getUser().getScreenName() + "/status/" + status.getId());
 				tweets.add(status);				
 			} else {
 				System.out.println("Shutting down Twitter stream..");
