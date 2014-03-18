@@ -256,7 +256,7 @@ public class Queries {
 		return resultList;
 	}
 	
-	private CompleteVenue getVenueFromTweet(Status tweet){
+	public CompleteVenue getVenueFromTweet(Status tweet){
 		// Extract foursquare links and retrieve foursquare checkin information
 		for (URLEntity url : tweet.getURLEntities()) {
 			try {
@@ -274,7 +274,7 @@ public class Queries {
 					}
 				}
 			} catch (Exception e) {
-				e.printStackTrace();
+				System.out.println(e.getMessage());
 			}
 		}
 		return null;
@@ -303,7 +303,7 @@ public class Queries {
 		        expandedUrl[0] = longUrl.getPath().replace("?s=", "/").split("/")[3];
 	    		expandedUrl[1] = longUrl.getQuery().substring(2,29);
         	} catch (Exception e) {
-        		throw new Exception(e.getMessage());
+        		throw new Exception("Not a valid foursquare checkin");
         	}
         
         } else {
@@ -329,54 +329,48 @@ public class Queries {
 	 * @throws TwitterException 
 	 */
 	public void getUsersAtVenue(String venueName, double latitude, double longitude, double radius, int days, Map<String, CompleteVenue> venues, Map<String, List<Status>> venueTweets) throws TwitterException {
-		if (days > 0) {	
-			Query query= new Query(); 
-			String queryText = "";
-			if ( !venueName.isEmpty() ) {
-				queryText = "foursquare " + venueName + " ";
-			} else {
-				queryText = ("foursquare ");
-			}
-			// Add geolocation if available
-			if ( !Double.isNaN(latitude) && !Double.isNaN(longitude) && !Double.isNaN(radius) ) {
-				query.setGeoCode(new GeoLocation(latitude, longitude), radius, Query.KILOMETERS); //TODO Maybe add ability to choose between Km or Miles
-			} 
-			query.setQuery(queryText);
-
-			// Calculate date minus days parameter
-			Calendar cal = Calendar.getInstance();
-			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-			cal.add( Calendar.DAY_OF_YEAR, -days);
-			query.since( dateFormat.format( cal.getTime() ) );
-			
-			//query.setCount(10);
-			
-			QueryResult result = twitter.search(query);
-
-			while(query!=null){
-				// Cycle through matching tweets
-				for (Status tweet : result.getTweets()) {
-					CompleteVenue venue = getVenueFromTweet(tweet);
-					if(venue!=null){
-						if(!venues.containsKey(venue.getId())){
-							venues.put(venue.getId(),venue);
-							List<Status> tweetList = new LinkedList<Status>();
-							tweetList.add(tweet);
-							venueTweets.put(venue.getId(), tweetList);
-						} else {
-							venueTweets.get(venue.getId()).add(tweet);
-						} 
-					}
-				}
-				//Get next set of tweets if possible
-				query=result.nextQuery();
-				if(query!=null) {
-					result=twitter.search(query);
-				}
-			}		
-			
+		Query query= new Query(); 
+		String queryText = "";
+		if ( !venueName.isEmpty() ) {
+			queryText = "foursquare " + venueName + " ";
 		} else {
-			//TODO Use twitter streaming api
+			queryText = ("foursquare ");
+		}
+		// Add geolocation if available
+		if ( !Double.isNaN(latitude) && !Double.isNaN(longitude) && !Double.isNaN(radius) ) {
+			query.setGeoCode(new GeoLocation(latitude, longitude), radius, Query.KILOMETERS); //TODO Maybe add ability to choose between Km or Miles
+		} 
+		query.setQuery(queryText);
+
+		// Calculate date minus days parameter
+		Calendar cal = Calendar.getInstance();
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+		cal.add( Calendar.DAY_OF_YEAR, -days);
+		query.since( dateFormat.format( cal.getTime() ) );
+		
+		//query.setCount(10);
+		
+		QueryResult result = twitter.search(query);
+
+		getUserVenuesAndTweets(result.getTweets(), venues, venueTweets);		
+			
+	}
+	
+	
+	public void getUserVenuesAndTweets(List<Status> tweetsList, Map<String, CompleteVenue> venues, Map<String, List<Status>> venueTweets) {
+		// Cycle through matching tweets
+		for (Status tweet : tweetsList) {
+			CompleteVenue venue = getVenueFromTweet(tweet);
+			if(venue!=null){
+				if(!venues.containsKey(venue.getId())){
+					venues.put(venue.getId(),venue);
+					List<Status> tweetList = new LinkedList<Status>();
+					tweetList.add(tweet);
+					venueTweets.put(venue.getId(), tweetList);
+				} else {
+					venueTweets.get(venue.getId()).add(tweet);
+				} 
+			}
 		}
 	}
 	

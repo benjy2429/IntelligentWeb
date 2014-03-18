@@ -164,7 +164,7 @@ $(window).load(function() {
 	});
 
 	
-	
+	var bounds = new google.maps.LatLngBounds();
 	$("#form3Submit").click(function() {
 	
 		$("#dynamicText").fadeOut(FADESPEED, function() {
@@ -214,7 +214,6 @@ $(window).load(function() {
 				// Venues
 				$("#map-canvas").fadeIn(FADESPEED);
 				var map = new google.maps.Map(document.getElementById("map-canvas"), {mapTypeId: google.maps.MapTypeId.ROADMAP});
-				var bounds = new google.maps.LatLngBounds();
 				
 				$.each( venues, function() {
 					result += "<div class='venue'>";
@@ -275,17 +274,26 @@ $(window).load(function() {
 	
 	
 	$("#form4Submit").click(function() {
-		clearInterval(streamFunctionId);
-		$("#map-canvas").fadeOut(FADESPEED);
+		
 		$("#dynamicText").fadeOut(FADESPEED, function() {
 	        $(this).html(LOADING_IMG_BIG).fadeIn(FADESPEED);
 	    });
+		
+		getUsersAtVenue();
+	
+		if ($("#days3").val() == "0") {
+			streamFunctionId = setInterval(function() { getUsersAtVenue(); }, 20000);
+		}
+	});
+
+
+	function getUsersAtVenue() { //TODO Fix map disappearing for streaming, Remove no results message when streaming, Combine same venue when streaming
 		$.ajax({
 			url: 'Servlet',
 			type: 'post',
 			datatype: 'json',
 			data: $('#form4').serialize(),
-			success: function(data){
+			success: function(data){								
 				$("#resultsTitle").text("Results");
 				$("#resultsInfo").text("");		
 				var json = data.split("\n");
@@ -295,7 +303,6 @@ $(window).load(function() {
 				var i = 0;
 				$("#map-canvas").fadeIn(FADESPEED);
 				var map = new google.maps.Map(document.getElementById("map-canvas"), {mapTypeId: google.maps.MapTypeId.ROADMAP});
-				var bounds = new google.maps.LatLngBounds();
 				result += "<h2 style='margin:20px 0;'>Check-ins in this area</h2>";
 				result += "<a href='#' id='seeOtherVenues'>See venues in this area</a> | ";
 				result += "<a href='#' id='expandAllCheckins'>Expand all venue check-ins</a> | ";
@@ -366,10 +373,17 @@ $(window).load(function() {
 					$("#map-canvas").fadeOut(FADESPEED);
 					result = "No users have visited this location. Try broadening the search by increasing the location radius or the number of days to search .";
 				}
-				$("#dynamicText").fadeOut(FADESPEED, function() {
-					map.fitBounds(bounds);
-			        $(this).html(result).fadeIn(FADESPEED);
-			    });
+				
+				if ( $("#dynamicText").find(".venue").length > 0 ) {
+					$(".venueSection").prepend(result).fadeIn(FADESPEED);
+				} else {
+					$("#dynamicText").fadeOut(FADESPEED, function() {
+				        $(this).html(result).fadeIn(FADESPEED);
+				    });
+				}
+				
+				map.fitBounds(bounds);
+
 
 			},
 			error: function(xhr,textStatus,errorThrown){
@@ -377,7 +391,7 @@ $(window).load(function() {
 			}
 		});
 		
-	});
+	}
 	
 	
 	$(".results").on('click', '.getRetweets', function(e) {
