@@ -28,7 +28,6 @@ import com.claygregory.api.google.places.Place;
  */
 public class WebServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-	
 	private StreamingQueries twitterStream = null;
        
 	/** 
@@ -80,7 +79,6 @@ public class WebServlet extends HttpServlet {
 		fs.setoAuthToken( "1R2QORAMBVJ3SS0MTCGG1FUROFW0MFPMKXB5HHOQUJLQ3JWL" );
 		return fs;
 	}
-
 
 	
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -275,11 +273,7 @@ public class WebServlet extends HttpServlet {
 
     	} else if (requestId.equals("venuesForm")){
 			try {
-
-
-
-
-    			
+   			
 				Queries query = new Queries( initTwitter(), initFoursquare() );
 				
 				int days = 0;
