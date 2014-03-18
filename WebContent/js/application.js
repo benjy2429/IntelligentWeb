@@ -430,7 +430,7 @@ $(window).load(function() {
 	function getNearbyVenues(lat, lon, radius) {
 		var nearbyVenueResult = "";
 		$.ajax({
-			url: 'Servlet',
+			url: SERVLET,
 			type: 'post',
 			datatype: 'json',
 			data: { "requestId": "getNearbyVenues", "lat": lat, "lon": lon, "radius": radius },

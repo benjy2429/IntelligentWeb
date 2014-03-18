@@ -30,7 +30,6 @@ public class WebServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	
 	private StreamingQueries twitterStream = null;
-	private Timer timer = null;
        
 	/** 
 	 * confTwitter provides the oAuth configuration settings for a Twitter connection
