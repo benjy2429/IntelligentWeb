@@ -1,6 +1,8 @@
 package projectFiles;
 
+import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.Proxy;
 import java.net.URL;
 import java.text.SimpleDateFormat;
@@ -285,29 +287,24 @@ public class Queries {
 	 * expandFoursquareUrl takes a shortened Foursquare URL (4sq.com) and extracts user_id and authorisation code
 	 * @param shortUrl - String of shortened Foursquare URL
 	 * @return String array of user_id and authorisation code 
+	 * @throws IOException, ArrayIndexOutOfBoundsException 
 	 * @throws Exception
 	 */
-	private String[] expandFoursquareUrl(String shortUrl) throws Exception {
+	private String[] expandFoursquareUrl(String shortUrl) throws IOException, ArrayIndexOutOfBoundsException {
         URL url = new URL(shortUrl);
         String[] expandedUrl = {"",""};
         
         if (url.getHost().equals("4sq.com")) {
         
-        	try {
-		        HttpURLConnection connection = (HttpURLConnection) url.openConnection(Proxy.NO_PROXY);
-		        connection.setInstanceFollowRedirects(false);
-		        connection.connect();
-		        URL longUrl = new URL( connection.getHeaderField("Location") );
-		        connection.getInputStream().close();
-		        
-		        expandedUrl[0] = longUrl.getPath().replace("?s=", "/").split("/")[3];
-	    		expandedUrl[1] = longUrl.getQuery().substring(2,29);
-        	} catch (Exception e) {
-        		throw new Exception("Not a valid foursquare checkin");
-        	}
+	        HttpURLConnection connection = (HttpURLConnection) url.openConnection(Proxy.NO_PROXY);
+	        connection.setInstanceFollowRedirects(false);
+	        connection.connect();
+	        URL longUrl = new URL( connection.getHeaderField("Location") );
+	        connection.getInputStream().close();
+	        
+	        expandedUrl[0] = longUrl.getPath().replace("?s=", "/").split("/")[3];
+    		expandedUrl[1] = longUrl.getQuery().substring(2,29);
         
-        } else {
-        	throw new Exception("URL does not match 4sq.com");
         }
 
 		return expandedUrl;

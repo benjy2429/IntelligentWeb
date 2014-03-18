@@ -2,6 +2,8 @@ $(window).load(function() {
 	var FADESPEED = 250;
 	var LOADING_IMG = "<img src='./img/loading.gif' style='vertical-align:text-top;margin-right:5px;' /> Loading..";
 	var LOADING_IMG_BIG = "<div style='margin-top:20px;'><img src='./img/big_loading.gif' style='vertical-align:middle;margin-right:10px;' /> Loading..</div>";
+	var map = new google.maps.Map(document.getElementById("map-canvas"), {mapTypeId: google.maps.MapTypeId.ROADMAP});
+	var bounds = new google.maps.LatLngBounds();
 	var streamFunctionId = 0; 
 	
 	// Prevent forms from performing default action
@@ -162,10 +164,10 @@ $(window).load(function() {
 			}
 		});
 	});
-
 	
-	var bounds = new google.maps.LatLngBounds();
 	$("#form3Submit").click(function() {
+		
+		bounds = new google.maps.LatLngBounds();
 	
 		$("#dynamicText").fadeOut(FADESPEED, function() {
 	        $(this).html(LOADING_IMG_BIG).fadeIn(FADESPEED);
@@ -176,6 +178,8 @@ $(window).load(function() {
 		if ($("#days2").val() == "0") {
 			$("#userRequest").val("0");
 			streamFunctionId = setInterval(function() { getUserVenues(false); }, 20000);
+		} else {
+			clearInterval(streamFunctionId);
 		}
 	});
 			
@@ -213,7 +217,6 @@ $(window).load(function() {
 				
 				// Venues
 				$("#map-canvas").fadeIn(FADESPEED);
-				var map = new google.maps.Map(document.getElementById("map-canvas"), {mapTypeId: google.maps.MapTypeId.ROADMAP});
 				
 				$.each( venues, function() {
 					result += "<div class='venue'>";
@@ -275,6 +278,8 @@ $(window).load(function() {
 	
 	$("#form4Submit").click(function() {
 		
+		bounds = new google.maps.LatLngBounds();
+		
 		$("#dynamicText").fadeOut(FADESPEED, function() {
 	        $(this).html(LOADING_IMG_BIG).fadeIn(FADESPEED);
 	    });
@@ -283,95 +288,108 @@ $(window).load(function() {
 	
 		if ($("#days3").val() == "0") {
 			streamFunctionId = setInterval(function() { getUsersAtVenue(); }, 20000);
+		} else {
+			clearInterval(streamFunctionId);
 		}
 	});
 
 
-	function getUsersAtVenue() { //TODO Fix map disappearing for streaming, Remove no results message when streaming, Combine same venue when streaming
+	function getUsersAtVenue() { //TODO Combine same venue when streaming
 		$.ajax({
 			url: 'Servlet',
 			type: 'post',
 			datatype: 'json',
 			data: $('#form4').serialize(),
 			success: function(data){								
-				$("#resultsTitle").text("Results");
+				($("#days3").val() == "0") ? $("#resultsTitle").text("Results (Live Stream)") : $("#resultsTitle").text("Results");
 				$("#resultsInfo").text("");		
 				var json = data.split("\n");
 				var venues = JSON.parse(json[0]);
 				var venueTweetsMap = JSON.parse(json[1]);
 				var result = "";
 				var i = 0;
-				$("#map-canvas").fadeIn(FADESPEED);
-				var map = new google.maps.Map(document.getElementById("map-canvas"), {mapTypeId: google.maps.MapTypeId.ROADMAP});
-				result += "<h2 style='margin:20px 0;'>Check-ins in this area</h2>";
-				result += "<a href='#' id='seeOtherVenues'>See venues in this area</a> | ";
-				result += "<a href='#' id='expandAllCheckins'>Expand all venue check-ins</a> | ";
-				result += "<a href='#' id='collapseAllCheckins'>Collapse all venue check-ins</a>";
-				$.each(venues, function(venueId,venueObj){	
-					result += "<div class='venueSection'>";
-					result += "<div class='venue venueDark'>";
-					result += (venueObj.photos.groups[1] && venueObj.photos.groups[1].items.length > 0) ? "<img class='venueImg' src='" + venueObj.photos.groups[1].items[0].url + "'/>" : "";
-					result += "<div class='venueContent'>";
-					result += "<span class='venueName'>" + venueObj.name + ", </span>";
-					result += (venueObj.location.address) ? venueObj.location.address : "";
-					result += (venueObj.location.address && venueObj.location.city) ? ", " : "";
-					result += (venueObj.location.city) ? venueObj.location.city : "";
-					result += "<br>";			
-					var categories = [];
-					$.each( venueObj.categories, function() {
-						categories.push( "<img src='" + this.icon + "' height='15' style='vertical-align:text-top' /> " + this.name );
-					});
-					result += categories.join(", ") + "<br>";
-					result += (venueObj.url) ? "<a href='" + venueObj.url + "'>" + venueObj.url + "</a><br>" : "";
-					result += (venueObj.description) ? venueObj.description : "";
-					result += "</div>";
-					result += "<div class='showVenueCheckinsContainer'>";
-					result += "<a href='#' class='showVenueCheckins'>Show check-ins</a>";
-					result += "</div>";
-					result += "</div>";
 
-				    result += "<div class='venueCheckins' style='display:none'>";
-				    $.each(venueTweetsMap[venueId], function(id,tweetObj){
-						result += "<div class='tweet checkin'>";							
-						result += "<a href='#' data-screen-name='" + tweetObj.user.screenName + "' data-modal-generated='false' data-tweets-populated='false' data-toggle='modal' data-target='#userProfile" + tweetObj.user.screenName + "' class='visitProfile' title='" + tweetObj.user.name + "'>";
-						result += "<img class='tweetImg' src='" + tweetObj.user.profileImageUrl + "'/>";
-						result += "</a>";							
-						result += "<div class='tweetContent'>";							
-						result += "<div class='tweetUser'>"; 
-						result += "<a href='#' data-screen-name='" + tweetObj.user.screenName + "' data-modal-generated='false' data-tweets-populated='false' data-toggle='modal' data-target='#userProfile" + tweetObj.user.screenName + "' class='visitProfile' title='" + tweetObj.user.name + "'>";
-						result += tweetObj.user.name + " (@<span class='tweetScreenName'>" + tweetObj.user.screenName + "</span>)";
-						result += "</a>";
-						result +="</div>";						
-						result += "<div class='tweetText'>" + tweetObj.text + "</div>";
-						result += "<div class='tweetStats'>" + tweetObj.createdAt + "</div>";
+				if ( !$.isEmptyObject(venues) ) {
+					if ( $("#dynamicText").find(".venue").length == 0 ) {
+						result += "<h2 style='margin:20px 0;'>Check-ins in this area</h2>";
+						result += "<a href='#' id='seeOtherVenues'>See venues in this area</a> | ";
+						result += "<a href='#' id='expandAllCheckins'>Expand all venue check-ins</a> | ";
+						result += "<a href='#' id='collapseAllCheckins'>Collapse all venue check-ins</a>";
+					}
+					$.each(venues, function(venueId,venueObj){	
+						result += "<div class='venueSection'>";
+						result += "<div class='venue venueDark'>";
+						result += (venueObj.photos.groups[1] && venueObj.photos.groups[1].items.length > 0) ? "<img class='venueImg' src='" + venueObj.photos.groups[1].items[0].url + "'/>" : "";
+						result += "<div class='venueContent'>";
+						result += "<span class='venueName'>" + venueObj.name + ", </span>";
+						result += (venueObj.location.address) ? venueObj.location.address : "";
+						result += (venueObj.location.address && venueObj.location.city) ? ", " : "";
+						result += (venueObj.location.city) ? venueObj.location.city : "";
+						result += "<br>";			
+						var categories = [];
+						$.each( venueObj.categories, function() {
+							categories.push( "<img src='" + this.icon + "' height='15' style='vertical-align:text-top' /> " + this.name );
+						});
+						result += categories.join(", ") + "<br>";
+						result += (venueObj.url) ? "<a href='" + venueObj.url + "'>" + venueObj.url + "</a><br>" : "";
+						result += (venueObj.description) ? venueObj.description : "";
+						result += "</div>";
+						result += "<div class='showVenueCheckinsContainer'>";
+						result += "<a href='#' class='showVenueCheckins'>Show check-ins</a>";
 						result += "</div>";
 						result += "</div>";
-				    });	
-				    result += "</div>";
-			        var marker = new google.maps.Marker({
-			            position: new google.maps.LatLng(venueObj.location.lat, venueObj.location.lng),
-			            map: map,
-			            title: venueObj.name
-			        });
-			        
-			        var infowindow = new google.maps.InfoWindow({
-			        	content: "<div class='mapInfobox'><b>" + venueObj.name + "</b><br>"
-			        		+ venueObj.location.address + ", " + venueObj.location.city
-			        		+ "</div>"
-		        	});
-			        
-			        google.maps.event.addListener(marker, 'click', function() {
-			        	infowindow.open(map,marker);
-		        	});
-			        
-			        bounds.extend(marker.position);
-			        
-				    i++;
-				    result += "</div>";
-				});	
-				if(i<=0){
-					$("#map-canvas").fadeOut(FADESPEED);
-					result = "No users have visited this location. Try broadening the search by increasing the location radius or the number of days to search .";
+	
+					    result += "<div class='venueCheckins' style='display:none'>";
+					    $.each(venueTweetsMap[venueId], function(id,tweetObj){
+							result += "<div class='tweet checkin'>";							
+							result += "<a href='#' data-screen-name='" + tweetObj.user.screenName + "' data-modal-generated='false' data-tweets-populated='false' data-toggle='modal' data-target='#userProfile" + tweetObj.user.screenName + "' class='visitProfile' title='" + tweetObj.user.name + "'>";
+							result += "<img class='tweetImg' src='" + tweetObj.user.profileImageUrl + "'/>";
+							result += "</a>";							
+							result += "<div class='tweetContent'>";							
+							result += "<div class='tweetUser'>"; 
+							result += "<a href='#' data-screen-name='" + tweetObj.user.screenName + "' data-modal-generated='false' data-tweets-populated='false' data-toggle='modal' data-target='#userProfile" + tweetObj.user.screenName + "' class='visitProfile' title='" + tweetObj.user.name + "'>";
+							result += tweetObj.user.name + " (@<span class='tweetScreenName'>" + tweetObj.user.screenName + "</span>)";
+							result += "</a>";
+							result +="</div>";						
+							result += "<div class='tweetText'>" + tweetObj.text + "</div>";
+							result += "<div class='tweetStats'>" + tweetObj.createdAt + "</div>";
+							result += "</div>";
+							result += "</div>";
+					    });	
+					    result += "</div>";
+				        var marker = new google.maps.Marker({
+				            position: new google.maps.LatLng(venueObj.location.lat, venueObj.location.lng),
+				            map: map,
+				            title: venueObj.name
+				        });
+				        
+				        var infowindow = new google.maps.InfoWindow({
+				        	content: "<div class='mapInfobox'><b>" + venueObj.name + "</b><br>"
+				        		+ venueObj.location.address + ", " + venueObj.location.city
+				        		+ "</div>"
+			        	});
+				        
+				        google.maps.event.addListener(marker, 'click', function() {
+				        	infowindow.open(map,marker);
+			        	});
+				        
+				        bounds.extend(marker.position);
+				        
+					    i++;
+					    result += "</div>";
+					    
+					    if (!$("#map-canvas").is(":visible")) $("#map-canvas").fadeIn(FADESPEED);
+					    
+						google.maps.event.trigger(map, 'resize');
+						map.fitBounds(bounds);
+						if (map.getZoom() > 15) map.setZoom(15);
+					});	
+					
+				} else {
+					if ($("#days3").val() != "0") {
+						result = "No users have visited this location. Try broadening the search by increasing the location radius or the number of days to search .";
+						if ($("#map-canvas").is(":visible")) $("#map-canvas").fadeOut(FADESPEED);	
+					}
 				}
 				
 				if ( $("#dynamicText").find(".venue").length > 0 ) {
@@ -380,9 +398,8 @@ $(window).load(function() {
 					$("#dynamicText").fadeOut(FADESPEED, function() {
 				        $(this).html(result).fadeIn(FADESPEED);
 				    });
+
 				}
-				
-				map.fitBounds(bounds);
 
 
 			},

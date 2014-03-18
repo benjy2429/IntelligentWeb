@@ -64,11 +64,11 @@ public class StreamingQueries {
 	}
 	
 	
-	public void addUsersAtVenueListener(String venueName, double latitude, double longitude) {
+	public void addUsersAtVenueListener(String venueName, double latitude, double longitude, double radius) {
 	StatusListener listener = new StatusListener() { 
 		@Override public void onStatus(Status status) {
 			if (Calendar.getInstance().getTime().before( shutdownTime.getTime() )) {
-	System.out.println(status.getText());
+	System.out.println(status.getUser().getScreenName() + "/status/" + status.getId());
 				tweets.add(status);				
 			} else {
 				System.out.println("Shutting down Twitter stream..");
@@ -89,12 +89,19 @@ public class StreamingQueries {
 		long[] idToFollow = null; 
 		String[] stringsToTrack = null;
 		double[][] locationsToTrack = null;
-		 
-		if (Double.isNaN(latitude) && Double.isNaN(longitude)) {
-			locationsToTrack = new double[][]{{latitude, longitude}}; //TODO Calculate bounding box from lat/lon
+		
+		if (!Double.isNaN(latitude) && !Double.isNaN(longitude) && !Double.isNaN(radius)) {
+			// Calculate geo bounding box from lat/lon coordinates and radius
+			double oneKmDeg = 90/10001.965729;
+			double radiusAdjustDeg = oneKmDeg*(radius/2);
+			double lat1 = latitude - radiusAdjustDeg;
+			double lon1 = longitude - radiusAdjustDeg;
+			double lat2 = latitude + radiusAdjustDeg;
+			double lon2 = longitude + radiusAdjustDeg;
+			locationsToTrack = new double[][]{{lon1, lat1}, {lon2, lat2}};
 		} else {
-			stringsToTrack = new String[]{"foursquare", venueName};
-		}
+			stringsToTrack = new String[]{"foursquare " + venueName};
+		}		
 		
 		twitterStream.filter(new FilterQuery(count, idToFollow, stringsToTrack, locationsToTrack));
 	}

@@ -279,6 +279,11 @@ public class Servlet extends HttpServlet {
 				Map<String,List<Status>> venueTweets= new HashMap<String, List<Status>>();
 				
 				if (days > 0) {
+        			if (twitterStream != null) {
+        				twitterStream.getTwitterStream().shutdown();
+        				twitterStream = null;
+        			}
+        			
 					query.getUsersAtVenue(venueName, lat, lon, radius, days, venues, venueTweets);
 					
 	    			json = gson.toJson(venues);
@@ -290,7 +295,7 @@ public class Servlet extends HttpServlet {
     	    			// Open live stream
     					System.out.println("Opening Twitter stream..");
     					twitterStream = new StreamingQueries( initTwitterStream() );
-    					twitterStream.addUsersAtVenueListener( venueName, lat, lon );
+    					twitterStream.addUsersAtVenueListener( venueName, lat, lon, radius );
     					System.out.println("Twitter stream opened");
     					
     					// Get venues visited today
