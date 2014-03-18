@@ -3,7 +3,9 @@ package projectFiles;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 import fi.foyt.foursquare.api.entities.CompleteVenue;
 import twitter4j.*;
@@ -89,4 +91,87 @@ public class DatabaseConnector {
 			e.printStackTrace();
 		}
 	}
+
+
+	public int addWord(String term) {
+		String sql = "INSERT IGNORE INTO Keywords(word) VALUES (?)";
+		try (PreparedStatement preStmt = dbConnection.prepareStatement(sql,Statement.RETURN_GENERATED_KEYS)) {
+			preStmt.setString(1, term);
+
+			preStmt.executeUpdate();
+			
+			ResultSet generatedKeys = preStmt.getGeneratedKeys();
+	        if (generatedKeys.next()) {
+	            return generatedKeys.getInt(1);
+	        } else {
+	            return -1;
+	        }
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return -1;
+		}
+	
+	}
+
+
+	public void addUserTermPair(long userId, int wordId, int userCount) {
+		try {		
+			String sql = "INSERT IGNORE INTO UserKeyword VALUES (?,?,?)";
+			PreparedStatement preStmt = dbConnection.prepareStatement(sql);
+			preStmt.setString(1, String.valueOf(wordId));
+			preStmt.setString(2, String.valueOf(userId));
+			preStmt.setString(3, String.valueOf(userCount));
+			preStmt.executeUpdate();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+
+	private long getUserId(String userName){
+		try {
+			String sql = "SELECT userId FROM User WHERE screenName = ?";
+			PreparedStatement preStmt = dbConnection.prepareStatement(sql);
+			preStmt.setString(1, userName);
+			ResultSet result = preStmt.executeQuery();	
+			 if (result.next()) {
+				 return result.getLong(1);
+			 } else {
+				 return -1;
+			 }
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return -1;
+		}
+	}
+
+
+	public int getWordId(String term) {
+		try {
+			String sql = "SELECT wordId FROM Keywords WHERE word = ?";
+			PreparedStatement preStmt = dbConnection.prepareStatement(sql);
+			preStmt.setString(1, term);
+			ResultSet result = preStmt.executeQuery();	
+			 if (result.next()) {
+				 return result.getInt(1);
+			 } else {
+				 return -1;
+			 }
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return -1;
+		}
+	}
+
+	
+	
+	
+	
+	
+	
 }
