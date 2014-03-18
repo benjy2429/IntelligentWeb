@@ -94,7 +94,7 @@ public class StreamingQueries {
 		if (!Double.isNaN(latitude) && !Double.isNaN(longitude) && !Double.isNaN(radius)) {
 			// Calculate geo bounding box from lat/lon coordinates and radius
 			double oneKmDeg = 90/10001.965729;
-			double radiusAdjustDeg = oneKmDeg*(radius/2);
+			double radiusAdjustDeg = oneKmDeg*radius;
 			double lat1 = latitude - radiusAdjustDeg;
 			double lon1 = longitude - radiusAdjustDeg;
 			double lat2 = latitude + radiusAdjustDeg;
