@@ -9,41 +9,12 @@
 		<welcome-file>default.htm</welcome-file>
 		<welcome-file>default.jsp</welcome-file>
 	</welcome-file-list>
-	<servlet>
-		<servlet-name>Lab2</servlet-name>
-		<servlet-class>lab2.Lab2</servlet-class>
-	</servlet>
-	<servlet>
-		<description>
-		</description>
-		<display-name>Lab3</display-name>
-		<servlet-name>Lab3</servlet-name>
-		<servlet-class>lab3.Lab3</servlet-class>
-	</servlet>
-	<servlet>
-		<description>
-		</description>
-		<display-name>Queries</display-name>
-		<servlet-name>Queries</servlet-name>
-		<servlet-class>sandbox.Queries</servlet-class>
-	</servlet>
-	<servlet-mapping>
-		<servlet-name>Lab2</servlet-name>
-		<url-pattern>/Lab2</url-pattern>
-	</servlet-mapping>
-	<servlet-mapping>
-		<servlet-name>Lab3</servlet-name>
-		<url-pattern>/Lab3</url-pattern>
-	</servlet-mapping>
-	<servlet-mapping>
-		<servlet-name>Queries</servlet-name>
-		<url-pattern>/Queries</url-pattern>
-	</servlet-mapping>
   <servlet>
-    <description></description>
-    <display-name>Servlet</display-name>
-    <servlet-name>Servlet</servlet-name>
-    <servlet-class>projectFiles.Servlet</servlet-class>
+    <description>
+    </description>
+    <display-name>WebServlet</display-name>
+    <servlet-name>WebServlet</servlet-name>
+    <servlet-class>projectFiles.WebServlet</servlet-class>
   </servlet>
   <servlet>
   	<description>
@@ -53,8 +24,8 @@
   	<servlet-class>projectFiles.DatabaseServlet</servlet-class>
   </servlet>
   <servlet-mapping>
-    <servlet-name>Servlet</servlet-name>
-    <url-pattern>/Servlet</url-pattern>
+    <servlet-name>WebServlet</servlet-name>
+    <url-pattern>/WebServlet</url-pattern>
   </servlet-mapping>
   <servlet-mapping>
   	<servlet-name>DatabaseServlet</servlet-name>

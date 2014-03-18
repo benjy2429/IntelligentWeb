@@ -65,6 +65,10 @@ public class Queries {
 		return twitter.lookupUsers(users.toArray(userNamesArray));
 	}
 	
+	public Status getTwitterFromId(long tweetId) throws TwitterException {
+		return twitter.showStatus(tweetId);
+	}
+	
 	public List<Status> getUsersTweets(String screenName) throws TwitterException{
 		Query query = new Query("from:" + screenName);
 		query.setCount(100);
@@ -433,4 +437,6 @@ public class Queries {
 		public int totalCount;
 		public LinkedList<Pair<String,Integer>> userCounts = new LinkedList<Pair<String,Integer>>();
 	}
+
+
 }

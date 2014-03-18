@@ -3,6 +3,7 @@ $(window).load(function() {
 	var LOADING_IMG = "<img src='./img/loading.gif' style='vertical-align:text-top;margin-right:5px;' /> Loading..";
 	var LOADING_IMG_BIG = "<div style='margin-top:20px;'><img src='./img/big_loading.gif' style='vertical-align:middle;margin-right:10px;' /> Loading..</div>";
 	var streamFunctionId = 0; 
+	var SERVLET = "WebServlet";
 	
 	// Prevent forms from performing default action
 	$("form").on("submit", function(e) {
@@ -32,7 +33,7 @@ $(window).load(function() {
 	        $(this).html(LOADING_IMG_BIG).fadeIn(FADESPEED);
 	    });
 		$.ajax({
-			url: 'Servlet',
+			url: SERVLET,
 			type: 'post',
 			datatype: 'json',
 			data: $('#form1').serialize(),
@@ -102,7 +103,7 @@ $(window).load(function() {
 	        $(this).html(LOADING_IMG_BIG).fadeIn(FADESPEED);
 	    });
 		$.ajax({
-			url: 'Servlet',
+			url: SERVLET,
 			type: 'post',
 			datatype: 'json',
 			data: $('#form2').serialize(),
@@ -181,7 +182,7 @@ $(window).load(function() {
 			
 	function getUserVenues(userRequest) {
 		$.ajax({
-			url: 'Servlet',
+			url: SERVLET,
 			type: 'post',
 			datatype: 'json',
 			data: $('#form3').serialize(),
@@ -277,7 +278,7 @@ $(window).load(function() {
 	        $(this).html(LOADING_IMG_BIG).fadeIn(FADESPEED);
 	    });
 		$.ajax({
-			url: 'Servlet',
+			url: SERVLET,
 			type: 'post',
 			datatype: 'json',
 			data: $('#form4').serialize(),
@@ -383,7 +384,7 @@ $(window).load(function() {
 	        $(this).html(LOADING_IMG).fadeIn(FADESPEED);
 	    });
 		$.ajax({
-			url: 'Servlet',
+			url: SERVLET,
 			type: 'post',
 			datatype: 'json',
 			data: tweet.find('.retweetersForm').serialize(),
@@ -484,7 +485,7 @@ $(window).load(function() {
 		var screenName = link.attr("data-screen-name");
 		if (link.attr("data-modal-generated") == "false"){
 			$.ajax({
-				url: 'Servlet',
+				url: SERVLET,
 				type: 'post',
 				datatype: 'json',
 				data: "requestId=fetchUserForProfile&screenName="+ screenName + "",
@@ -499,7 +500,7 @@ $(window).load(function() {
 		}
 		if (link.attr("data-tweets-populated") == "false"){
 			$.ajax({
-				url: 'Servlet',
+				url: SERVLET,
 				type: 'post',
 				datatype: 'json',
 				data: "requestId=fetchTweetsForProfile&screenName="+ screenName,

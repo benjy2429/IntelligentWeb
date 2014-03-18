@@ -28,16 +28,7 @@ public class DatabaseServlet extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-	 	try {
-	 		//Class.forName("org.gjt.mm.mysql.Driver").newInstance();
-			Class.forName("com.mysql.jdbc.Driver").newInstance();
-			String DB="jdbc:mysql://stusql.dcs.shef.ac.uk/team007?user=team007&password=a57078a1";
-			Connection conn = DriverManager.getConnection(DB);
-			conn.close();
-		} catch (InstantiationException | IllegalAccessException | ClassNotFoundException  | SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} 
+
 	}
 
 	/**

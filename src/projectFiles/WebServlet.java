@@ -33,7 +33,7 @@ import fi.foyt.foursquare.api.entities.*;
 /**
  * Servlet implementation class Queries
  */
-public class Servlet extends HttpServlet {
+public class WebServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	
 	private StreamingQueries twitterStream = null;
@@ -123,10 +123,18 @@ public class Servlet extends HttpServlet {
 
     			List<Status> result = query.getTrendingTweets( request.getParameter("query"), lat, lon, radius );
     			//Have to parse ids as string and send them separately as twitter4j does not support the id_str parameter and javascript cannot handle type long
-    			ArrayList<String> tweetIds = new ArrayList<String>();
+    			ArrayList<String> tweetIds = new ArrayList<String>();		
+    			
+    			DatabaseConnector dbConn = new DatabaseConnector();
+    			dbConn.establishConnection();
+
     			for(Status status : result) {
+        			dbConn.addUsers(status.getUser());
     				tweetIds.add(String.valueOf(status.getId()));
     			}
+    			
+    			dbConn.closeConnection();
+    			
     			json = gson.toJson( tweetIds );
     			json += "\n";
     			json += gson.toJson( result );
@@ -139,7 +147,19 @@ public class Servlet extends HttpServlet {
     			
     			Queries query = new Queries(initTwitter());
     			long tweetId = Long.parseLong( request.getParameter("tweetId") );
+    			Status tweet = query.getTwitterFromId(tweetId);
     			List<User> retweeters = query.getRetweeters(tweetId);
+    			
+    			DatabaseConnector dbConn = new DatabaseConnector();
+    			dbConn.establishConnection();   			
+    			dbConn.addUsers(tweet.getUser());
+    			long tweeterId = tweet.getUser().getId();
+    			for(User user : retweeters){
+    				dbConn.addUsers(user);
+    				dbConn.addContact(tweeterId,user.getId());
+    			}
+    			dbConn.closeConnection();
+    			
         		json = gson.toJson(retweeters);
     		} catch (TwitterException te) {
     			json = gson.toJson( te.getErrorMessage() );
