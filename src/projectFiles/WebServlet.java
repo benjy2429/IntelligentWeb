@@ -8,18 +8,13 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Timer;
-
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import projectFiles.Queries.Pair;
 import projectFiles.Queries.Term;
-
 import com.google.gson.*;
-
 import twitter4j.*;
 import twitter4j.conf.*;
 import exceptions.*;
