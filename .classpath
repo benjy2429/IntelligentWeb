@@ -30,5 +30,6 @@
 			<attribute name="javadoc_location" value="http://twitter4j.org/javadoc/"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/google-places-api-java-0.2-SNAPSHOT-jar-with-dependencies.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>

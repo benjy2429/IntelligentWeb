@@ -1,5 +1,6 @@
 package projectFiles;
 
+import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.Proxy;
 import java.net.URL;
@@ -11,6 +12,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import com.claygregory.api.google.places.*;
+import com.claygregory.api.google.places.Place;
 
 import exceptions.FileException;
 import fi.foyt.foursquare.api.*;
@@ -260,7 +264,7 @@ public class Queries {
 		return resultList;
 	}
 	
-	private CompleteVenue getVenueFromTweet(Status tweet){
+	public CompleteVenue getVenueFromTweet(Status tweet){
 		// Extract foursquare links and retrieve foursquare checkin information
 		for (URLEntity url : tweet.getURLEntities()) {
 			try {
@@ -278,7 +282,7 @@ public class Queries {
 					}
 				}
 			} catch (Exception e) {
-				e.printStackTrace();
+				System.out.println(e.getMessage());
 			}
 		}
 		return null;
@@ -289,9 +293,10 @@ public class Queries {
 	 * expandFoursquareUrl takes a shortened Foursquare URL (4sq.com) and extracts user_id and authorisation code
 	 * @param shortUrl - String of shortened Foursquare URL
 	 * @return String array of user_id and authorisation code 
+	 * @throws IOException, ArrayIndexOutOfBoundsException 
 	 * @throws Exception
 	 */
-	private String[] expandFoursquareUrl(String shortUrl) throws Exception {
+	private String[] expandFoursquareUrl(String shortUrl) throws IOException, ArrayIndexOutOfBoundsException {
         URL url = new URL(shortUrl);
         String[] expandedUrl = {"",""};
         
@@ -306,8 +311,6 @@ public class Queries {
 	        expandedUrl[0] = longUrl.getPath().replace("?s=", "/").split("/")[3];
     		expandedUrl[1] = longUrl.getQuery().substring(2,29);
         
-        } else {
-        	throw new Exception("URL does not match 4sq.com");
         }
 
 		return expandedUrl;
@@ -319,104 +322,78 @@ public class Queries {
 	// 3. Who is visiting venues in a specific geographic area (or visiting a named venue) or have done so in the last X days
 	/**
 	 * getUsersAtVenue finds users who have vistited a venue in the past X days
-	 * Either latitude/longitude required OR location name required
+	 * @param venueName - Name of a venue as a String
 	 * @param latitude - Geolocation latitude
 	 * @param longitude - Geolocation longitude
-	 * @param location - Geolocaiton location name
-	 * @param venueName - Name of venue
-	 * @param days - Number of past days to search 
-	 * @param venueTweets2 
-	 * @param venues 
-	 * @return
+	 * @param radius - Geolocation radius from lat/long
+	 * @param days - Days in the past to search for (0 = Live Stream)
+	 * @param venues - Hashmap of venueIds and CompleteVenue objects
+	 * @param venueTweets - Hashmap of tweetIds and Status objects
 	 * @throws TwitterException 
 	 */
-	//TODO REWRITE TO SEARCH VIA TWITTER FIRST - CANNOT GET CHECKINS DIRECTLY FROM A FOURSQUARE VENUE
-	/*
-	public String getUsersAtVenue(double latitude, double longitude, String location, String venueName, int days) { //TODO Use streaming api if days==0
-		String resultString = "";
-		try {
-			Result<VenuesSearchResult> result = null;
-			if ( !Double.isNaN(latitude) && !Double.isNaN(longitude) ) {
-				result = foursquare.venuesSearch(latitude+","+longitude, 10000.0, 0.0, 10000.0, venueName, 15, "checkin", "", "", "", "");
-			} else if ( !location.isEmpty() ) {
-				result = foursquare.venuesSearch(location, venueName, 15, "checkin", "", "", "", "");
-			} else {
-				//TODO Set default location to twitter user location??
-				throw new Exception("Missing required fields");
-			}
+	public void getUsersAtVenue(String venueName, double latitude, double longitude, double radius, int days, Map<String, CompleteVenue> venues, Map<String, List<Status>> venueTweets) throws TwitterException {
+		Query query= new Query(); 
+		String queryText = "";
+		if ( !venueName.isEmpty() ) {
+			queryText = "foursquare " + venueName + " ";
+		} else {
+			queryText = ("foursquare ");
+		}
+		// Add geolocation if available
+		if ( !Double.isNaN(latitude) && !Double.isNaN(longitude) && !Double.isNaN(radius) ) {
+			query.setGeoCode(new GeoLocation(latitude, longitude), radius, Query.KILOMETERS); //TODO Maybe add ability to choose between Km or Miles
+		} 
+		query.setQuery(queryText);
+
+		// Calculate date minus days parameter
+		Calendar cal = Calendar.getInstance();
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+		cal.add( Calendar.DAY_OF_YEAR, -days);
+		query.since( dateFormat.format( cal.getTime() ) );
+		
+		//query.setCount(10);
+		
+		QueryResult result = twitter.search(query);
+
+		getUserVenuesAndTweets(result.getTweets(), venues, venueTweets);		
 			
-			if (result.getMeta().getCode() == 200) {
-				for (CompactVenue venue : result.getResult().getVenues()) {
-					resultString += venue.getName() + " (" + venue.getLocation().getAddress() + ")<br>";
-					
-					//TODO Get users who have visited in X days
-				}
-			} else {
-				System.out.println(result.getMeta().getCode());
-				System.out.println(result.getMeta().getErrorType());
-				System.out.println(result.getMeta().getErrorDetail());
+	}
+	
+	
+	public void getUserVenuesAndTweets(List<Status> tweetsList, Map<String, CompleteVenue> venues, Map<String, List<Status>> venueTweets) {
+		// Cycle through matching tweets
+		for (Status tweet : tweetsList) {
+			CompleteVenue venue = getVenueFromTweet(tweet);
+			if(venue!=null){
+				if(!venues.containsKey(venue.getId())){
+					venues.put(venue.getId(),venue);
+					List<Status> tweetList = new LinkedList<Status>();
+					tweetList.add(tweet);
+					venueTweets.put(venue.getId(), tweetList);
+				} else {
+					venueTweets.get(venue.getId()).add(tweet);
+				} 
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			System.out.println( "Error searching for venues" );
+		}
+	}
+	
+	
+	public List<Place> getNearbyPlaces(double lat, double lon, double radius) {
+		List<Place> placeList = new LinkedList<Place>();
+		GooglePlaces placesApi = new GooglePlaces("AIzaSyAQSRWiDPQTAeFTilEGZuyouNaF0biz7ks");
+		PlacesResult result = placesApi.search((float)lat, (float)lon, (int)Math.round(radius*1000), false);
+		
+		if (result.isOkay()) {
+			for (Place place : result) {
+				//System.out.println(place.getName() + ", " + place.getVicinity() + ", " + place.getGeometry().getLocation());
+				placeList.add(place);
+				if (placeList.size() == 10) break;
+			}
+		} else {
+			System.out.println("Error fetching nearby venues!");
 		}
 		
-		return resultString;
-	}
-	*/
-	
-	
-	// 3. Who is visiting venues in a specific geographic area (or visiting a named venue) or have done so in the last X days
-	public void getUsersAtVenue(String venueName, double latitude, double longitude, double radius, int days, Map<String, CompleteVenue> venues, Map<String, List<Status>> venueTweets) throws TwitterException {
-		if (days > 0) {	
-			Query query= new Query(); 
-			String queryText = "";
-			if ( !venueName.isEmpty() ) {
-				queryText = "foursquare " + venueName + " ";
-			} else {
-				queryText = ("foursquare ");
-			}
-			// Add geolocation if available
-			if ( !Double.isNaN(latitude) && !Double.isNaN(longitude) && !Double.isNaN(radius) ) {
-				query.setGeoCode(new GeoLocation(latitude, longitude), radius, Query.KILOMETERS); //TODO Maybe add ability to choose between Km or Miles
-			} 
-			query.setQuery(queryText);
-
-			// Calculate date minus days parameter
-			Calendar cal = Calendar.getInstance();
-			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-			cal.add( Calendar.DAY_OF_YEAR, -days);
-			query.since( dateFormat.format( cal.getTime() ) );
-			
-			//query.setCount(10);
-			
-			QueryResult result = twitter.search(query);
-
-			while(query!=null){
-				// Cycle through matching tweets
-				for (Status tweet : result.getTweets()) {
-					CompleteVenue venue = getVenueFromTweet(tweet);
-					if(venue!=null){
-						if(!venues.containsKey(venue.getId())){
-							venues.put(venue.getId(),venue);
-							List<Status> tweetList = new LinkedList<Status>();
-							tweetList.add(tweet);
-							venueTweets.put(venue.getId(), tweetList);
-						} else {
-							venueTweets.get(venue.getId()).add(tweet);
-						} 
-					}
-				}
-				//Get next set of tweets if possible
-				query=result.nextQuery();
-				if(query!=null) {
-					result=twitter.search(query);
-				}
-			}		
-			
-		} else {
-			//TODO Use twitter streaming api
-		}
+		return placeList;
 	}
 	
 	
