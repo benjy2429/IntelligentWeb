@@ -96,7 +96,7 @@ public class DatabaseConnector {
 	*/
 	
 	public void addVenues(CompleteVenue venue){
-		String sql = "REPLACE INTO Locations VALUES (?,?,?,?,?,?)";
+		String sql = "REPLACE INTO Locations VALUES (?,?,?,?,?,?,?)";
 		try (PreparedStatement preStmt = dbConnection.prepareStatement(sql)) {
 			preStmt.setString(1, venue.getId());
 			preStmt.setString(2, venue.getName());
@@ -172,6 +172,19 @@ public class DatabaseConnector {
 	}
 
 
+	public void addUserVenue(long userId, String venueId) {
+		try {		
+			String sql = "INSERT IGNORE INTO UserLocation VALUES (?,?)";
+			PreparedStatement preStmt = dbConnection.prepareStatement(sql);
+			preStmt.setString(1, String.valueOf(userId));
+			preStmt.setString(2, venueId);
+			preStmt.executeUpdate();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
 	private long getUserId(String userName){
 		try {
 			String sql = "SELECT userId FROM User WHERE screenName = ?";
@@ -208,6 +221,8 @@ public class DatabaseConnector {
 			return -1;
 		}
 	}
+
+
 
 	
 	

@@ -356,12 +356,12 @@ public class Queries {
 		
 		QueryResult result = twitter.search(query);
 
-		getUserVenuesAndTweets(result.getTweets(), venues, venueTweets);		
+		getUserVenuesFromTweets(result.getTweets(), venues, venueTweets);		
 			
 	}
 	
 	
-	public void getUserVenuesAndTweets(List<Status> tweetsList, Map<String, CompleteVenue> venues, Map<String, List<Status>> venueTweets) {
+	public void getUserVenuesFromTweets(List<Status> tweetsList, Map<String, CompleteVenue> venues, Map<String, List<Status>> venueTweets) {
 		// Cycle through matching tweets
 		for (Status tweet : tweetsList) {
 			CompleteVenue venue = getVenueFromTweet(tweet);
