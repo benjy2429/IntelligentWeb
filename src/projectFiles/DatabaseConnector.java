@@ -7,6 +7,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 
 import fi.foyt.foursquare.api.entities.CompleteVenue;
 import twitter4j.*;
@@ -55,23 +57,6 @@ public class DatabaseConnector {
 		}
 	}
 	
-	public HashMap<String,String> showUser(String username) throws SQLException {
-		HashMap<String,String> userResult = new HashMap<String,String>();
-		String sql = "SELECT * FROM Users WHERE screenName = '" + username + "'";
-		PreparedStatement preStmt = dbConnection.prepareStatement(sql);
-		
-		ResultSet result = preStmt.executeQuery(sql);
-		if (result.next()) {
-			userResult.put( "userId", result.getString("userId") );
-			userResult.put( "fullName", result.getString("fullName") );
-			userResult.put( "screenName", result.getString("screenName") );
-			userResult.put( "hometown", result.getString("hometown") );
-			userResult.put( "profileUrl", result.getString("profileUrl") );
-			userResult.put( "description", result.getString("description") );
-		}
-		
-		return userResult;
-	}
 	
 	public void addVenues(CompleteVenue venue){
 		String sql = "REPLACE INTO Locations VALUES (?,?,?,?,?,?,?)";
@@ -203,11 +188,117 @@ public class DatabaseConnector {
 	}
 
 
+	public HashMap<String,String> showUser(String username) throws SQLException {
+		HashMap<String,String> userResult = new HashMap<String,String>();
+		String sql = "SELECT * FROM Users WHERE screenName = ?";
+		PreparedStatement preStmt = dbConnection.prepareStatement(sql);
+		preStmt.setString(1, username);
+		
+		ResultSet result = preStmt.executeQuery();
+		if (result.next()) {
+			userResult.put( "userId", result.getString("userId") );
+			userResult.put( "fullName", result.getString("fullName") );
+			userResult.put( "screenName", result.getString("screenName") );
+			userResult.put( "hometown", result.getString("hometown") );
+			userResult.put( "profileUrl", result.getString("profileUrl") );
+			userResult.put( "description", result.getString("description") );
+		}
+		
+		return userResult;
+	}
+	
+	
+	public LinkedList<HashMap<String,String>> getRetweetersOfUser(long userId) {
+		LinkedList<HashMap<String,String>> retweeters = new LinkedList<HashMap<String,String>>();
+		
+		try {
+			String sql = "SELECT Users.* FROM Users, UserUserContact WHERE UserUserContact.userA = ? AND Users.userId = UserUserContact.userB";
+			PreparedStatement preStmt = dbConnection.prepareStatement(sql);
+			preStmt.setString(1, String.valueOf(userId));
+			ResultSet result = preStmt.executeQuery();	
+			while (result.next()) {
+				HashMap<String,String> userHashMap = new HashMap<String,String>();
+				userHashMap.put( "fullName", result.getString("fullName") );
+				userHashMap.put( "screenName", result.getString("screenName") );
+				userHashMap.put( "profileUrl", result.getString("profileUrl") );
+				retweeters.add(userHashMap);
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return retweeters;
+	}
+	
+	
+	public LinkedList<HashMap<String,String>> getUserRetweets(long userId) {
+		LinkedList<HashMap<String,String>> retweeters = new LinkedList<HashMap<String,String>>();
+		
+		try {
+			String sql = "SELECT Users.* FROM Users, UserUserContact WHERE UserUserContact.userB = ? AND Users.userId = UserUserContact.userA";
+			PreparedStatement preStmt = dbConnection.prepareStatement(sql);
+			preStmt.setString(1, String.valueOf(userId));
+			ResultSet result = preStmt.executeQuery();	
+			while (result.next()) {
+				HashMap<String,String> userHashMap = new HashMap<String,String>();
+				userHashMap.put( "fullName", result.getString("fullName") );
+				userHashMap.put( "screenName", result.getString("screenName") );
+				userHashMap.put( "profileUrl", result.getString("profileUrl") );
+				retweeters.add(userHashMap);
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return retweeters;
+	}
+	
+	
+	public LinkedList<HashMap<String,String>> getUserLocations(long userId) {
+		LinkedList<HashMap<String,String>> locations = new LinkedList<HashMap<String,String>>();
+		
+		try {
+			String sql = "SELECT Locations.* FROM Locations, UserLocation WHERE UserLocation.userId = ? AND Locations.locId = UserLocation.locId";
+			PreparedStatement preStmt = dbConnection.prepareStatement(sql);
+			preStmt.setString(1, String.valueOf(userId));
+			ResultSet result = preStmt.executeQuery();
+			while (result.next()) {
+				HashMap<String,String> locationHashMap = new HashMap<String,String>();
+				locationHashMap.put( "name", result.getString("name") );
+				locationHashMap.put( "imageUrl", result.getString("imageUrl") );
+				locationHashMap.put( "address", result.getString("address") );
+				locationHashMap.put( "city", result.getString("city") );
+				locationHashMap.put( "websiteUrl", result.getString("websiteUrl") );
+				locationHashMap.put( "description", result.getString("description") );
+				locations.add(locationHashMap);
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return locations;
+	}
+	
 
-	
-	
-	
-	
-	
+	public LinkedList<HashMap<String,String>> getUserKeywords(long userId) {
+		LinkedList<HashMap<String,String>> keywords = new LinkedList<HashMap<String,String>>();
+		
+		try {
+			String sql = "SELECT Keywords.*, UserKeyword.* FROM Keywords, UserKeyword WHERE UserKeyword.userId = ? AND Keywords.wordId = UserKeyword.wordId ORDER BY UserKeyword.count DESC LIMIT 0, 10";
+			PreparedStatement preStmt = dbConnection.prepareStatement(sql);
+			preStmt.setString(1, String.valueOf(userId));
+			ResultSet result = preStmt.executeQuery();
+			while (result.next()) {
+				HashMap<String,String> keywordHashMap = new HashMap<String,String>();
+				keywordHashMap.put( "word", result.getString("word") );
+				keywordHashMap.put( "count", result.getString("count") );
+				keywords.add(keywordHashMap);
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return keywords;
+	}	
 	
 }
