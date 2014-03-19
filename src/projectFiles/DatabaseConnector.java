@@ -288,4 +288,48 @@ public class DatabaseConnector {
 		return keywords;
 	}	
 	
+	
+	public HashMap<String,String> showVenue(String venueName) throws SQLException {
+		HashMap<String,String> venue = new HashMap<String,String>();
+
+		String sql = "SELECT * FROM Locations WHERE name = ?";
+		PreparedStatement preStmt = dbConnection.prepareStatement(sql);
+		preStmt.setString(1, venueName);
+		
+		ResultSet result = preStmt.executeQuery();
+		if (result.next()) {
+			venue.put( "locId", result.getString("locId") );
+			venue.put( "name", result.getString("name") );
+			venue.put( "imageUrl", result.getString("imageUrl") );
+			venue.put( "address", result.getString("address") );
+			venue.put( "city", result.getString("city") );
+			venue.put( "websiteUrl", result.getString("websiteUrl") );
+			venue.put( "description", result.getString("description") );
+		}
+
+		return venue;
+	}	
+	
+	
+	public LinkedList<HashMap<String,String>> getVenueVisitors(String venueId) throws SQLException {
+		LinkedList<HashMap<String,String>> users = new LinkedList<HashMap<String,String>>();
+
+		String sql = "SELECT Users.* FROM Users, UserLocation WHERE UserLocation.locId = ? AND Users.userId = UserLocation.userId";
+		PreparedStatement preStmt = dbConnection.prepareStatement(sql);
+		preStmt.setString(1, venueId);
+		ResultSet result = preStmt.executeQuery();
+		while (result.next()) {
+			HashMap<String,String> userHashMap = new HashMap<String,String>();
+			userHashMap.put( "userId", result.getString("userId") );
+			userHashMap.put( "fullName", result.getString("fullName") );
+			userHashMap.put( "screenName", result.getString("screenName") );
+			userHashMap.put( "hometown", result.getString("hometown") );
+			userHashMap.put( "profileUrl", result.getString("profileUrl") );
+			userHashMap.put( "description", result.getString("description") );
+			users.add(userHashMap);
+		}
+			
+		return users;
+	}
+	
 }

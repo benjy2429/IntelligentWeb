@@ -41,6 +41,8 @@ public class DatabaseServlet extends HttpServlet {
     	String requestId = request.getParameter("requestId");    	
     	Gson gson = new Gson();
     	String json = "";
+    	
+    	//TODO Change json character encoding to utf-8
     	  	
     	if (requestId.equals("showUser")) {
     		try {
@@ -73,6 +75,27 @@ public class DatabaseServlet extends HttpServlet {
     			json += gson.toJson( userLocations );
     			json += "\n";
     			json += gson.toJson( userKeywords );
+    			
+    		} catch (SQLException e) {
+				System.out.println(e.getMessage());
+			}    		
+
+    	} else if (requestId.equals("showVenue")) {
+    		try {
+    			HashMap<String, String> venue = new HashMap<String, String>();
+    			List<HashMap<String, String>> users = new LinkedList<HashMap<String, String>>();
+    			String venueName = request.getParameter("venueName");
+
+    			DatabaseConnector dbConn = new DatabaseConnector();
+    			dbConn.establishConnection();
+    			venue = dbConn.showVenue(venueName);
+    			String venueId = venue.get("locId");
+    			users = dbConn.getVenueVisitors(venueId);
+    			dbConn.closeConnection();
+    			
+    			json = gson.toJson( venue );
+    			json += "\n";
+    			json += gson.toJson( users );
     			
     		} catch (SQLException e) {
 				System.out.println(e.getMessage());
