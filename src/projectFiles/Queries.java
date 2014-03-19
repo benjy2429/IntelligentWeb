@@ -134,7 +134,7 @@ public class Queries {
 	 * @throws TwitterException - An error relating to the use of the twitter API
 	 * @throws FileException - An error that has occurred as a result of accessing files on the server
 	 */
-	public LinkedList<Term> getDiscussedTopics(LinkedList<String> users, int termsDesired, int daySpan) throws FileException, TwitterException {
+	public LinkedList<Term> getDiscussedTopics(LinkedList<User> users, int termsDesired, int daySpan) throws FileException, TwitterException {
 		//Calculate the date "daySpan" days ago
 		Calendar cal = Calendar.getInstance();
 		cal.add( Calendar.DAY_OF_YEAR, -daySpan);
@@ -143,7 +143,8 @@ public class Queries {
 		//Make an inverted index of terms. Each term maps to a pair containing the total count and a user count map. The user count map, maps a user name to their term count
 		Map<String, Pair<Integer,Map<String,Integer>>> termUserMap = new HashMap<String, Pair<Integer,Map<String,Integer>>>();
 		//For each of the passed users
-		for(String userName : users){//TODO strip out naughty things in string
+		for(User user : users){//TODO strip out naughty things in string
+			String userName = user.getScreenName();
 			//Get all their tweets in the last "daySpan" days
 			Query query = new Query("from:" + userName).since(formattedDate);
 			query.setCount(100);

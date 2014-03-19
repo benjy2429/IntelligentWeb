@@ -12,6 +12,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import projectFiles.Queries.Pair;
 import projectFiles.Queries.Term;
 import com.google.gson.*;
 import twitter4j.*;
@@ -19,6 +20,7 @@ import twitter4j.conf.*;
 import exceptions.*;
 import fi.foyt.foursquare.api.*;
 import fi.foyt.foursquare.api.entities.*;
+
 import com.claygregory.api.google.places.Place;
 
 
@@ -169,29 +171,59 @@ public class WebServlet extends HttpServlet {
     			}
 				
         		Queries query = new Queries(initTwitter()); 
-				LinkedList<String> users = new LinkedList<String>( Arrays.asList( request.getParameter("users").split(" ") ) );
-				
+				LinkedList<String> usersNames = new LinkedList<String>( Arrays.asList( request.getParameter("users").split(" ") ) );
+				LinkedList<User> users = new LinkedList<User>();
+				users.addAll(query.getTwitterUsers(usersNames));
+							
 				int keywords = Integer.parseInt( request.getParameter("keywords") );
 				int days = Integer.parseInt( request.getParameter("days") );
     						
-				//users.add("Science_Factoid");
-				//users.add("CathalSheridan");
-				//users.add("twalsh92");
-				//users.add("Sarah_Falconer");
-				//users.add("Jonomnom");
-				//users.add("thomasdeanwhite");
-				//users.add("chloe100893");
-				//users.add("luke_heavens");
-				
-				//users.add("BBCBreaking");
-				//users.add("Channel4News");
-				//users.add("itvnews");
-
 				List<Term> frequentTerms;
-				frequentTerms = query.getDiscussedTopics( users, keywords, days );
+				frequentTerms = query.getDiscussedTopics(users, keywords, days ); //TODO only recording top ten
+				
+    			DatabaseConnector dbConn = new DatabaseConnector();
+    			dbConn.establishConnection();  
+    			for(User user : users){
+    				dbConn.addUsers(user);
+    			}
+    			for(Term term : frequentTerms){
+    				int wordId = dbConn.addWord(term.term);
+    				if (wordId == -1){
+    					wordId = dbConn.getWordId(term.term);
+    				}
+    				if (wordId != -1){
+	    				for(Pair<String, Integer> userCount : term.userCounts){
+	    					long userId = -1;
+	    	    			for(User user : users){
+	    	    				if(user.getScreenName().equals(userCount.t)){
+	    	    					userId = user.getId();
+	    	    				}
+	    	    			}
+	    	    			if(userId != -1){
+	    	    				dbConn.addUserTermPair(userId,wordId, userCount.u);
+	    	    			} else {
+	    	    				try {
+									throw new Exception("A discrepancy with a user has occured.");
+								} catch (Exception e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								}
+	    	    			}
+	    				}
+    				} else {
+	    				try {
+							throw new Exception("A discrepancy with a term has occured.");
+						} catch (Exception e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+    				}
+    			}
+    			dbConn.closeConnection();
+				
 				json = gson.toJson(frequentTerms);		
 				json += "\n";
-				json += gson.toJson(query.getTwitterUsers(users));
+				json += gson.toJson(users);
 			} catch (TwitterException e) {
 				json = gson.toJson("Error communicating with Twitter");
 				e.printStackTrace();
