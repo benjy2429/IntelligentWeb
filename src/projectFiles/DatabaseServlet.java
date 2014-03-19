@@ -7,6 +7,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.servlet.ServletException;
@@ -44,14 +45,19 @@ public class DatabaseServlet extends HttpServlet {
     	if (requestId.equals("showUser")) {
     		try {
     			HashMap<String, String> user = new HashMap<String, String>();
+    			List<Long> retweeterIds = new LinkedList<Long>();
     			String username = request.getParameter("username");
 
     			DatabaseConnector dbConn = new DatabaseConnector();
     			dbConn.establishConnection();
     			user = dbConn.showUser(username);
+    			//retweeterIds = dbConn.getUserRetweets(username);
     			dbConn.closeConnection();
     			
     			json = gson.toJson( user );
+    			//json += "\n";
+    			//json += gson.toJson( retweeterIds );
+	System.out.println(json);
     			
     		} catch (SQLException e) {
 				System.out.println(e.getMessage());

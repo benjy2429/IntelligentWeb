@@ -7,6 +7,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 
 import fi.foyt.foursquare.api.entities.CompleteVenue;
 import twitter4j.*;
@@ -57,10 +59,11 @@ public class DatabaseConnector {
 	
 	public HashMap<String,String> showUser(String username) throws SQLException {
 		HashMap<String,String> userResult = new HashMap<String,String>();
-		String sql = "SELECT * FROM Users WHERE screenName = '" + username + "'";
+		String sql = "SELECT * FROM Users WHERE screenName = ?";
 		PreparedStatement preStmt = dbConnection.prepareStatement(sql);
+		preStmt.setString(1, username);
 		
-		ResultSet result = preStmt.executeQuery(sql);
+		ResultSet result = preStmt.executeQuery();
 		if (result.next()) {
 			userResult.put( "userId", result.getString("userId") );
 			userResult.put( "fullName", result.getString("fullName") );
@@ -72,6 +75,25 @@ public class DatabaseConnector {
 		
 		return userResult;
 	}
+	
+	/*
+	public List<Long> getUserRetweets(String username) {
+		List<Long> retweeterIds = new LinkedList<Long>();
+		try {
+			String sql = "SELECT userB FROM UserUserContact WHERE userA = ?";
+			PreparedStatement preStmt = dbConnection.prepareStatement(sql);
+			preStmt.setString(1, username);
+			ResultSet result = preStmt.executeQuery();	
+			while (result.next()) {
+				retweeterIds.add( result.getLong(1) );
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return retweeterIds;
+	}
+	*/
 	
 	public void addVenues(CompleteVenue venue){
 		String sql = "REPLACE INTO Locations VALUES (?,?,?,?,?,?)";
