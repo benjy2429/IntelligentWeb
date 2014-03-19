@@ -46,7 +46,9 @@ $(window).load(function() {
 						result += "<h2>" + user.fullName + "</h2>";
 						result += "<h4><b>@" + user.screenName + "</b></h4>";
 						result += (user.description) ? "<p>" + user.description + "</p>" : "";
-						result += (user.hometown) ? "<p>Hometown: " + user.hometown + "</p>" : "";
+						result += "<p>";
+						result += (user.hometown) ? "Hometown: " + user.hometown + " | " : "";
+						result += "<a href='http://twitter.com/" + user.screenName + "'>Visit " + user.screenName + "'s profile on Twitter</a></p>";
 						result += "</div>";
 						result += "</div>";
 						
@@ -141,6 +143,65 @@ $(window).load(function() {
 	
 					$("#dynamicText").fadeOut(FADESPEED, function() {
 				        $(this).html(result).fadeIn(FADESPEED);
+				    });
+				} catch (err) {
+					$("#dynamicText").html( "Error: " + err.message ).fadeIn(FADESPEED);
+				}
+			},
+			error: function(xhr,textStatus,errorThrown){
+				$("#dynamicText").html(errorThrown);
+			}
+		});
+		
+	});
+	
+	
+	$("#showVenueFormSubmit").click(function() {
+		$("#dynamicText").fadeOut(FADESPEED, function() {
+	        $(this).html(LOADING_IMG_BIG).fadeIn(FADESPEED);
+	    });
+		$.ajax({
+			url: SERVLET,
+			type: 'post',
+			datatype: 'json',
+			data: $('#showVenueForm').serialize(),
+			success: function(data){
+				try {
+					$("#resultsTitle").text("");
+					$("#resultsInfo").text("");
+					
+					json = data.split("\n");
+					var venue = JSON.parse(json[0]);
+					var users = JSON.parse(json[1]);
+
+					var result = "";
+					if (!$.isEmptyObject(venue)) {	
+						result += "<div class='bigUserProfile'>";
+						result += "<div class='userProfileImg' style='background-image:url(\"" + venue.imageUrl + "\");'></div>";
+						result += "<div>";
+						result += "<h2>" + venue.name + "</h2>";
+						result += "<h4><b>" + venue.address + ", " + venue.city + "</b></h4>";
+						result += (venue.description) ? "<p>" + venue.description + "</p>" : "";
+						result += (venue.websiteUrl) ? "<a href='" + venue.websiteUrl + "'>" + venue.websiteUrl + "</a>" : "";
+						result += "</div>";
+						result += "</div>";
+						
+						
+						if (users.length > 0) {
+							result += "<h3>Users who have visited " + venue.name + "</h3>";
+							$.each( users, function() {
+								result += "<a href='#' data-toggle='tooltip' title='" + this.fullName + "'><img class='venueVisitorImg' src='" + this.profileUrl + "'/></a>";
+							});
+						} else {
+							result += "No users have visited " + venue.name;
+						}
+											} else {
+						result += "No matching venues found.";
+					}
+	
+					$("#dynamicText").fadeOut(FADESPEED, function() {
+				        $(this).html(result).fadeIn(FADESPEED);
+				        $("[data-toggle='tooltip']").tooltip({ placement: 'bottom' });
 				    });
 				} catch (err) {
 					$("#dynamicText").html( "Error: " + err.message ).fadeIn(FADESPEED);
