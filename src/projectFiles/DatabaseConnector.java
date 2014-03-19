@@ -42,15 +42,17 @@ public class DatabaseConnector {
 	
 	public void addUsers(User user){
 		try {
-			String sql = "REPLACE INTO Users VALUES (?,?,?,?,?,?)";
+			String sql = "REPLACE INTO Users VALUES (?,?,?,?,?,?,?,?)";
 			PreparedStatement preStmt = dbConnection.prepareStatement(sql);
 			preStmt.setString(1, String.valueOf(user.getId()));
 			preStmt.setString(2, user.getName());
 			preStmt.setString(3, user.getScreenName());
 			preStmt.setString(4, user.getLocation());
-			preStmt.setString(5, user.getOriginalProfileImageURL());
-			preStmt.setString(6, user.getDescription());
-			
+			preStmt.setString(5, user.getProfileImageURL());
+			preStmt.setString(6, user.getBiggerProfileImageURL());
+			preStmt.setString(7, user.getProfileBannerURL()); 
+			preStmt.setString(8, user.getDescription());
+
 			preStmt.executeUpdate();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -185,7 +187,7 @@ public class DatabaseConnector {
 			userResult.put( "fullName", result.getString("fullName") );
 			userResult.put( "screenName", result.getString("screenName") );
 			userResult.put( "hometown", result.getString("hometown") );
-			userResult.put( "profileUrl", result.getString("profileUrl") );
+			userResult.put( "profileImgUrl", result.getString("profileImgUrl") );
 			userResult.put( "description", result.getString("description") );
 		}
 		
@@ -205,7 +207,7 @@ public class DatabaseConnector {
 				HashMap<String,String> userHashMap = new HashMap<String,String>();
 				userHashMap.put( "fullName", result.getString("fullName") );
 				userHashMap.put( "screenName", result.getString("screenName") );
-				userHashMap.put( "profileUrl", result.getString("profileUrl") );
+				userHashMap.put( "profileImgUrl", result.getString("profileImgUrl") );
 				retweeters.add(userHashMap);
 			}
 		} catch (SQLException e) {
@@ -228,7 +230,7 @@ public class DatabaseConnector {
 				HashMap<String,String> userHashMap = new HashMap<String,String>();
 				userHashMap.put( "fullName", result.getString("fullName") );
 				userHashMap.put( "screenName", result.getString("screenName") );
-				userHashMap.put( "profileUrl", result.getString("profileUrl") );
+				userHashMap.put( "profileImgUrl", result.getString("profileImgUrl") );
 				retweeters.add(userHashMap);
 			}
 		} catch (SQLException e) {
