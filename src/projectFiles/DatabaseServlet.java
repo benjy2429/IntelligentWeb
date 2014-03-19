@@ -45,7 +45,9 @@ public class DatabaseServlet extends HttpServlet {
     	if (requestId.equals("showUser")) {
     		try {
     			HashMap<String, String> user = new HashMap<String, String>();
-    			List<HashMap<String, String>> retweeters = new LinkedList<HashMap<String, String>>();
+    			List<HashMap<String, String>> retweetersOfUser = new LinkedList<HashMap<String, String>>();
+    			List<HashMap<String, String>> userRetweets = new LinkedList<HashMap<String, String>>();
+    			List<HashMap<String, String>> userLocations = new LinkedList<HashMap<String, String>>();
     			String username = request.getParameter("username");
 
     			DatabaseConnector dbConn = new DatabaseConnector();
@@ -54,12 +56,19 @@ public class DatabaseServlet extends HttpServlet {
     			
     			long userId = Long.parseLong(user.get("userId"));
     			
-    			retweeters = dbConn.getUserRetweets(userId);
+    			retweetersOfUser = dbConn.getRetweetersOfUser(userId);
+    			userRetweets = dbConn.getUserRetweets(userId);
+    			userLocations = dbConn.getUserLocations(userId);
+    			
     			dbConn.closeConnection();
     			
     			json = gson.toJson( user );
     			json += "\n";
-    			json += gson.toJson( retweeters );
+    			json += gson.toJson( retweetersOfUser );
+    			json += "\n";
+    			json += gson.toJson( userRetweets );
+    			json += "\n";
+    			json += gson.toJson( userLocations );
     			
     		} catch (SQLException e) {
 				System.out.println(e.getMessage());

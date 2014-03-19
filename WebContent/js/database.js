@@ -33,7 +33,9 @@ $(window).load(function() {
 					
 					json = data.split("\n");
 					var user = JSON.parse(json[0]);
-					var retweeters = JSON.parse(json[1]);
+					var retweetersOfUser = JSON.parse(json[1]);
+					var retweets = JSON.parse(json[2]);
+					var locations = JSON.parse(json[3]);
 
 					var result = "";
 					if (!$.isEmptyObject(user)) {	
@@ -43,60 +45,79 @@ $(window).load(function() {
 						result += "<h2>" + user.fullName + "</h2>";
 						result += "<h4><b>@" + user.screenName + "</b></h4>";
 						result += (user.description) ? "<p>" + user.description + "</p>" : "";
+						result += (user.hometown) ? "<p>Hometown: " + user.hometown + "</p>" : "";
 						result += "</div>";
 						result += "</div>";
 						
 						result += "<div class='row'>";
+									
 						
-						if (user.hometown) {
-							result += "<ul class='col-md-3 listGroup'>";
-							result += "<li class='list-group-item list-group-item-info'><h4 style='margin:5px 0;'>Hometown</h4></li>";
-							result += "<li class='list-group-item'>" + user.hometown + "</h3></li>";
-							result += "</ul>";
+						result += "<ul class='col-md-3 listGroup'>";
+						result += "<li class='list-group-item list-group-item-info'><h4 style='margin:5px 0;'>Top keywords</h4></li>";
+						result += "<li class='list-group-item'>" +  + "</h3></li>";
+						result += "</ul>";
+						
+					
+						result += "<ul class='col-md-6 listGroup'>";
+						result += "<li class='list-group-item list-group-item-info'><h4 style='margin:5px 0;'>Venues visited</h4></li>";
+						if (locations.length > 0) {
+							$.each( locations, function() {
+								result += "<li class='list-group-item clearfix'>";
+								result += "<div class='userProfileVenue'>";
+								result += (this.imageUrl) ? "<div class='userProfileVenueImg' style='background-image:url(\"" + this.imageUrl + "\");'></div>" : "";
+								result += "<div class='venueContent'>";
+								result += "<span class='venueName'>" + this.name + ", </span>";
+								result += (this.address) ? this.address : "";
+								result += (this.address && this.city) ? ", " : "";
+								result += (this.city) ? this.city : "";
+								result += "<br>";			
+								result += (this.websiteUrl) ? "<a href='" + this.websiteUrl + "'>" + this.websiteUrl + "</a><br>" : "";
+								result += (this.description) ? this.description : "";
+								result += "</div>";
+								result += "</div>";
+								result += "</li>";
+							});
+						} else {
+							result += "<li class='list-group-item'>" + user.fullName + " has not visited any venues</li>";
 						}
+						result += "</ul>";
 						
-						
-							result += "<ul class='col-md-3 listGroup'>";
-							result += "<li class='list-group-item list-group-item-info'><h4 style='margin:5px 0;'>Venues visited</h4></li>";
-							result += "<li class='list-group-item'>" +  + "</h3></li>";
-							result += "</ul>";
-							
-							
-							result += "<ul class='col-md-3 listGroup'>";
-							result += "<li class='list-group-item list-group-item-info'><h4 style='margin:5px 0;'>Top keywords</h4></li>";
-							result += "<li class='list-group-item'>" +  + "</h3></li>";
-							result += "</ul>";
+
+					
+						result += "<ul class='col-md-3 listGroup'>";
+						result += "<li class='list-group-item list-group-item-info'><h4 style='margin:5px 0;'>Retweeted</h4></li>";
+						if (retweets.length > 0) {
+							$.each( retweets, function() {
+								result += "<li class='list-group-item clearfix'>";
+								result += "<img class='tweetImg' src='" + this.profileUrl + "'/>";							
+								result += "<div class='tweetContent' style='padding-top:8px;'>";
+								result += "<div class='tweetUser'>" + this.fullName + "</div>";
+								result += "<div class='tweetText'>@<span class='tweetScreenName'>" + this.screenName + "</span></div>";
+								result += "</div>";
+								result += "</li>";
+							});
+						} else {
+							result += "<li class='list-group-item'>" + user.fullName + " has not retweeted anyone</li>";
+						}
+
+
+						result += "<li class='list-group-item list-group-item-info'><h4 style='margin:5px 0;'>Retweeted by</h4></li>";
+						if (retweetersOfUser.length > 0) {
+							$.each( retweetersOfUser, function() {
+								result += "<li class='list-group-item clearfix'>";
+								result += "<img class='tweetImg' src='" + this.profileUrl + "'/>";							
+								result += "<div class='tweetContent' style='padding-top:8px;'>";
+								result += "<div class='tweetUser'>" + this.fullName + "</div>";
+								result += "<div class='tweetText'>@<span class='tweetScreenName'>" + this.screenName + "</span></div>";
+								result += "</div>";
+								result += "</li>";
+							});
+						} else {
+							result += "<li class='list-group-item'>No-one retweeted " + user.fullName + "</li>";
+						}
+						result += "</ul>";
 
 						
-							result += "<ul class='col-md-3 listGroup'>";
-							result += "<li class='list-group-item list-group-item-info'><h4 style='margin:5px 0;'>Retweeted</h4></li>";
-							result += "<li class='list-group-item'>" +  + "</h3></li>";
-
-
-							result += "<li class='list-group-item list-group-item-info'><h4 style='margin:5px 0;'>Retweeted by</h4></li>";
-							if (retweeters.length > 0) {
-								$.each( retweeters, function() {
-									result += "<li class='list-group-item clearfix'>";
-									result += "<img class='tweetImg' src='" + this.profileUrl + "'/>";							
-									result += "<div class='tweetContent' style='padding-top:8px;'>";
-									result += "<div class='tweetUser'>" + this.fullName + "</div>";
-									result += "<div class='tweetText'>@<span class='tweetScreenName'>" + this.screenName + "</span></div>";
-									result += "</div>";
-									result += "</li>";
-								});
-							} else {
-								result += "<li class='list-group-item'>No-one retweeted " + user.fullName + "</li>";
-							}
-							result += "</ul>";
-						
-						
-						/*
-						nearbyVenueResult += "<li class='list-group-item'>";
-						nearbyVenueResult += "<h4 class='list-group-item-heading'>" + this.name + "</h4>";
-						nearbyVenueResult += "<p class='list-group-item-text'>" + this.vicinity + "</p>";
-						nearbyVenueResult += "</li>";
-						*/
-						result += "</div>";
 						result += "</div>";
 
 						

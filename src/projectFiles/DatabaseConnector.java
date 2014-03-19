@@ -206,7 +206,7 @@ public class DatabaseConnector {
 	}
 	
 	
-	public LinkedList<HashMap<String,String>> getUserRetweets(long userId) {
+	public LinkedList<HashMap<String,String>> getRetweetersOfUser(long userId) {
 		LinkedList<HashMap<String,String>> retweeters = new LinkedList<HashMap<String,String>>();
 		
 		try {
@@ -226,6 +226,55 @@ public class DatabaseConnector {
 			e.printStackTrace();
 		}
 		return retweeters;
+	}
+	
+	
+	public LinkedList<HashMap<String,String>> getUserRetweets(long userId) {
+		LinkedList<HashMap<String,String>> retweeters = new LinkedList<HashMap<String,String>>();
+		
+		try {
+			String sql = "SELECT Users.* FROM Users, UserUserContact WHERE UserUserContact.userB = ? AND Users.userId = UserUserContact.userA";
+			PreparedStatement preStmt = dbConnection.prepareStatement(sql);
+			preStmt.setString(1, String.valueOf(userId));
+			ResultSet result = preStmt.executeQuery();	
+			while (result.next()) {
+				HashMap<String,String> userHashMap = new HashMap<String,String>();
+				userHashMap.put( "fullName", result.getString("fullName") );
+				userHashMap.put( "screenName", result.getString("screenName") );
+				userHashMap.put( "profileUrl", result.getString("profileUrl") );
+				retweeters.add(userHashMap);
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return retweeters;
+	}
+	
+	
+	public LinkedList<HashMap<String,String>> getUserLocations(long userId) {
+		LinkedList<HashMap<String,String>> locations = new LinkedList<HashMap<String,String>>();
+		
+		try {
+			String sql = "SELECT Locations.* FROM Locations, UserLocation WHERE UserLocation.userId = ? AND Locations.locId = UserLocation.locId";
+			PreparedStatement preStmt = dbConnection.prepareStatement(sql);
+			preStmt.setString(1, String.valueOf(userId));
+			ResultSet result = preStmt.executeQuery();
+			while (result.next()) {
+				HashMap<String,String> locationHashMap = new HashMap<String,String>();
+				locationHashMap.put( "name", result.getString("name") );
+				locationHashMap.put( "imageUrl", result.getString("imageUrl") );
+				locationHashMap.put( "address", result.getString("address") );
+				locationHashMap.put( "city", result.getString("city") );
+				locationHashMap.put( "websiteUrl", result.getString("websiteUrl") );
+				locationHashMap.put( "description", result.getString("description") );
+				locations.add(locationHashMap);
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return locations;
 	}
 	
 

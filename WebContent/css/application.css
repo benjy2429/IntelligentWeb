@@ -141,7 +141,7 @@ body {
 .venueContent {
 	margin-left: 100px;
 	min-height: 80px;
-	margin-bottom:20px;
+	padding-bottom: 20px;
 }
 
 .venueName {
@@ -246,4 +246,22 @@ button.close {
 	background-position: center;
 	background-color: #fff;
 	display: inline-block;
+}
+
+.userProfileVenue {
+	min-height: 100px;
+	padding: 10px 0;
+}
+
+.userProfileVenueImg {
+	float: left;
+	width: 80px;
+	height: 80px;
+	border-radius: 5px;
+	background-size: cover;
+	background-position: center;
+}
+
+.userProfileVenue .venueContent {
+	padding: 0;
 }
