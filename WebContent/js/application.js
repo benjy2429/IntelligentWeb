@@ -555,11 +555,6 @@ $(window).load(function() {
 		e.preventDefault();
 	});
 	
-	$(".results").on('click', '#seeOtherVenues', function(e) {
-		alert("Extra feature - Replace dynamic text with data from google maps showing venues in area");
-		e.preventDefault();
-	});
-	
 	$(".results").on('click', '#expandAllCheckins', function(e) {
 		var link = $(this);
 		var venueCheckins = link.parent().find('.venueCheckins');
