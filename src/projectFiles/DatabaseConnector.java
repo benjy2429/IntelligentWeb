@@ -50,7 +50,7 @@ public class DatabaseConnector {
 			preStmt.setString(4, user.getLocation());
 			preStmt.setString(5, user.getProfileImageURL());
 			preStmt.setString(6, user.getBiggerProfileImageURL());
-			preStmt.setString(7, user.getProfileBannerURL()); 
+			preStmt.setString(7, user.getProfileBannerRetinaURL()); 
 			preStmt.setString(8, user.getDescription());
 
 			preStmt.executeUpdate();
@@ -187,7 +187,8 @@ public class DatabaseConnector {
 			userResult.put( "fullName", result.getString("fullName") );
 			userResult.put( "screenName", result.getString("screenName") );
 			userResult.put( "hometown", result.getString("hometown") );
-			userResult.put( "profileImgUrl", result.getString("profileImgUrl") );
+			userResult.put( "bigProfileImgUrl", result.getString("bigProfileImgUrl") );
+			userResult.put( "bannerImgUrl", result.getString("bannerImgUrl") );
 			userResult.put( "description", result.getString("description") );
 		}
 		
@@ -324,7 +325,7 @@ public class DatabaseConnector {
 			userHashMap.put( "fullName", result.getString("fullName") );
 			userHashMap.put( "screenName", result.getString("screenName") );
 			userHashMap.put( "hometown", result.getString("hometown") );
-			userHashMap.put( "profileUrl", result.getString("profileUrl") );
+			userHashMap.put( "profileImgUrl", result.getString("profileImgUrl") );
 			userHashMap.put( "description", result.getString("description") );
 			users.add(userHashMap);
 		}
