@@ -137,11 +137,13 @@ public class DatabaseConnector {
 
 	public void addUserTermPair(long userId, int wordId, int userCount) {
 		try {		
-			String sql = "INSERT IGNORE INTO UserKeyword VALUES (?,?,?)";
+			String sql = "INSERT IGNORE INTO UserKeyword SET wordId = ?, userId = ?, count = ? ON DUPLICATE KEY UPDATE count = IF (count < ?, ?, count)";
 			PreparedStatement preStmt = dbConnection.prepareStatement(sql);
 			preStmt.setString(1, String.valueOf(wordId));
 			preStmt.setString(2, String.valueOf(userId));
 			preStmt.setString(3, String.valueOf(userCount));
+			preStmt.setString(4, String.valueOf(userCount));
+			preStmt.setString(5, String.valueOf(userCount));
 			preStmt.executeUpdate();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block

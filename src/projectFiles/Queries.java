@@ -134,7 +134,7 @@ public class Queries {
 	 * @throws TwitterException - An error relating to the use of the twitter API
 	 * @throws FileException - An error that has occurred as a result of accessing files on the server
 	 */
-	public LinkedList<Term> getDiscussedTopics(LinkedList<User> users, int termsDesired, int daySpan) throws FileException, TwitterException {
+	public Pair<LinkedList<Term>,LinkedList<Term>> getDiscussedTopics(LinkedList<User> users, int termsDesired, int daySpan) throws FileException, TwitterException {
 		//Calculate the date "daySpan" days ago
 		Calendar cal = Calendar.getInstance();
 		cal.add( Calendar.DAY_OF_YEAR, -daySpan);
@@ -224,7 +224,21 @@ public class Queries {
 			}
 			termUserMap.remove(mostCommonWord);
 		}
-		return frequentTerms;
+		LinkedList<Term> unrankedTerms = new LinkedList<Term>();
+		//Add the remaining unranked
+		for (Entry<String, Pair<Integer,Map<String, Integer>>> termMapEntry : termUserMap.entrySet()) {
+			if(termMapEntry.getValue().t >= 5){
+				Term newTerm = new Term();
+				newTerm.rank = 0;
+				newTerm.term = termMapEntry.getKey();
+				newTerm.totalCount = termMapEntry.getValue().t;
+				for (Entry<String, Integer> userCountEntry : termMapEntry.getValue().u.entrySet()) {
+					newTerm.userCounts.add(new Pair<String,Integer>(userCountEntry.getKey(), userCountEntry.getValue()));
+				}
+				unrankedTerms.add(newTerm);
+			}
+		}
+		return new Pair<LinkedList<Term>,LinkedList<Term>>(frequentTerms,unrankedTerms);
 	}
 	
 	

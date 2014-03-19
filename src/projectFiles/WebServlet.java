@@ -167,8 +167,7 @@ public class WebServlet extends HttpServlet {
 
     		dbConn.closeConnection();
     	} else if (requestId.equals("discussionForm")){
-			DatabaseConnector dbConn = new DatabaseConnector();
-			dbConn.establishConnection(); 
+
     		try {
     			if (twitterStream != null) {
     				twitterStream.getTwitterStream().shutdown();
@@ -177,53 +176,71 @@ public class WebServlet extends HttpServlet {
 				
         		Queries query = new Queries(initTwitter()); 
 				LinkedList<String> usersNames = new LinkedList<String>( Arrays.asList( request.getParameter("users").split(" ") ) );
-				LinkedList<User> users = new LinkedList<User>();
+				final LinkedList<User> users = new LinkedList<User>();
 				users.addAll(query.getTwitterUsers(usersNames));
 							
 				int keywords = Integer.parseInt( request.getParameter("keywords") );
 				int days = Integer.parseInt( request.getParameter("days") );
     						
-				List<Term> frequentTerms;
-				frequentTerms = query.getDiscussedTopics(users, keywords, days ); //TODO only recording top ten
+
+				Pair<LinkedList<Term>, LinkedList<Term>> terms = query.getDiscussedTopics(users, keywords, days ); //TODO only recording top ten
+				List<Term> rankedTerms = new LinkedList<Term>();
+				rankedTerms.addAll(terms.t);
 				
-    			for(User user : users){
-    				dbConn.addUsers(user);
-    			}
-    			for(Term term : frequentTerms){
-    				int wordId = dbConn.addWord(term.term);
-    				if (wordId == -1){
-    					wordId = dbConn.getWordId(term.term);
-    				}
-    				if (wordId != -1){
-	    				for(Pair<String, Integer> userCount : term.userCounts){
-	    					long userId = -1;
-	    	    			for(User user : users){
-	    	    				if(user.getScreenName().equals(userCount.t)){
-	    	    					userId = user.getId();
-	    	    				}
-	    	    			}
-	    	    			if(userId != -1){
-	    	    				dbConn.addUserTermPair(userId,wordId, userCount.u);
-	    	    			} else {
-	    	    				try {
-									throw new Exception("A discrepancy with a user has occured.");
+				final List<Term> allTerms = new LinkedList<Term>();
+				allTerms.addAll(terms.t);
+				allTerms.addAll(terms.u);
+				
+			    Thread thread = new Thread(new Runnable() {
+					@Override
+					public void run() {
+						System.out.println("Starting Thread");
+						DatabaseConnector dbConn = new DatabaseConnector();
+						dbConn.establishConnection(); 
+		    			for(User user : users){
+		    				dbConn.addUsers(user);
+		    			}
+		    			for(Term term : allTerms){
+		    				int wordId = dbConn.addWord(term.term);
+		    				if (wordId == -1){
+		    					wordId = dbConn.getWordId(term.term);
+		    				}
+		    				if (wordId != -1){
+			    				for(Pair<String, Integer> userCount : term.userCounts){
+			    					long userId = -1;
+			    	    			for(User user : users){
+			    	    				if(user.getScreenName().equals(userCount.t)){
+			    	    					userId = user.getId();
+			    	    				}
+			    	    			}
+			    	    			if(userId != -1){
+			    	    				dbConn.addUserTermPair(userId,wordId, userCount.u);
+			    	    			} else {
+			    	    				try {
+											throw new Exception("A discrepancy with a user has occured.");
+										} catch (Exception e) {
+											// TODO Auto-generated catch block
+											e.printStackTrace();
+										}
+			    	    			}
+			    				}
+		    				} else {
+			    				try {
+									throw new Exception("A discrepancy with a term has occured.");
 								} catch (Exception e) {
 									// TODO Auto-generated catch block
 									e.printStackTrace();
 								}
-	    	    			}
-	    				}
-    				} else {
-	    				try {
-							throw new Exception("A discrepancy with a term has occured.");
-						} catch (Exception e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-    				}
-    			}
+		    				}
+		    			}
+		        		dbConn.closeConnection();
+		        		System.out.println("Ending Thread");
+					}
+			    });
+			    thread.start();
+
 				
-				json = gson.toJson(frequentTerms);		
+				json = gson.toJson(rankedTerms);		
 				json += "\n";
 				json += gson.toJson(users);
 			} catch (TwitterException e) {
@@ -235,7 +252,7 @@ public class WebServlet extends HttpServlet {
 			} catch ( NumberFormatException nfe ) {
 				json = gson.toJson("Error, keywords and days must be integers");
 			}
-    		dbConn.closeConnection();
+
     	} else if (requestId.equals("userVenueForm")){
 			DatabaseConnector dbConn = new DatabaseConnector();
 			dbConn.establishConnection(); 
