@@ -8,13 +8,18 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import projectFiles.Queries.Pair;
 import projectFiles.Queries.Term;
+
 import com.google.gson.*;
+
 import twitter4j.*;
 import twitter4j.conf.*;
 import exceptions.*;
@@ -93,6 +98,8 @@ public class WebServlet extends HttpServlet {
     	String json = "";
     	
     	if(requestId.equals("topicForm")){
+			DatabaseConnector dbConn = new DatabaseConnector();
+			dbConn.establishConnection(); 
     		try {
     			if (twitterStream != null) {
     				twitterStream.getTwitterStream().shutdown();
@@ -116,16 +123,13 @@ public class WebServlet extends HttpServlet {
     			List<Status> result = query.getTrendingTweets( request.getParameter("query"), lat, lon, radius );
     			//Have to parse ids as string and send them separately as twitter4j does not support the id_str parameter and javascript cannot handle type long
     			ArrayList<String> tweetIds = new ArrayList<String>();
-    			
-    			DatabaseConnector dbConn = new DatabaseConnector();
-    			dbConn.establishConnection();
+    		
 
     			for(Status status : result) {
         			dbConn.addUsers(status.getUser());
     				tweetIds.add(String.valueOf(status.getId()));
     			}
     			
-    			dbConn.closeConnection();
     			
     			json = gson.toJson( tweetIds );
     			json += "\n";
@@ -133,24 +137,23 @@ public class WebServlet extends HttpServlet {
     		} catch ( TwitterException te ) {
     			json = gson.toJson( te.getErrorMessage() );
     		}
-    		
+    		dbConn.closeConnection();
     	} else if (requestId.equals("retweetersForm")){
+			DatabaseConnector dbConn = new DatabaseConnector();
+			dbConn.establishConnection(); 
     		try {
     			
     			Queries query = new Queries(initTwitter());
     			long tweetId = Long.parseLong( request.getParameter("tweetId") );
     			Status tweet = query.getTwitterFromId(tweetId);
     			List<User> retweeters = query.getRetweeters(tweetId);
-    			
-    			DatabaseConnector dbConn = new DatabaseConnector();
-    			dbConn.establishConnection();   			
+    					
     			dbConn.addUsers(tweet.getUser());
     			long tweeterId = tweet.getUser().getId();
     			for(User user : retweeters){
     				dbConn.addUsers(user);
     				dbConn.addContact(tweeterId,user.getId());
     			}
-    			dbConn.closeConnection();
     			
         		json = gson.toJson(retweeters);
     		} catch (TwitterException te) {
@@ -162,9 +165,11 @@ public class WebServlet extends HttpServlet {
     			json = gson.toJson( e.getMessage() );
     		}
 
-    		
+    		dbConn.closeConnection();
     	} else if (requestId.equals("discussionForm")){
-			try {
+			DatabaseConnector dbConn = new DatabaseConnector();
+			dbConn.establishConnection(); 
+    		try {
     			if (twitterStream != null) {
     				twitterStream.getTwitterStream().shutdown();
     				twitterStream = null;
@@ -181,8 +186,6 @@ public class WebServlet extends HttpServlet {
 				List<Term> frequentTerms;
 				frequentTerms = query.getDiscussedTopics(users, keywords, days ); //TODO only recording top ten
 				
-    			DatabaseConnector dbConn = new DatabaseConnector();
-    			dbConn.establishConnection();  
     			for(User user : users){
     				dbConn.addUsers(user);
     			}
@@ -219,7 +222,6 @@ public class WebServlet extends HttpServlet {
 						}
     				}
     			}
-    			dbConn.closeConnection();
 				
 				json = gson.toJson(frequentTerms);		
 				json += "\n";
@@ -233,9 +235,11 @@ public class WebServlet extends HttpServlet {
 			} catch ( NumberFormatException nfe ) {
 				json = gson.toJson("Error, keywords and days must be integers");
 			}
-			
+    		dbConn.closeConnection();
     	} else if (requestId.equals("userVenueForm")){
-    		try {
+			DatabaseConnector dbConn = new DatabaseConnector();
+			dbConn.establishConnection(); 
+    		try { 
     			Queries query = new Queries( initTwitter(), initFoursquare() );
     			int days = 0;
     			try {
@@ -245,6 +249,7 @@ public class WebServlet extends HttpServlet {
     			}
     			
     			User user = query.getTwitterUser( request.getParameter("username") ); 
+    			dbConn.addUsers(user);
     			
     			// Send user if requested (Only needed first time for streaming)
     			if ( request.getParameter("userRequest").equals("1") ) {
@@ -260,6 +265,10 @@ public class WebServlet extends HttpServlet {
         			}
         			
 	    			List<CompleteVenue> result = query.getUserVenues( user.getScreenName(), days );
+	    			for(CompleteVenue venue : result){
+	    				dbConn.addVenues(venue);
+	    				dbConn.addUserVenue(user.getId(),venue.getId());
+	    			}
 	    			json += gson.toJson( result );
 	    			
     			} else if (days == 0) {
@@ -273,6 +282,10 @@ public class WebServlet extends HttpServlet {
 	    					
 	    					// Get venues visited today
 	    	    			List<CompleteVenue> result = query.getUserVenues( user.getScreenName(), days );
+	    	    			for(CompleteVenue venue : result){
+	    	    				dbConn.addVenues(venue);
+	    	    				dbConn.addUserVenue(user.getId(),venue.getId());
+	    	    			}
 	    	    			json += gson.toJson( result );
 
 	    				} catch (TwitterException e) {
@@ -284,6 +297,10 @@ public class WebServlet extends HttpServlet {
 	    				for (Status tweet : liveTweets) {
 	    					result.add( query.getVenueFromTweet(tweet) );
 	    				}
+		    			for(CompleteVenue venue : result){
+		    				dbConn.addVenues(venue);
+		    				dbConn.addUserVenue(user.getId(),venue.getId());
+		    			}
 		    			json += gson.toJson( result );
 	    				twitterStream.clearLists();
 	    			}  
@@ -293,7 +310,7 @@ public class WebServlet extends HttpServlet {
      				throw new Exception("Days must be greater or equal to zero");
      			}
 		
-	    			
+
     		} catch ( TwitterException te ) {
     			json = gson.toJson(te.getErrorMessage() );
     		} catch ( FoursquareApiException fse ) {
@@ -301,9 +318,13 @@ public class WebServlet extends HttpServlet {
     		} catch ( Exception e ) {
     			json = gson.toJson(e.getMessage() );
     		}
-
+    		
+    		dbConn.closeConnection();
+  
     	} else if (requestId.equals("venuesForm")){
-			try {
+			DatabaseConnector dbConn = new DatabaseConnector();
+			dbConn.establishConnection(); 
+    		try {
    			
 				Queries query = new Queries( initTwitter(), initFoursquare() );
 				
@@ -337,7 +358,13 @@ public class WebServlet extends HttpServlet {
         			}
         			
 					query.getUsersAtVenue(venueName, lat, lon, radius, days, venues, venueTweets);
-					
+					for (Entry<String, CompleteVenue> entry : venues.entrySet()) {
+					    dbConn.addVenues(entry.getValue());
+					    for(Status tweet : venueTweets.get(entry.getKey())){
+					    	dbConn.addUsers(tweet.getUser());
+					    	dbConn.addUserVenue(tweet.getUser().getId(), entry.getKey());
+					    }
+					}
 	    			json = gson.toJson(venues);
 	    			json += ("\n");
 	    			json += gson.toJson(venueTweets);
@@ -352,13 +379,27 @@ public class WebServlet extends HttpServlet {
     					
     					// Get venues visited today
     	    			query.getUsersAtVenue(venueName, lat, lon, radius, days, venues, venueTweets);
+    					for (Entry<String, CompleteVenue> entry : venues.entrySet()) {
+    					    dbConn.addVenues(entry.getValue());
+    					    for(Status tweet : venueTweets.get(entry.getKey())){
+    					    	dbConn.addUsers(tweet.getUser());
+    					    	dbConn.addUserVenue(tweet.getUser().getId(), entry.getKey());
+    					    }
+    					}
     	    			json = gson.toJson(venues);
     	    			json += ("\n");
     	    			json += gson.toJson(venueTweets);
 
 	    			} else {
 	    				List<Status> liveTweets = twitterStream.getTweets();
-	    				query.getUserVenuesAndTweets(liveTweets, venues, venueTweets);
+	    				query.getUserVenuesFromTweets(liveTweets, venues, venueTweets);
+						for (Entry<String, CompleteVenue> entry : venues.entrySet()) {
+						    dbConn.addVenues(entry.getValue());
+						    for(Status tweet : venueTweets.get(entry.getKey())){
+						    	dbConn.addUsers(tweet.getUser());
+						    	dbConn.addUserVenue(tweet.getUser().getId(), entry.getKey());
+						    }
+						}
     	    			json = gson.toJson(venues);
     	    			json += ("\n");
     	    			json += gson.toJson(venueTweets);
@@ -379,7 +420,7 @@ public class WebServlet extends HttpServlet {
 			} catch (Exception e) {
 				json = gson.toJson(e.getMessage());
 			}
-    		
+			dbConn.closeConnection();
     	} else if (requestId.equals("fetchUserForProfile")){
 			try {
 	    		Queries query = new Queries(initTwitter()); 
