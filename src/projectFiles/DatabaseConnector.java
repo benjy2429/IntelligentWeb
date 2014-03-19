@@ -278,11 +278,25 @@ public class DatabaseConnector {
 	}
 	
 
-
-	
-	
-	
-	
-	
+	public LinkedList<HashMap<String,String>> getUserKeywords(long userId) {
+		LinkedList<HashMap<String,String>> keywords = new LinkedList<HashMap<String,String>>();
+		
+		try {
+			String sql = "SELECT Keywords.*, UserKeyword.* FROM Keywords, UserKeyword WHERE UserKeyword.userId = ? AND Keywords.wordId = UserKeyword.wordId ORDER BY UserKeyword.count DESC LIMIT 0, 10";
+			PreparedStatement preStmt = dbConnection.prepareStatement(sql);
+			preStmt.setString(1, String.valueOf(userId));
+			ResultSet result = preStmt.executeQuery();
+			while (result.next()) {
+				HashMap<String,String> keywordHashMap = new HashMap<String,String>();
+				keywordHashMap.put( "word", result.getString("word") );
+				keywordHashMap.put( "count", result.getString("count") );
+				keywords.add(keywordHashMap);
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return keywords;
+	}	
 	
 }

@@ -36,6 +36,7 @@ $(window).load(function() {
 					var retweetersOfUser = JSON.parse(json[1]);
 					var retweets = JSON.parse(json[2]);
 					var locations = JSON.parse(json[3]);
+					var keywords = JSON.parse(json[4]);
 
 					var result = "";
 					if (!$.isEmptyObject(user)) {	
@@ -54,7 +55,20 @@ $(window).load(function() {
 						
 						result += "<ul class='col-md-3 listGroup'>";
 						result += "<li class='list-group-item list-group-item-info'><h4 style='margin:5px 0;'>Top keywords</h4></li>";
-						result += "<li class='list-group-item'>" +  + "</h3></li>";
+						if (keywords.length > 0) {
+							var i = 1;
+							$.each( keywords, function() {
+								result += "<li class='list-group-item clearfix'>";
+								result += "<div class='wordRank'>" + i +".</div>";
+								result += "<div class='termStats'>";
+								result += "<span class='term'>\"" + this.word  + "\"</span>";
+								result += "<span class='termCount'>(x" + this.count + ")</span>";
+								result += "</li>";
+								i++;
+							});
+						} else {
+							result += "<li class='list-group-item'>" + user.fullName + " has no keywords</li>";
+						}
 						result += "</ul>";
 						
 					
