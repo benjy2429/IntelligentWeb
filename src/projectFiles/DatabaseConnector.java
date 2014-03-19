@@ -6,6 +6,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.HashMap;
 
 import fi.foyt.foursquare.api.entities.CompleteVenue;
 import twitter4j.*;
@@ -52,6 +53,24 @@ public class DatabaseConnector {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	
+	public HashMap<String,String> showUser(String username) throws SQLException {
+		HashMap<String,String> userResult = new HashMap<String,String>();
+		String sql = "SELECT * FROM Users WHERE screenName = '" + username + "'";
+		PreparedStatement preStmt = dbConnection.prepareStatement(sql);
+		
+		ResultSet result = preStmt.executeQuery(sql);
+		if (result.next()) {
+			userResult.put( "userId", result.getString("userId") );
+			userResult.put( "fullName", result.getString("fullName") );
+			userResult.put( "screenName", result.getString("screenName") );
+			userResult.put( "hometown", result.getString("hometown") );
+			userResult.put( "profileUrl", result.getString("profileUrl") );
+			userResult.put( "description", result.getString("description") );
+		}
+		
+		return userResult;
 	}
 	
 	public void addVenues(CompleteVenue venue){
