@@ -8,21 +8,21 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.List;
 
 import fi.foyt.foursquare.api.entities.CompleteVenue;
 import twitter4j.*;
 
 public class DatabaseConnector {
-	private String dbName = "team007";
-	private String dbUsername = "team007";
-	private String dbPassword = "a57078a1";
+	private static final String DBSERVER = "stusql.dcs.shef.ac.uk";
+	private static final String DBNAME = "team007";
+	private static final String DBUSERNAME = "team007";
+	private static final String DBPASSWORD = "a57078a1";
 	Connection dbConnection;
 	
 	public boolean establishConnection(){
 	 	try {
 			Class.forName("com.mysql.jdbc.Driver").newInstance();
-			String DB="jdbc:mysql://stusql.dcs.shef.ac.uk/" + dbName + "?user=" + dbUsername + "&password=" + dbPassword;
+			String DB="jdbc:mysql://"+DBSERVER+"/" + DBNAME + "?user=" + DBUSERNAME + "&password=" + DBPASSWORD;
 			dbConnection = DriverManager.getConnection(DB);
 			return true;
 		} catch (InstantiationException | IllegalAccessException | ClassNotFoundException  | SQLException e) {
@@ -41,8 +41,9 @@ public class DatabaseConnector {
 	}
 	
 	public void addUsers(User user){
-		String sql = "REPLACE INTO Users VALUES (?,?,?,?,?,?)";
-		try (PreparedStatement preStmt = dbConnection.prepareStatement(sql)) {
+		try {
+			String sql = "REPLACE INTO Users VALUES (?,?,?,?,?,?)";
+			PreparedStatement preStmt = dbConnection.prepareStatement(sql);
 			preStmt.setString(1, String.valueOf(user.getId()));
 			preStmt.setString(2, user.getName());
 			preStmt.setString(3, user.getScreenName());
@@ -59,8 +60,9 @@ public class DatabaseConnector {
 	
 	
 	public void addVenues(CompleteVenue venue){
-		String sql = "REPLACE INTO Locations VALUES (?,?,?,?,?,?,?)";
-		try (PreparedStatement preStmt = dbConnection.prepareStatement(sql)) {
+		try {
+			String sql = "REPLACE INTO Locations VALUES (?,?,?,?,?,?,?)";
+			PreparedStatement preStmt = dbConnection.prepareStatement(sql);
 			preStmt.setString(1, venue.getId());
 			preStmt.setString(2, venue.getName());
 			String venuePhotoUrl;
@@ -84,8 +86,9 @@ public class DatabaseConnector {
 
 
 	public void addContact(long tweeterId, long retweeterId) {
-		String sql = "INSERT IGNORE INTO UserUserContact VALUES (?,?)";
-		try (PreparedStatement preStmt = dbConnection.prepareStatement(sql)) {
+		try {
+			String sql = "INSERT IGNORE INTO UserUserContact VALUES (?,?)";
+			PreparedStatement preStmt = dbConnection.prepareStatement(sql);
 			preStmt.setString(1, String.valueOf(tweeterId));
 			preStmt.setString(2, String.valueOf(retweeterId));
 
@@ -98,10 +101,10 @@ public class DatabaseConnector {
 
 
 	public int addWord(String term) {
-		String sql = "INSERT IGNORE INTO Keywords(word) VALUES (?)";
-		try (PreparedStatement preStmt = dbConnection.prepareStatement(sql,Statement.RETURN_GENERATED_KEYS)) {
+		try {
+			String sql = "INSERT IGNORE INTO Keywords(word) VALUES (?)";
+			PreparedStatement preStmt = dbConnection.prepareStatement(sql,Statement.RETURN_GENERATED_KEYS);
 			preStmt.setString(1, term);
-
 			preStmt.executeUpdate();
 			
 			ResultSet generatedKeys = preStmt.getGeneratedKeys();
@@ -150,24 +153,6 @@ public class DatabaseConnector {
 		}
 	}
 
-	private long getUserId(String userName){
-		try {
-			String sql = "SELECT userId FROM User WHERE screenName = ?";
-			PreparedStatement preStmt = dbConnection.prepareStatement(sql);
-			preStmt.setString(1, userName);
-			ResultSet result = preStmt.executeQuery();	
-			 if (result.next()) {
-				 return result.getLong(1);
-			 } else {
-				 return -1;
-			 }
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return -1;
-		}
-	}
-
 
 	public int getWordId(String term) {
 		try {
@@ -207,7 +192,7 @@ public class DatabaseConnector {
 		return userResult;
 	}
 	
-	
+	//TODO do error throwing things
 	public LinkedList<HashMap<String,String>> getRetweetersOfUser(long userId) {
 		LinkedList<HashMap<String,String>> retweeters = new LinkedList<HashMap<String,String>>();
 		
