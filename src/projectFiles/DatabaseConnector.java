@@ -57,43 +57,6 @@ public class DatabaseConnector {
 		}
 	}
 	
-	public HashMap<String,String> showUser(String username) throws SQLException {
-		HashMap<String,String> userResult = new HashMap<String,String>();
-		String sql = "SELECT * FROM Users WHERE screenName = ?";
-		PreparedStatement preStmt = dbConnection.prepareStatement(sql);
-		preStmt.setString(1, username);
-		
-		ResultSet result = preStmt.executeQuery();
-		if (result.next()) {
-			userResult.put( "userId", result.getString("userId") );
-			userResult.put( "fullName", result.getString("fullName") );
-			userResult.put( "screenName", result.getString("screenName") );
-			userResult.put( "hometown", result.getString("hometown") );
-			userResult.put( "profileUrl", result.getString("profileUrl") );
-			userResult.put( "description", result.getString("description") );
-		}
-		
-		return userResult;
-	}
-	
-	/*
-	public List<Long> getUserRetweets(String username) {
-		List<Long> retweeterIds = new LinkedList<Long>();
-		try {
-			String sql = "SELECT userB FROM UserUserContact WHERE userA = ?";
-			PreparedStatement preStmt = dbConnection.prepareStatement(sql);
-			preStmt.setString(1, username);
-			ResultSet result = preStmt.executeQuery();	
-			while (result.next()) {
-				retweeterIds.add( result.getLong(1) );
-			}
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return retweeterIds;
-	}
-	*/
 	
 	public void addVenues(CompleteVenue venue){
 		String sql = "REPLACE INTO Locations VALUES (?,?,?,?,?,?,?)";
@@ -222,6 +185,49 @@ public class DatabaseConnector {
 		}
 	}
 
+
+	public HashMap<String,String> showUser(String username) throws SQLException {
+		HashMap<String,String> userResult = new HashMap<String,String>();
+		String sql = "SELECT * FROM Users WHERE screenName = ?";
+		PreparedStatement preStmt = dbConnection.prepareStatement(sql);
+		preStmt.setString(1, username);
+		
+		ResultSet result = preStmt.executeQuery();
+		if (result.next()) {
+			userResult.put( "userId", result.getString("userId") );
+			userResult.put( "fullName", result.getString("fullName") );
+			userResult.put( "screenName", result.getString("screenName") );
+			userResult.put( "hometown", result.getString("hometown") );
+			userResult.put( "profileUrl", result.getString("profileUrl") );
+			userResult.put( "description", result.getString("description") );
+		}
+		
+		return userResult;
+	}
+	
+	
+	public LinkedList<HashMap<String,String>> getUserRetweets(long userId) {
+		LinkedList<HashMap<String,String>> retweeters = new LinkedList<HashMap<String,String>>();
+		
+		try {
+			String sql = "SELECT Users.* FROM Users, UserUserContact WHERE UserUserContact.userA = ? AND Users.userId = UserUserContact.userB";
+			PreparedStatement preStmt = dbConnection.prepareStatement(sql);
+			preStmt.setString(1, String.valueOf(userId));
+			ResultSet result = preStmt.executeQuery();	
+			while (result.next()) {
+				HashMap<String,String> userHashMap = new HashMap<String,String>();
+				userHashMap.put( "fullName", result.getString("fullName") );
+				userHashMap.put( "screenName", result.getString("screenName") );
+				userHashMap.put( "profileUrl", result.getString("profileUrl") );
+				retweeters.add(userHashMap);
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return retweeters;
+	}
+	
 
 
 	

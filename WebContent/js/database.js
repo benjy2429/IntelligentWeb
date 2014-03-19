@@ -31,12 +31,14 @@ $(window).load(function() {
 					$("#resultsTitle").text("");
 					$("#resultsInfo").text("");
 					
-					var user = JSON.parse(data);
+					json = data.split("\n");
+					var user = JSON.parse(json[0]);
+					var retweeters = JSON.parse(json[1]);
 
 					var result = "";
 					if (!$.isEmptyObject(user)) {	
 						result += "<div class='bigUserProfile'>";
-						result += "<img class='userProfileImg' src='" + user.profileUrl + "' />";
+						result += "<div class='userProfileImg' style='background-image:url(\"" + user.profileUrl + "\");'></div>";
 						result += "<div>";
 						result += "<h2>" + user.fullName + "</h2>";
 						result += "<h4><b>@" + user.screenName + "</b></h4>";
@@ -70,10 +72,23 @@ $(window).load(function() {
 							result += "<li class='list-group-item list-group-item-info'><h4 style='margin:5px 0;'>Retweeted</h4></li>";
 							result += "<li class='list-group-item'>" +  + "</h3></li>";
 
-							result += "<li class='list-group-item list-group-item-info'><h4 style='margin:5px 0;'>Retweeted by</h4></li>";
-							result += "<li class='list-group-item'>" +  + "</h3></li>";
-							result += "</ul>";
 
+							result += "<li class='list-group-item list-group-item-info'><h4 style='margin:5px 0;'>Retweeted by</h4></li>";
+							if (retweeters.length > 0) {
+								$.each( retweeters, function() {
+									result += "<li class='list-group-item clearfix'>";
+									result += "<img class='tweetImg' src='" + this.profileUrl + "'/>";							
+									result += "<div class='tweetContent' style='padding-top:8px;'>";
+									result += "<div class='tweetUser'>" + this.fullName + "</div>";
+									result += "<div class='tweetText'>@<span class='tweetScreenName'>" + this.screenName + "</span></div>";
+									result += "</div>";
+									result += "</li>";
+								});
+							} else {
+								result += "<li class='list-group-item'>No-one retweeted " + user.fullName + "</li>";
+							}
+							result += "</ul>";
+						
 						
 						/*
 						nearbyVenueResult += "<li class='list-group-item'>";

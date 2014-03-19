@@ -45,19 +45,21 @@ public class DatabaseServlet extends HttpServlet {
     	if (requestId.equals("showUser")) {
     		try {
     			HashMap<String, String> user = new HashMap<String, String>();
-    			List<Long> retweeterIds = new LinkedList<Long>();
+    			List<HashMap<String, String>> retweeters = new LinkedList<HashMap<String, String>>();
     			String username = request.getParameter("username");
 
     			DatabaseConnector dbConn = new DatabaseConnector();
     			dbConn.establishConnection();
     			user = dbConn.showUser(username);
-    			//retweeterIds = dbConn.getUserRetweets(username);
+    			
+    			long userId = Long.parseLong(user.get("userId"));
+    			
+    			retweeters = dbConn.getUserRetweets(userId);
     			dbConn.closeConnection();
     			
     			json = gson.toJson( user );
-    			//json += "\n";
-    			//json += gson.toJson( retweeterIds );
-	System.out.println(json);
+    			json += "\n";
+    			json += gson.toJson( retweeters );
     			
     		} catch (SQLException e) {
 				System.out.println(e.getMessage());
