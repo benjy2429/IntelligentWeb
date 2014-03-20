@@ -7,19 +7,51 @@ $(window).load(function() {
 	var streamFunctionId = 0; 
 	var SERVLET = "WebServlet";
 	
+	
 	// Prevent forms from performing default action
 	$("form").on("submit", function(e) {
 		e.preventDefault();
 	});
 	
+	
+	// Checkbox to toggle visibility of geolocation fields (form 1)
 	$("#enableLoc").click(function() { 
 	    if ($(this).is(':checked')) {
 	    	$("#locationFields").show(FADESPEED);
 	    } else {
 	    	$("#locationFields").hide(FADESPEED);
+	    	$("#lat").val("");
+	    	$("#lon").val("");
+	    	$("#radius").val("");
 	    }
 	});
 	
+	
+	// Checkbox to toggle visibility of geolocation fields (form 4)
+	$("#enableNameVenue").click(function() { 
+	    if ($(this).is(':checked')) {
+	    	$("#nameFieldsVenue").show(FADESPEED);
+	    } else {
+	    	$("#nameFieldsVenue").hide(FADESPEED);
+	    	$("#venueName").val("");
+	    }
+	});
+	
+	
+	// Checkbox to toggle visibility of geolocation fields (form 4)
+	$("#enableLocVenue").click(function() { 
+	    if ($(this).is(':checked')) {
+	    	$("#locationFieldsVenue").show(FADESPEED);
+	    } else {
+	    	$("#locationFieldsVenue").hide(FADESPEED);
+	    	$("#lat2").val("");
+	    	$("#lon2").val("");
+	    	$("#radius2").val("");
+	    }
+	});
+	
+	
+	// Toggles the active form panel to blue
 	$('#accordion').on('hide.bs.collapse', function (e) {
 		$(e.target).parent().removeClass('panel-info').addClass('panel-default');
 	});
@@ -28,160 +60,282 @@ $(window).load(function() {
 	});
 
 	
+	// Form 1
 	$("#form1Submit").click(function() {
 		clearInterval(streamFunctionId);
 		$("#map-canvas").fadeOut(FADESPEED);
-		$("#dynamicText").fadeOut(FADESPEED, function() {
-	        $(this).html(LOADING_IMG_BIG).fadeIn(FADESPEED);
-	    });
-		$.ajax({
-			url: SERVLET,
-			type: 'post',
-			datatype: 'json',
-			data: $('#form1').serialize(),
-			success: function(data){
-				var json = data.split("\n");
-				var tweetIds = JSON.parse(json[0]);
-				var tweets = JSON.parse(json[1]);
-				$("#resultsTitle").text("Results");
-				$("#resultsInfo").text("Below are the most recent results for your query:");
-				var result = "";
-				if (tweetIds.length > 0 && tweets.length > 0) {
+		
+		// Form validation
+		var valid = false;
+		var validationError = "Unknown validation error";
+		if ( $.trim( $("#query").val() ) != "" ) {
+
+			if ( $("#enableLoc").is(":checked") ) {
+				if ( $.trim( $("#lat").val() ) != "" &&
+					 $.trim( $("#lon").val() ) != "" &&
+					 $.trim( $("#radius").val() ) != "" ) {
 					
-					var i = 0;
-					$.each( tweets , function() {
-						result += "<div class='tweet'>";
-						result += "<form class='retweetersForm'><input type='hidden' name='requestId' value='retweetersForm'>";
-						result += "<input type='hidden' class='tweetId' name='tweetId' value='" + tweetIds[i] + "'>";
-						result += "<input type='hidden' class='retweetCount' name='retweetCount' value='" + this.retweetCount + "'></form>";
-						
-						result += "<a href='#' data-screen-name='" + this.user.screenName + "' data-modal-generated='false' data-tweets-populated='false' data-toggle='modal' data-target='#userProfile" + this.user.screenName + "' class='visitProfile' title='" + this.user.name + "'>";
-						result += "<img class='tweetImg' src='" + this.user.profileImageUrl + "'/>";
-						result += "</a>";
-						
-						result += "<div class='tweetContent'>";
-						
-						result += "<div class='tweetUser'>"; 
-						result += "<a href='#' data-screen-name='" + this.user.screenName + "' data-modal-generated='false' data-tweets-populated='false' data-toggle='modal' data-target='#userProfile" + this.user.screenName + "' class='visitProfile' title='" + this.user.name + "'>";
-						result += this.user.name + " (@<span class='tweetScreenName'>" + this.user.screenName + "</span>)";
-						result += "</a>";
-						result +="</div>";
-						
-						result += "<div class='tweetText'>" + this.text + "</div>";
-						result += "<div class='tweetStats'>" + this.createdAt + " ";
-						result += "<span class='glyphicon glyphicon-star' title='Favourites' style='margin-left:10px;'></span> " + this.favoriteCount + " ";
-						result += "<span class='glyphicon glyphicon-retweet' title='Retweets' style='margin:0 5px 0 10px;'></span> ";
-						if ($.isEmptyObject(this.retweetedStatus) && this.retweetCount > 0) {
-							result += "<span class='retweets' id='retweetsFor" + tweetIds[i] + "'>" + this.retweetCount + " <a href='#' class='getRetweets'>See who retweeted this</a></span>";
+					if ( $.isNumeric( $("#lat").val() ) &&
+						 $.isNumeric( $("#lon").val() ) &&
+						 $.isNumeric( $("#radius").val() ) ) {
+
+						if ( $("#radius").val() > 0 ) {
+							valid = true;
+								
 						} else {
-							result += "0";
+							validationError = "Radius must be greater than zero";					
 						}
-						result += "</div>";
-						result += "</div>";
-						result += "</div>";
-						i++;
-					});
+				
+					} else {
+						validationError = "Location fields must be numbers";
+					}
 					
 				} else {
-					result += "No matching tweets found. Try searching for a different term, or increasing the location radius.";
+					validationError = "All location filter fields must be filled in";		
 				}
-
-				$("#dynamicText").fadeOut(FADESPEED, function() {
-			        $(this).html(result).fadeIn(FADESPEED);
-			    });
-			},
-			error: function(xhr,textStatus,errorThrown){
-				$("#dynamicText").html(errorThrown);
+				
+			} else {
+				valid = true;
 			}
-		});
 		
+		} else {
+			validationError = "Search query cannot be empty";
+		}	
+		
+		
+		if (valid) {			
+			$("#dynamicText").fadeOut(FADESPEED, function() {
+		        $(this).html(LOADING_IMG_BIG).fadeIn(FADESPEED);
+		    });
+			
+			$.ajax({
+				url: SERVLET,
+				type: 'post',
+				datatype: 'json',
+				data: $('#form1').serialize(),
+				success: function(data){
+					var json = data.split("\n");
+					var tweetIds = JSON.parse(json[0]);
+					var tweets = JSON.parse(json[1]);
+					$("#resultsTitle").text("Results");
+					$("#resultsInfo").text("Below are the most recent results for your query:");
+					var result = "";
+					if (tweetIds.length > 0 && tweets.length > 0) {
+						
+						var i = 0;
+						$.each( tweets , function() {
+							result += "<div class='tweet'>";
+							result += "<form class='retweetersForm'><input type='hidden' name='requestId' value='retweetersForm'>";
+							result += "<input type='hidden' class='tweetId' name='tweetId' value='" + tweetIds[i] + "'>";
+							result += "<input type='hidden' class='retweetCount' name='retweetCount' value='" + this.retweetCount + "'></form>";
+							
+							result += "<a href='#' data-screen-name='" + this.user.screenName + "' data-modal-generated='false' data-tweets-populated='false' data-toggle='modal' data-target='#userProfile" + this.user.screenName + "' class='visitProfile' title='" + this.user.name + "'>";
+							result += "<img class='tweetImg' src='" + this.user.profileImageUrl + "'/>";
+							result += "</a>";
+							
+							result += "<div class='tweetContent'>";
+							
+							result += "<div class='tweetUser'>"; 
+							result += "<a href='#' data-screen-name='" + this.user.screenName + "' data-modal-generated='false' data-tweets-populated='false' data-toggle='modal' data-target='#userProfile" + this.user.screenName + "' class='visitProfile' title='" + this.user.name + "'>";
+							result += this.user.name + " (@<span class='tweetScreenName'>" + this.user.screenName + "</span>)";
+							result += "</a>";
+							result +="</div>";
+							
+							result += "<div class='tweetText'>" + this.text + "</div>";
+							result += "<div class='tweetStats'>" + this.createdAt + " ";
+							result += "<span class='glyphicon glyphicon-star' title='Favourites' style='margin-left:10px;'></span> " + this.favoriteCount + " ";
+							result += "<span class='glyphicon glyphicon-retweet' title='Retweets' style='margin:0 5px 0 10px;'></span> ";
+							if ($.isEmptyObject(this.retweetedStatus) && this.retweetCount > 0) {
+								result += "<span class='retweets' id='retweetsFor" + tweetIds[i] + "'>" + this.retweetCount + " <a href='#' class='getRetweets'>See who retweeted this</a></span>";
+							} else {
+								result += "0";
+							}
+							result += "</div>";
+							result += "</div>";
+							result += "</div>";
+							i++;
+						});
+						
+					} else {
+						result += "No matching tweets found. Try searching for a different term, or increasing the location radius.";
+					}
+	
+					$("#dynamicText").fadeOut(FADESPEED, function() {
+				        $(this).html(result).fadeIn(FADESPEED);
+				    });
+				},
+				error: function(xhr,textStatus,errorThrown){
+					$("#dynamicText").html(errorThrown);
+				}
+			});
+		
+		} else {
+			$("#dynamicText").fadeOut(FADESPEED, function() {
+				$("#resultsTitle").text("");
+				$("#resultsInfo").text("");
+				$("#dynamicText").html("<div class='alert alert-danger'>Error: " + validationError + "</div>").fadeIn(FADESPEED);
+		    });
+
+		}
 	});
 	
 	
+	// Form 2
 	$("#form2Submit").click(function() {
 		clearInterval(streamFunctionId);
 		$("#map-canvas").fadeOut(FADESPEED);
 		$("#dynamicText").fadeOut(FADESPEED, function() {
 	        $(this).html(LOADING_IMG_BIG).fadeIn(FADESPEED);
 	    });
-		$.ajax({
-			url: SERVLET,
-			type: 'post',
-			datatype: 'json',
-			data: $('#form2').serialize(),
-			success: function(data){
-				var json = data.split("\n");
-				var terms = JSON.parse(json[0]);
-				var userObjects = JSON.parse(json[1]);
-				$("#resultsTitle").text("Results");
-				if(terms.length > 0){
-					var html = "Below are the " + terms.length + " most frequently used terms:";
-					html += "<br/><a href='#' id='expandAllCounts'>Expand All</a> | <a href='#' id='collapseAllCounts'>Collapse All</a>";
-					$("#resultsInfo").html(html);
+		
+		
+		// Form validation
+		var valid = false;
+		var validationError = "Unknown validation error";
+		if ( $.trim( $("#users").val() ) != "" &&
+			 $.trim( $("#keywords").val() ) != "" &&
+			 $.trim( $("#days").val() != "" ) ) {
+			
+			var usernames = $("#users").val().split(" ");
+			if ( usernames.length <= 10 ) {
+				
+				if ( $.isNumeric( $("#keywords").val() ) && $("#keywords").val() > 0 ) {
+					
+					if ( $.isNumeric( $("#days").val() ) && $("#days").val() > 0 && $("#days").val() < 100 ) {
+					
+					} else {
+						validationError = "Days must be a number between 1 and 99";
+					}
+					
 				} else {
-					$("#resultsInfo").text("There are no frequently used terms from this period!");
+					validationError = "Keywords to find must be a number greater than zero";
 				}
-				var result = "";
-				$.each( terms , function() {
-					result += "<div class='frequentWord'>";
-					result += "<div class='wordRank'>" + this.rank +".</div>";
-					result += "<div class='termStats'>";
-					result += "<span class='term'>\"" + this.term  + "\"</span>";
-					result += "<span class='termCount'>Number of occurances: " + this.totalCount + "</span>";
-					result += "<a href='#' class='viewUserCounts'>Show individual user counts</a>";
-					result += "</div>";
-					result += "<div class='userCounts'>";
-					$.each( this.userCounts , function() { 
-						var screenName = this.t;
-						var i = 0;
-						var index = -1;
-						$.each( userObjects , function() {
-							if(this.screenName.toLowerCase() == screenName.toLowerCase()){
-								index = i;
-							}
-							i++;
-						});
-						if (index > -1){
-							var user = userObjects[index];
-							result += "<div class='userCount'>";
-							result += "<a href='#' data-screen-name='" + user.screenName + "' data-modal-generated='false' data-tweets-populated='false' data-toggle='modal' data-target='#userProfile" + user.screenName + "' class='visitProfile' title='" + user.name + "'>";
-							result += "<img class='tweetImgSmall' src='" + user.profileImageUrl + "'/>" + user.name + " (@<span class='tweetScreenName'>" + user.screenName + "</span>)";
-							result += "</a> : " + this.u;
-							result += "</div>";
-						}
-					});
-					result += "</div>";
-					result += "</div>";
-				});
-				$("#dynamicText").fadeOut(FADESPEED, function() {
-			        $(this).html(result).fadeIn(FADESPEED);
-			    });
-				$.each( userObjects , function() {
-					generateModelBox(this);
-				});
-			},
-			error: function(jqXHR,textStatus,errorThrown){
-				$("#dynamicText").html(errorThrown);
+			
+			} else {
+				validationError = "Up to 10 usernames can be entered only";
 			}
-		});
+		
+		} else {
+			validationError = "All fields must be filled in";
+		}	
+		
+		
+		if (valid) {
+			$.ajax({
+				url: SERVLET,
+				type: 'post',
+				datatype: 'json',
+				data: $('#form2').serialize(),
+				success: function(data){
+					var json = data.split("\n");
+					var terms = JSON.parse(json[0]);
+					var userObjects = JSON.parse(json[1]);
+					$("#resultsTitle").text("Results");
+					if(terms.length > 0){
+						var html = "Below are the " + terms.length + " most frequently used terms:";
+						html += "<br/><a href='#' id='expandAllCounts'>Expand All</a> | <a href='#' id='collapseAllCounts'>Collapse All</a>";
+						$("#resultsInfo").html(html);
+					} else {
+						$("#resultsInfo").text("There are no frequently used terms from this period!");
+					}
+					var result = "";
+					$.each( terms , function() {
+						result += "<div class='frequentWord'>";
+						result += "<div class='wordRank'>" + this.rank +".</div>";
+						result += "<div class='termStats'>";
+						result += "<span class='term'>\"" + this.term  + "\"</span>";
+						result += "<span class='termCount'>Number of occurances: " + this.totalCount + "</span>";
+						result += "<a href='#' class='viewUserCounts'>Show individual user counts</a>";
+						result += "</div>";
+						result += "<div class='userCounts'>";
+						$.each( this.userCounts , function() { 
+							var screenName = this.t;
+							var i = 0;
+							var index = -1;
+							$.each( userObjects , function() {
+								if(this.screenName.toLowerCase() == screenName.toLowerCase()){
+									index = i;
+								}
+								i++;
+							});
+							if (index > -1){
+								var user = userObjects[index];
+								result += "<div class='userCount'>";
+								result += "<a href='#' data-screen-name='" + user.screenName + "' data-modal-generated='false' data-tweets-populated='false' data-toggle='modal' data-target='#userProfile" + user.screenName + "' class='visitProfile' title='" + user.name + "'>";
+								result += "<img class='tweetImgSmall' src='" + user.profileImageUrl + "'/>" + user.name + " (@<span class='tweetScreenName'>" + user.screenName + "</span>)";
+								result += "</a> : " + this.u;
+								result += "</div>";
+							}
+						});
+						result += "</div>";
+						result += "</div>";
+					});
+					$("#dynamicText").fadeOut(FADESPEED, function() {
+				        $(this).html(result).fadeIn(FADESPEED);
+				    });
+					$.each( userObjects , function() {
+						generateModelBox(this);
+					});
+				},
+				error: function(jqXHR,textStatus,errorThrown){
+					$("#dynamicText").html(errorThrown);
+				}
+			});
+			
+		} else {
+			$("#dynamicText").fadeOut(FADESPEED, function() {
+				$("#resultsTitle").text("");
+				$("#resultsInfo").text("");
+				$("#dynamicText").html("<div class='alert alert-danger'>Error: " + validationError + "</div>").fadeIn(FADESPEED);
+		    });
+		}
 	});
 	
+	
+	// Form 3
 	$("#form3Submit").click(function() {
 		
-		map = new google.maps.Map(document.getElementById("map-canvas"), {mapTypeId: google.maps.MapTypeId.ROADMAP});
-		bounds = new google.maps.LatLngBounds();
-	
-		$("#dynamicText").fadeOut(FADESPEED, function() {
-	        $(this).html(LOADING_IMG_BIG).fadeIn(FADESPEED);
-	    });
-		
-		getUserVenues(true);
-		
-		if ($("#days2").val() == "0") {
-			$("#userRequest").val("0");
-			streamFunctionId = setInterval(function() { getUserVenues(false); }, 20000);
+		// Form validation
+		var valid = false;
+		var validationError = "Unknown validation error";
+		if ( $.trim( $("#username").val() ) != "" ) {
+			if ( $.trim( $("#days2").val() ) != "" ) {
+				if ( $.isNumeric( $("#days2").val() ) && $("#days2").val() >= 0 ) {
+					valid = true;
+				} else {
+					validationError = "Days to search must be a number greater than or equal to 0";
+				}				
+			} else {
+				validationError = "Days field cannot be empty";
+			}		
 		} else {
-			clearInterval(streamFunctionId);
+			validationError = "Username field cannot be empty";
+		}			
+		
+		
+		if (valid) {		
+			map = new google.maps.Map(document.getElementById("map-canvas"), {mapTypeId: google.maps.MapTypeId.ROADMAP});
+			bounds = new google.maps.LatLngBounds();
+		
+			$("#dynamicText").fadeOut(FADESPEED, function() {
+		        $(this).html(LOADING_IMG_BIG).fadeIn(FADESPEED);
+		    });
+			
+			getUserVenues(true);
+			
+			if ($("#days2").val() == "0") {
+				$("#userRequest").val("0");
+				streamFunctionId = setInterval(function() { getUserVenues(false); }, 20000);
+			} else {
+				clearInterval(streamFunctionId);
+			}
+			
+		} else {
+			$("#dynamicText").fadeOut(FADESPEED, function() {
+				$("#resultsTitle").text("");
+				$("#resultsInfo").text("");
+				$("#dynamicText").html("<div class='alert alert-danger'>Error: " + validationError + "</div>").fadeIn(FADESPEED);
+		    });			
 		}
 	});
 			
@@ -280,21 +434,82 @@ $(window).load(function() {
 	}
 	
 	
+	
+	// Form 4
 	$("#form4Submit").click(function() {
 		
-		map = new google.maps.Map(document.getElementById("map-canvas"), {mapTypeId: google.maps.MapTypeId.ROADMAP});
-		bounds = new google.maps.LatLngBounds();
-		
-		$("#dynamicText").fadeOut(FADESPEED, function() {
-	        $(this).html(LOADING_IMG_BIG).fadeIn(FADESPEED);
-	    });
-		
-		getUsersAtVenue();
-	
-		if ($("#days3").val() == "0") {
-			streamFunctionId = setInterval(function() { getUsersAtVenue(); }, 20000);
+		// Form validation
+		var valid = false;
+		var nameValid = false;
+		var locValid = false;
+		var validationError = "Unknown validation error";
+		if ( $.trim( $("#days3").val() ) != "" ) {
+			if ( $.isNumeric( $("#days3").val() ) && $("#days3").val() >= 0 ) {
+
+				if ( $("#enableNameVenue").is(":checked") ) {
+					if ( $.trim( $("#venueName").val() ) != "" ) {
+						nameValid = true;
+					} else {
+						validationError = "Venue name field cannot be empty";
+					}
+				}				
+				
+				if ( $("#enableLocVenue").is(":checked") ) {
+					if ( $.trim( $("#lat2").val() ) != "" &&
+						 $.trim( $("#lon2").val() ) != "" &&
+						 $.trim( $("#radius2").val() ) != "" ) {					
+						if ( $.isNumeric( $("#lat2").val() ) &&
+								 $.isNumeric( $("#lon2").val() ) &&
+								 $.isNumeric( $("#radius2").val() ) ) {
+								if ( $("#radius2").val() > 0 ) {
+									locValid = true;										
+								} else {
+									validationError = "Radius must be greater than zero";					
+								}						
+							} else {
+								validationError = "Location fields must be numbers";
+							}
+					} else {
+						validationError = "Location fields must not be empty";
+					}
+				}
+				
+				if ( ($("#enableNameVenue").is(":checked") && nameValid) ||
+					 ($("#enableLocVenue").is(":checked") && locValid) ||
+					 ($("#enableNameVenue").is(":checked") && nameValid && $("#enableLocVenue").is(":checked") && locValid) ) {
+					valid = true;
+				} else if ( !$("#enableNameVenue").is(":checked") && !$("#enableLocVenue").is(":checked") ) {
+					validationError = "You must search by venue name or location or both";
+				}
+			} else {
+				validationError = "Days to search must be a number greater than or equal to 0";
+			}		
 		} else {
-			clearInterval(streamFunctionId);
+			validationError = "Days to search cannot be empty";
+		}
+				
+		
+		if (valid) {
+			map = new google.maps.Map(document.getElementById("map-canvas"), {mapTypeId: google.maps.MapTypeId.ROADMAP});
+			bounds = new google.maps.LatLngBounds();
+			
+			$("#dynamicText").fadeOut(FADESPEED, function() {
+		        $(this).html(LOADING_IMG_BIG).fadeIn(FADESPEED);
+		    });
+			
+			getUsersAtVenue();
+		
+			if ($("#days3").val() == "0") {
+				streamFunctionId = setInterval(function() { getUsersAtVenue(); }, 20000);
+			} else {
+				clearInterval(streamFunctionId);
+			}
+		} else {
+			$("#dynamicText").fadeOut(FADESPEED, function() {
+				$("#resultsTitle").text("");
+				$("#resultsInfo").text("");
+				$("#dynamicText").html("<div class='alert alert-danger'>Error: " + validationError + "</div>").fadeIn(FADESPEED);
+		    });			
 		}
 	});
 
