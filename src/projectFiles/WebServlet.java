@@ -109,7 +109,7 @@ public class WebServlet extends HttpServlet {
     	String json = "";
     	
     	
-    	if(requestId.equals("topicForm")){
+    	if(requestId.equals("tweetFormRequest")){
 			DatabaseConnector dbConn = new DatabaseConnector();
 			dbConn.establishConnection(); 
     		try {
@@ -122,9 +122,9 @@ public class WebServlet extends HttpServlet {
 
     			Double lat, lon, radius;
     			try {
-    				lat = Double.parseDouble( request.getParameter("lat") );
-    				lon = Double.parseDouble( request.getParameter("lon") );
-    				radius = Double.parseDouble( request.getParameter("radius") );
+    				lat = Double.parseDouble( request.getParameter("latTweet") );
+    				lon = Double.parseDouble( request.getParameter("lonTweet") );
+    				radius = Double.parseDouble( request.getParameter("radiusTweet") );
     			} catch ( NumberFormatException nfe ) {
     				System.out.println( "WARNING: Invalid location parameters, performing query without geolocation data" );
     				lat = Double.NaN;
@@ -132,7 +132,7 @@ public class WebServlet extends HttpServlet {
     				radius = Double.NaN;
     			}
 
-    			List<Status> result = query.getTrendingTweets( request.getParameter("query"), lat, lon, radius );
+    			List<Status> result = query.getTrendingTweets( request.getParameter("queryTweet"), lat, lon, radius );
     			//Have to parse ids as string and send them separately as twitter4j does not support the id_str parameter and javascript cannot handle type long
     			ArrayList<String> tweetIds = new ArrayList<String>();
     		
@@ -178,7 +178,7 @@ public class WebServlet extends HttpServlet {
     		}
 
     		dbConn.closeConnection();
-    	} else if (requestId.equals("discussionForm")){
+    	} else if (requestId.equals("keywordFormRequest")){
 
     		try {
     			if (twitterStream != null) {
@@ -187,12 +187,12 @@ public class WebServlet extends HttpServlet {
     			}
 				
         		Queries query = new Queries(initTwitter()); 
-				LinkedList<String> usersNames = new LinkedList<String>( Arrays.asList( request.getParameter("users").split(" ") ) );
+				LinkedList<String> usersNames = new LinkedList<String>( Arrays.asList( request.getParameter("usernamesKeyword").split(" ") ) );
 				final LinkedList<User> users = new LinkedList<User>();
 				users.addAll(query.getTwitterUsers(usersNames));
 							
-				int keywords = Integer.parseInt( request.getParameter("keywords") );
-				int days = Integer.parseInt( request.getParameter("days") );
+				int keywords = Integer.parseInt( request.getParameter("keywordsKeyword") );
+				int days = Integer.parseInt( request.getParameter("daysKeyword") );
     						
 
 				Pair<LinkedList<Term>, LinkedList<Term>> terms = query.getDiscussedTopics(users, keywords, days ); //TODO only recording top ten
@@ -265,19 +265,19 @@ public class WebServlet extends HttpServlet {
 				json = gson.toJson("Error, keywords and days must be integers");
 			}
 
-    	} else if (requestId.equals("userVenueForm")){
+    	} else if (requestId.equals("checkinFormRequest")){
 			DatabaseConnector dbConn = new DatabaseConnector();
 			dbConn.establishConnection(); 
     		try { 
     			Queries query = new Queries( initTwitter(), initFoursquare() );
     			int days = 0;
     			try {
-    				days = Integer.parseInt( request.getParameter("days") );
+    				days = Integer.parseInt( request.getParameter("daysCheckin") );
     			} catch ( NumberFormatException nfe ) {
     				System.out.println( "WARNING: Invalid days parameter, defaulting to 0 (live stream)" );
     			}
     			
-    			User user = query.getTwitterUser( request.getParameter("username") ); 
+    			User user = query.getTwitterUser( request.getParameter("usernameCheckin") ); 
     			dbConn.addUsers(user);
     			
     			// Send user if requested (Only needed first time for streaming)
@@ -350,7 +350,7 @@ public class WebServlet extends HttpServlet {
     		
     		dbConn.closeConnection();
   
-    	} else if (requestId.equals("venuesForm")){
+    	} else if (requestId.equals("venuesFormRequest")){
 			DatabaseConnector dbConn = new DatabaseConnector();
 			dbConn.establishConnection(); 
     		try {
@@ -359,17 +359,17 @@ public class WebServlet extends HttpServlet {
 				
 				int days = 0;
 				try {
-					days = Integer.parseInt( request.getParameter("days") );
+					days = Integer.parseInt( request.getParameter("daysVenue") );
 				} catch ( NumberFormatException nfe ) {
 					System.out.println( "WARNING: Invalid days parameter, defaulting to 0 (live stream)" );
 				}
 				
     			Double lat, lon, radius;
-    			String venueName = request.getParameter("venueName");
+    			String venueName = request.getParameter("venueNameVenue");
     			try {
-    				lat = Double.parseDouble( request.getParameter("lat") );
-    				lon = Double.parseDouble( request.getParameter("lon") );
-    				radius = Double.parseDouble( request.getParameter("radius") );
+    				lat = Double.parseDouble( request.getParameter("latVenue") );
+    				lon = Double.parseDouble( request.getParameter("lonVenue") );
+    				radius = Double.parseDouble( request.getParameter("radiusVenue") );
     			} catch ( NumberFormatException nfe ) {
     				System.out.println( "WARNING: Invalid location parameters, performing query with venue name" );
     				lat = Double.NaN;

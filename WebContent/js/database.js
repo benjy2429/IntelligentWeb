@@ -29,7 +29,7 @@ $(window).load(function() {
 
 		
 		if (valid) {
-			$("#dynamicText").fadeOut(FADESPEED, function() {
+			$("#pageContent").fadeOut(FADESPEED, function() {
 		        $(this).html(LOADING_IMG_BIG).fadeIn(FADESPEED);
 		    });
 			$.ajax({
@@ -156,22 +156,22 @@ $(window).load(function() {
 							result += "No matching users found.";
 						}
 		
-						$("#dynamicText").fadeOut(FADESPEED, function() {
+						$("#pageContent").fadeOut(FADESPEED, function() {
 					        $(this).html(result).fadeIn(FADESPEED);
 					    });
 					} catch (err) {
-						$("#dynamicText").html( "Error: " + err.message ).fadeIn(FADESPEED);
+						$("#pageContent").html( "Error: " + err.message ).fadeIn(FADESPEED);
 					}
 				},
 				error: function(xhr,textStatus,errorThrown){
-					$("#dynamicText").html(errorThrown);
+					$("#pageContent").html(errorThrown);
 				}
 			});
 		} else {
-			$("#dynamicText").fadeOut(FADESPEED, function() {
+			$("#pageContent").fadeOut(FADESPEED, function() {
 				$("#resultsTitle").text("");
 				$("#resultsInfo").text("");
-				$("#dynamicText").html("<div class='alert alert-danger'>Error: " + validationError + "</div>").fadeIn(FADESPEED);
+				$("#pageContent").html("<div class='alert alert-danger'>Error: " + validationError + "</div>").fadeIn(FADESPEED);
 		    });
 		}
 	});
@@ -189,7 +189,7 @@ $(window).load(function() {
 		
 		
 		if (valid) {
-			$("#dynamicText").fadeOut(FADESPEED, function() {
+			$("#pageContent").fadeOut(FADESPEED, function() {
 		        $(this).html(LOADING_IMG_BIG).fadeIn(FADESPEED);
 		    });
 			$.ajax({
@@ -237,23 +237,23 @@ $(window).load(function() {
 							result += "No matching venues found.";
 						}
 		
-						$("#dynamicText").fadeOut(FADESPEED, function() {
+						$("#pageContent").fadeOut(FADESPEED, function() {
 					        $(this).html(result).fadeIn(FADESPEED);
 					        $("[data-toggle='tooltip']").tooltip({ placement: 'bottom' });
 					    });
 					} catch (err) {
-						$("#dynamicText").html( "Error: " + err.message ).fadeIn(FADESPEED);
+						$("#pageContent").html( "Error: " + err.message ).fadeIn(FADESPEED);
 					}
 				},
 				error: function(xhr,textStatus,errorThrown){
-					$("#dynamicText").html(errorThrown);
+					$("#pageContent").html(errorThrown);
 				}
 			});
 		} else {
-			$("#dynamicText").fadeOut(FADESPEED, function() {
+			$("#pageContent").fadeOut(FADESPEED, function() {
 				$("#resultsTitle").text("");
 				$("#resultsInfo").text("");
-				$("#dynamicText").html("<div class='alert alert-danger'>Error: " + validationError + "</div>").fadeIn(FADESPEED);
+				$("#pageContent").html("<div class='alert alert-danger'>Error: " + validationError + "</div>").fadeIn(FADESPEED);
 		    });
 		}		
 	});
