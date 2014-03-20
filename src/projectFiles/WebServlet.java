@@ -11,23 +11,18 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import projectFiles.Queries.Pair;
 import projectFiles.Queries.Term;
-
 import com.google.gson.*;
-
 import twitter4j.*;
 import twitter4j.conf.*;
 import exceptions.*;
 import fi.foyt.foursquare.api.*;
 import fi.foyt.foursquare.api.entities.*;
-
 import com.claygregory.api.google.places.Place;
 
 
@@ -166,7 +161,7 @@ public class WebServlet extends HttpServlet {
 				result = query.getTrendingTweets(request.getParameter("queryTweet"), lat, lon, radius);
 			} catch (QueryException ex) {
 				LOGGER.log(Level.SEVERE, ex.getMessage());
-				throw new FatalInternalException("An internal error has occured whilst dealing with your query");
+				throw new FatalInternalException("An internal error has occured whilst dealing with a query");
 			}
 			
 			//Have to parse ids as string and send them separately as twitter4j does not support the id_str parameter and javascript cannot handle type long
@@ -208,7 +203,7 @@ public class WebServlet extends HttpServlet {
 				tweet = query.getTweetFromId(tweetId);
 			} catch (QueryException ex) {
 				LOGGER.log(Level.SEVERE, ex.getMessage());
-				throw new FatalInternalException("An internal error has occured whilst dealing with your query");
+				throw new FatalInternalException("An internal error has occured whilst dealing with a query");
 			}
 
 			List<User> retweeters;
@@ -216,7 +211,7 @@ public class WebServlet extends HttpServlet {
 				retweeters = query.getRetweeters(tweetId);
 			} catch (QueryException ex) {
 				LOGGER.log(Level.SEVERE, ex.getMessage());
-				throw new FatalInternalException("An internal error has occured whilst dealing with your query");
+				throw new FatalInternalException("An internal error has occured whilst dealing with a query");
 			}
 			
 			dbConn.addUsers(tweet.getUser());
@@ -253,7 +248,7 @@ public class WebServlet extends HttpServlet {
 				users.addAll(query.getTwitterUsers(usersNames));
 			} catch (QueryException ex) {
 				LOGGER.log(Level.SEVERE, ex.getMessage());
-				throw new FatalInternalException("An internal error has occured whilst dealing with your query");
+				throw new FatalInternalException("An internal error has occured whilst dealing with a query");
 			}
 
 			int keywords = Integer.parseInt(request.getParameter("keywordsKeyword"));
@@ -265,7 +260,7 @@ public class WebServlet extends HttpServlet {
 				terms = query.getDiscussedTopics(users, keywords, days);
 			} catch (QueryException ex) {
 				LOGGER.log(Level.SEVERE, ex.getMessage());
-				throw new FatalInternalException("An internal error has occured whilst dealing with your query");
+				throw new FatalInternalException("An internal error has occured whilst dealing with a query");
 			}
 			//TODO only recording top ten
 			
@@ -360,7 +355,7 @@ public class WebServlet extends HttpServlet {
 				user = query.getTwitterUser(request.getParameter("usernameCheckin"));
 			} catch (QueryException ex) {
 				LOGGER.log(Level.SEVERE, ex.getMessage());
-				throw new FatalInternalException("An internal error has occured whilst dealing with your query");
+				throw new FatalInternalException("An internal error has occured whilst dealing with a query");
 			}
 			
 			dbConn.addUsers(user);
@@ -383,7 +378,7 @@ public class WebServlet extends HttpServlet {
 					result = query.getUserVenues(user.getScreenName(), days);
 				} catch (QueryException ex) {
 					LOGGER.log(Level.SEVERE, ex.getMessage());
-					throw new FatalInternalException("An internal error has occured whilst dealing with your query");
+					throw new FatalInternalException("An internal error has occured whilst dealing with a query");
 				}
 				
 				for(CompleteVenue venue : result){
@@ -406,7 +401,7 @@ public class WebServlet extends HttpServlet {
 							result = query.getUserVenues(user.getScreenName(), days);
 						} catch (QueryException ex) {
 							LOGGER.log(Level.SEVERE, ex.getMessage());
-							throw new FatalInternalException("An internal error has occured whilst dealing with your query");
+							throw new FatalInternalException("An internal error has occured whilst dealing with a query");
 						}
 						
 						for(CompleteVenue venue : result){
@@ -424,7 +419,7 @@ public class WebServlet extends HttpServlet {
 							result.add(query.getVenueFromTweet(tweet));
 						} catch (QueryException ex) {
 							LOGGER.log(Level.SEVERE, ex.getMessage());
-							throw new FatalInternalException("An internal error has occured whilst dealing with your query");
+							throw new FatalInternalException("An internal error has occured whilst dealing with a query");
 						}
 					}
 					for(CompleteVenue venue : result){
@@ -493,7 +488,7 @@ public class WebServlet extends HttpServlet {
 					query.getUsersAtVenue(venueName, lat, lon, radius, days, venues, venueTweets);
 				} catch (QueryException ex) {
 					LOGGER.log(Level.SEVERE, ex.getMessage());
-					throw new FatalInternalException("An internal error has occured whilst dealing with your query");
+					throw new FatalInternalException("An internal error has occured whilst dealing with a query");
 				}
 				
 				for (Entry<String, CompleteVenue> entry : venues.entrySet()) {
@@ -520,7 +515,7 @@ public class WebServlet extends HttpServlet {
 						query.getUsersAtVenue(venueName, lat, lon, radius, days, venues, venueTweets);
 					} catch (QueryException ex) {
 						LOGGER.log(Level.SEVERE, ex.getMessage());
-						throw new FatalInternalException("An internal error has occured whilst dealing with your query");
+						throw new FatalInternalException("An internal error has occured whilst dealing with a query");
 					}
 					for (Entry<String, CompleteVenue> entry : venues.entrySet()) {
 						dbConn.addVenues(entry.getValue());
@@ -539,7 +534,7 @@ public class WebServlet extends HttpServlet {
 						query.getUserVenuesFromTweets(liveTweets, venues, venueTweets);
 					} catch (QueryException ex) {
 						LOGGER.log(Level.SEVERE, ex.getMessage());
-						throw new FatalInternalException("An internal error has occured whilst dealing with your query");
+						throw new FatalInternalException("An internal error has occured whilst dealing with a query");
 					}
 					for (Entry<String, CompleteVenue> entry : venues.entrySet()) {
 						dbConn.addVenues(entry.getValue());
@@ -563,7 +558,7 @@ public class WebServlet extends HttpServlet {
 				query.getNearbyPlaces(lat, lon, radius);
 			} catch (QueryException ex) {
 				LOGGER.log(Level.SEVERE, ex.getMessage());
-				throw new FatalInternalException("An internal error has occured whilst dealing with your query");
+				throw new FatalInternalException("An internal error has occured whilst dealing with a query");
 			}
 	
 			dbConn.closeConnection();
@@ -586,7 +581,7 @@ public class WebServlet extends HttpServlet {
 				user = query.getTwitterUser(request.getParameter("screenName"));
 			} catch (QueryException ex) {
 				LOGGER.log(Level.SEVERE, ex.getMessage());
-				throw new FatalInternalException("An internal error has occured whilst dealing with your query");
+				throw new FatalInternalException("An internal error has occured whilst dealing with a query");
 			}
 			return gson.toJson(user);
 		} catch (FatalInternalException ex) {
@@ -605,7 +600,7 @@ public class WebServlet extends HttpServlet {
 				tweets = query.getUsersTweets(request.getParameter("screenName"));
 			} catch (QueryException ex) {
 				LOGGER.log(Level.SEVERE, ex.getMessage());
-				throw new FatalInternalException("An internal error has occured whilst dealing with your query");
+				throw new FatalInternalException("An internal error has occured whilst dealing with a query");
 			}
 			return gson.toJson(tweets);
 		} catch (FatalInternalException ex) {
