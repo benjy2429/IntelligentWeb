@@ -15,8 +15,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import projectFiles.Queries.Pair;
-import projectFiles.Queries.Term;
 import com.google.gson.*;
 import twitter4j.*;
 import twitter4j.conf.*;
@@ -183,11 +181,12 @@ public class WebServlet extends HttpServlet {
 				public void run() {
 					LOGGER.log(Level.FINE, "Starting background thread for database storage");
 					DatabaseConnector dbConn = new DatabaseConnector();
-					dbConn.establishConnection(); 
-					for(Status status : result) {
-						dbConn.addUsers(status.getUser());
+					if (dbConn.establishConnection()) { 
+						for(Status status : result) {
+							dbConn.addUsers(status.getUser());
+						}
+						dbConn.closeConnection();
 					}
-					dbConn.closeConnection();
 					LOGGER.log(Level.FINE, "Ending background thread for database storage");
 				}
 			});
@@ -242,13 +241,14 @@ public class WebServlet extends HttpServlet {
 				public void run() {
 					LOGGER.log(Level.FINE, "Starting background thread for database storage");
 					DatabaseConnector dbConn = new DatabaseConnector();
-					dbConn.establishConnection(); 			
-					dbConn.addUsers(tweeter);
-					for(User user : retweeters){
-						dbConn.addUsers(user);
-						dbConn.addContact(tweeter.getId(), user.getId());
+					if(dbConn.establishConnection()) { 			
+						dbConn.addUsers(tweeter);
+						for(User user : retweeters){
+							dbConn.addUsers(user);
+							dbConn.addContact(tweeter.getId(), user.getId());
+						}
+						dbConn.closeConnection();
 					}
-					dbConn.closeConnection();
 					LOGGER.log(Level.FINE, "Ending background thread for database storage");
 				}
 			});
@@ -318,29 +318,30 @@ public class WebServlet extends HttpServlet {
 				public void run() {
 					LOGGER.log(Level.FINE, "Starting background thread for term database storage");
 					DatabaseConnector dbConn = new DatabaseConnector();
-					dbConn.establishConnection(); 
-					//Add users to database
-					for(User user : users){
-						dbConn.addUsers(user);
-					}
-					for(Term term : allTerms){
-						//Add terms to database and get id
-						int wordId = dbConn.addWord(term.term);
-						
-						//If already exists, then look it up
-						if (wordId == -1) {wordId = dbConn.getWordId(term.term);}
-						
-						//If we still don't have an id then something has gone wrong
-						if (wordId != -1){
-							//Add the pairings of user to word in the database
-							for(Pair<Long, Integer> userCount : term.userCounts){
-								dbConn.addUserTermPair(userCount.t, wordId, userCount.u);
-							}
-						} else {
-							LOGGER.log(Level.WARNING, "A term exists in the database but its id could not be obtained. Term: " + term.term);
+					if (dbConn.establishConnection()) { 
+						//Add users to database
+						for(User user : users){
+							dbConn.addUsers(user);
 						}
+						for(Term term : allTerms){
+							//Add terms to database and get id
+							int wordId = dbConn.addWord(term.term);
+							
+							//If already exists, then look it up
+							if (wordId == -1) {wordId = dbConn.getWordId(term.term);}
+							
+							//If we still don't have an id then something has gone wrong
+							if (wordId != -1){
+								//Add the pairings of user to word in the database
+								for(Pair<Long, Integer> userCount : term.userCounts){
+									dbConn.addUserTermPair(userCount.t, wordId, userCount.u);
+								}
+							} else {
+								LOGGER.log(Level.WARNING, "A term exists in the database but its id could not be obtained. Term: " + term.term);
+							}
+						}
+						dbConn.closeConnection();
 					}
-					dbConn.closeConnection();
 					LOGGER.log(Level.FINE, "Ending background thread for term database storage");
 				}
 			});
@@ -458,17 +459,18 @@ public class WebServlet extends HttpServlet {
 				public void run() {
 					LOGGER.log(Level.FINE, "Starting background thread for term database storage");
 					DatabaseConnector dbConn = new DatabaseConnector();
-					dbConn.establishConnection(); 
-					//Add users to database
-					if (firstTime) {
-						dbConn.addUsers(user);
+					if (dbConn.establishConnection()) { 
+						//Add users to database
+						if (firstTime) {
+							dbConn.addUsers(user);
+						}
+						//Add venues to database
+						for(CompleteVenue venue : result){
+							dbConn.addVenues(venue);
+							dbConn.addUserVenue(user.getId(),venue.getId());
+						}
+						dbConn.closeConnection();
 					}
-					//Add venues to database
-					for(CompleteVenue venue : result){
-						dbConn.addVenues(venue);
-						dbConn.addUserVenue(user.getId(),venue.getId());
-					}
-					dbConn.closeConnection();
 					LOGGER.log(Level.FINE, "Ending background thread for term database storage");
 				}
 			});
@@ -596,15 +598,16 @@ public class WebServlet extends HttpServlet {
 				public void run() {
 					LOGGER.log(Level.FINE, "Starting background thread for term database storage");
 					DatabaseConnector dbConn = new DatabaseConnector();
-					dbConn.establishConnection(); 
-					for (Entry<String, CompleteVenue> entry : venues.entrySet()) {
-						dbConn.addVenues(entry.getValue());
-						for(Status tweet : venueTweets.get(entry.getKey())){
-							dbConn.addUsers(tweet.getUser());
-							dbConn.addUserVenue(tweet.getUser().getId(), entry.getKey());
+					if (dbConn.establishConnection()) { 
+						for (Entry<String, CompleteVenue> entry : venues.entrySet()) {
+							dbConn.addVenues(entry.getValue());
+							for(Status tweet : venueTweets.get(entry.getKey())){
+								dbConn.addUsers(tweet.getUser());
+								dbConn.addUserVenue(tweet.getUser().getId(), entry.getKey());
+							}
 						}
+						dbConn.closeConnection();
 					}
-					dbConn.closeConnection();
 					LOGGER.log(Level.FINE, "Ending background thread for term database storage");
 				}
 			});

@@ -13,8 +13,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import com.claygregory.api.google.places.*;
 import com.claygregory.api.google.places.Place;
+
 import exceptions.QueryException;
 import fi.foyt.foursquare.api.*;
 import fi.foyt.foursquare.api.entities.*;
@@ -180,7 +182,6 @@ public class Queries {
 	}
 
 	
-	//TODO potential for improvement? rather long:
 	/**
 	 * This function can review tweets from a number of users and extract words that are used frequently. This should indicate discussion topics that are popular.
 	 * A stop list is used to filter out words that are not content specific
@@ -197,7 +198,57 @@ public class Queries {
 		Date sinceDate = cal.getTime();
 		String formattedDate = new SimpleDateFormat("yyyy-MM-dd").format(sinceDate);
 		
-		//Make an inverted index of terms. Each term maps to a pair containing the total count and a user count map. The user count map, maps a user name to their term count
+		//Generate an inverted index of terms. Each term maps to a pair containing the total occurrence count and an user count map. The user count map, maps a user name to their individual occurrence count
+		Map<String, Pair<Integer,Map<Long,Integer>>> termUserMap = makeInvertedIndexOfTerms(users, formattedDate);
+		
+		//All the words have been appropriately added to the data structure so now we find the most frequent terms
+		LinkedList<Term> frequentTerms = new LinkedList<Term>();
+		//For as many words as needed, the most used word is obtained and stored
+		for(int i=0; i<termsDesired;i++){
+			//Find the most frequent term
+			String mostCommonWord = "";
+			int highestCount = Integer.MIN_VALUE;
+			for (Entry<String, Pair<Integer,Map<Long, Integer>>> termMapEntry : termUserMap.entrySet()) {
+				if(termMapEntry.getValue().t>highestCount){
+					mostCommonWord = termMapEntry.getKey();
+					highestCount = termMapEntry.getValue().t;
+				}
+			}
+			
+			//If there are less terms than we desired, then we can stop
+			if(mostCommonWord.equals("")){break;}
+			
+			//Otherwise, create a new term object and store it
+			Term newTerm = new Term(i+1,mostCommonWord,highestCount, extractUserCounts(termUserMap.get(mostCommonWord).u));
+			frequentTerms.add(newTerm);
+			
+			//We remove this word from the map so the next most frequent can be obtained
+			termUserMap.remove(mostCommonWord);
+		}
+		
+		//Add the remaining unranked terms into a different list, providing they have been used at least 5 times
+		LinkedList<Term> unrankedTerms = new LinkedList<Term>();
+		for (Entry<String, Pair<Integer,Map<Long, Integer>>> termMapEntry : termUserMap.entrySet()) {
+			if(termMapEntry.getValue().t >= 5){
+				Term newTerm = new Term(0, termMapEntry.getKey(), termMapEntry.getValue().t, extractUserCounts(termMapEntry.getValue().u)); 
+				unrankedTerms.add(newTerm);
+			}
+		}
+		return new Pair<LinkedList<Term>,LinkedList<Term>>(frequentTerms,unrankedTerms);
+	}
+	
+	
+	/**
+	 * Takes a list of users and a date and returns a complex inverted index of terms
+ 	 * Each term maps to a pair containing the total occurrence count and an user count map. 
+ 	 * The user count map, maps a user name to their individual occurrence count
+	 * @param users - A list of users whose tweets should be collected
+	 * @param formattedDate - A date from which tweets should start to be collected
+	 * @return - Inverted index
+	 * @throws QueryException
+	 */
+	private Map<String, Pair<Integer,Map<Long,Integer>>> makeInvertedIndexOfTerms(LinkedList<User> users, String formattedDate) throws QueryException{
+		//Define data structure to hold inverted index
 		Map<String, Pair<Integer,Map<Long,Integer>>> termUserMap = new HashMap<String, Pair<Integer,Map<Long,Integer>>>();
 		
 		try {
@@ -255,55 +306,27 @@ public class Queries {
 						result=twitter.search(query);
 					}
 				}
-				
 			}
+			return termUserMap;
 		} catch (Exception ex) {
 			//Catch any errors, log them, then throw a query exception
 			LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
 			throw new QueryException("Error generating frequent term counts");
 		}
-		
-		//All the words have been appropriately added to the data structure so now we find the most frequent terms
-		LinkedList<Term> frequentTerms = new LinkedList<Term>();
-		//For as many words as needed, the most used word is obtained, utilised then removed so the next most frequent can be obtained
-		for(int i=0; i<termsDesired;i++){
-			String mostCommonWord = "";
-			int highestCount = Integer.MIN_VALUE;
-			for (Entry<String, Pair<Integer,Map<Long, Integer>>> termMapEntry : termUserMap.entrySet()) {
-				if(termMapEntry.getValue().t>highestCount){
-					mostCommonWord = termMapEntry.getKey();
-					highestCount = termMapEntry.getValue().t;
-					
-				}
-			}
-			//If there are less terms than desired then we dont need to try and generate a string for null data
-			if(!mostCommonWord.equals("")){
-				Term newTerm = new Term();
-				newTerm.rank = i+1;
-				newTerm.term = mostCommonWord;
-				newTerm.totalCount = highestCount;
-				for (Entry<Long, Integer> userCountEntry : termUserMap.get(mostCommonWord).u.entrySet()) {
-					newTerm.userCounts.add(new Pair<Long,Integer>(userCountEntry.getKey(), userCountEntry.getValue()));
-				}
-				frequentTerms.add(newTerm);
-			}
-			termUserMap.remove(mostCommonWord);
+	}
+	
+	
+	/**
+	 * Takes a map of userTermCounts and returns a list of pairs
+	 * @param userCountMap - Map of user counts
+	 * @return - List of pairs
+	 */
+	private LinkedList<Pair<Long, Integer>> extractUserCounts(Map<Long, Integer> userCountMap){
+		LinkedList<Pair<Long,Integer>> userCounts = new LinkedList<Pair<Long,Integer>>();
+		for (Entry<Long, Integer> userCountEntry : userCountMap.entrySet()) {
+			userCounts.add(new Pair<Long,Integer>(userCountEntry.getKey(), userCountEntry.getValue()));
 		}
-		LinkedList<Term> unrankedTerms = new LinkedList<Term>();
-		//Add the remaining unranked
-		for (Entry<String, Pair<Integer,Map<Long, Integer>>> termMapEntry : termUserMap.entrySet()) {
-			if(termMapEntry.getValue().t >= 5){
-				Term newTerm = new Term();
-				newTerm.rank = 0;
-				newTerm.term = termMapEntry.getKey();
-				newTerm.totalCount = termMapEntry.getValue().t;
-				for (Entry<Long, Integer> userCountEntry : termMapEntry.getValue().u.entrySet()) {
-					newTerm.userCounts.add(new Pair<Long,Integer>(userCountEntry.getKey(), userCountEntry.getValue()));
-				}
-				unrankedTerms.add(newTerm);
-			}
-		}
-		return new Pair<LinkedList<Term>,LinkedList<Term>>(frequentTerms,unrankedTerms);
+		return userCounts;
 	}
 	
 	
@@ -507,37 +530,5 @@ public class Queries {
 		}
 		return placeList;
 	}
-	
-	
-	/**
-	 * Define a tuple for storing two objects
-	 * @author Luke Heavens & Ben Carr
-	 *
-	 * @param <T> Left object
-	 * @param <U> Right object
-	 */
-	class Pair<T, U> {         
-		public final T t;
-		public final U u;
-
-		public Pair(T t, U u) {         
-			this.t= t;
-			this.u= u;
-		}
-	}
-	
-	//TODO make term and pair classes in their own rights since they are used outside this class now
-	
-	/**
-	 * Define a Term
-	 * @author Luke Heavens & Ben Carr
-	 */
-	class Term{
-		public int rank;
-		public String term;
-		public int totalCount;
-		public LinkedList<Pair<Long,Integer>> userCounts = new LinkedList<Pair<Long,Integer>>();
-	}
-
-
 }
+
