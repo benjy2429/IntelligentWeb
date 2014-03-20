@@ -264,11 +264,11 @@ $(window).load(function() {
 						
 						// Find users who have a count for this term
 						$.each( this.userCounts , function() { 
-							var screenName = this.t;
+							var userId = this.t;
 							var i = 0;
 							var index = -1;
 							$.each( userObjects , function() {
-								if(this.screenName.toString().toLowerCase() == screenName.toString().toLowerCase()){
+								if(this.id == userId){
 									index = i;
 								}
 								i++;
