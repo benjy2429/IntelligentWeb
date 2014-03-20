@@ -16,7 +16,7 @@ import exceptions.DatabaseException;
 
 
 /**
- * This class deals with interactions between the web interface for querying the database and the database
+ * This servlet deals with interactions between the web interface for querying the database and the database
  * @author Luke Heavens & Ben Carr
  */
 public class DatabaseServlet extends HttpServlet {

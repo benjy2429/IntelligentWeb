@@ -63,7 +63,7 @@ public class Queries {
 		try {
 			return twitter.showUser(username);
 		} catch (Exception ex) {
-			//Catch any errrors, log them, then thow a query exception
+			//Catch any errors, log them, then throw a query exception
 			LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
 			throw new QueryException("Error getting twitter user from username");
 		}
@@ -81,25 +81,24 @@ public class Queries {
 			String[] userNamesArray = new String[users.size()];
 			return twitter.lookupUsers(users.toArray(userNamesArray));
 		} catch (Exception ex) {
-			//Catch any errrors, log them, then thow a query exception
+			//Catch any errors, log them, then throw a query exception
 			LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
 			throw new QueryException("Error getting twitter users from a list of usernames");
 		}
 	}
 	
 	
-	//TODO refactor this funciton (twitter -> tweet):
 	/**
 	 * This function takes a tweetId and returns the tweet (status) object
 	 * @param tweetId - The id of a tweet
 	 * @return - The tweet (status) object
 	 * @throws QueryException
 	 */
-	public Status getTwitterFromId(long tweetId) throws QueryException {
+	public Status getTweetFromId(long tweetId) throws QueryException {
 		try {
 			return twitter.showStatus(tweetId);
 		} catch (Exception ex) {
-			//Catch any errrors, log them, then thow a query exception
+			//Catch any errors, log them, then throw a query exception
 			LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
 			throw new QueryException("Error getting status from tweet id");
 		}
@@ -119,7 +118,7 @@ public class Queries {
 			QueryResult result = twitter.search(query);
 			return result.getTweets();
 		} catch (Exception ex) {
-			//Catch any errrors, log them, then thow a query exception
+			//Catch any errors, log them, then throw a query exception
 			LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
 			throw new QueryException("Error getting user tweets from username");
 		}
@@ -151,7 +150,7 @@ public class Queries {
 	
 			return result.getTweets();
 		} catch (Exception ex) {
-			//Catch any errrors, log them, then thow a query exception
+			//Catch any errors, log them, then throw a query exception
 			LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
 			throw new QueryException("Error getting tweets from query");
 		}
@@ -174,7 +173,7 @@ public class Queries {
 			}
 			return users;
 		} catch (Exception ex) {
-			//Catch any errrors, log them, then thow a query exception
+			//Catch any errors, log them, then throw a query exception
 			LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
 			throw new QueryException("Error getting retweeters from tweet id");
 		}
@@ -260,7 +259,7 @@ public class Queries {
 				
 			}
 		} catch (Exception ex) {
-			//Catch any errrors, log them, then thow a query exception
+			//Catch any errors, log them, then throw a query exception
 			LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
 			throw new QueryException("Error generating frequent term counts");
 		}
@@ -346,7 +345,7 @@ public class Queries {
 			}
 			return resultList;
 		} catch (Exception ex) {
-			//Catch any errrors, log them, then thow a query exception
+			//Catch any errors, log them, then throw a query exception
 			LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
 			throw new QueryException("Error getting venues from username");
 		}
@@ -379,7 +378,7 @@ public class Queries {
 			}
 			return null;
 		} catch (Exception ex) {
-			//Catch any errrors, log them, then thow a query exception
+			//Catch any errors, log them, then throw a query exception
 			LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
 			throw new QueryException("Error getting venue from tweet");
 		}
@@ -412,7 +411,7 @@ public class Queries {
 	
 			return expandedUrl;
 		} catch (Exception ex) {
-			//Catch any errrors, log them, then thow a query exception
+			//Catch any errors, log them, then throw a query exception
 			LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
 			throw new QueryException("Error expanding foursquare url");
 		}
@@ -455,7 +454,7 @@ public class Queries {
 	
 			getUserVenuesFromTweets(result.getTweets(), venues, venueTweets);	
 		} catch (Exception ex) {
-			//Catch any errrors, log them, then thow a query exception
+			//Catch any errors, log them, then throw a query exception
 			LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
 			throw new QueryException("Error users at venue");
 		}
