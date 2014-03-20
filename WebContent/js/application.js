@@ -7,6 +7,7 @@
  */
 
 $(window).load(function() {
+	
 	var FADESPEED = 250;
 	var LOADING_IMG = "<img src='./img/loading.gif' style='vertical-align:text-top;margin-right:5px;' /> Loading..";
 	var LOADING_IMG_BIG = "<div style='margin-top:20px;'><img src='./img/big_loading.gif' style='vertical-align:middle;margin-right:10px;' /> Loading..</div>";
@@ -23,14 +24,14 @@ $(window).load(function() {
 	
 	
 	// Checkbox to toggle visibility of geolocation fields (form 1)
-	$("#enableLoc").click(function() { 
+	$("#enableLocTweet").click(function() { 
 	    if ($(this).is(':checked')) {
-	    	$("#locationFields").show(FADESPEED);
+	    	$("#locationFieldsTweet").show(FADESPEED);
 	    } else {
-	    	$("#locationFields").hide(FADESPEED);
-	    	$("#lat").val("");
-	    	$("#lon").val("");
-	    	$("#radius").val("");
+	    	$("#locationFieldsTweet").hide(FADESPEED);
+	    	$("#latTweet").val("");
+	    	$("#lonTweet").val("");
+	    	$("#radiusTweet").val("");
 	    }
 	});
 	
@@ -41,7 +42,7 @@ $(window).load(function() {
 	    	$("#nameFieldsVenue").show(FADESPEED);
 	    } else {
 	    	$("#nameFieldsVenue").hide(FADESPEED);
-	    	$("#venueName").val("");
+	    	$("#venueNameVenue").val("");
 	    }
 	});
 	
@@ -52,9 +53,9 @@ $(window).load(function() {
 	    	$("#locationFieldsVenue").show(FADESPEED);
 	    } else {
 	    	$("#locationFieldsVenue").hide(FADESPEED);
-	    	$("#lat2").val("");
-	    	$("#lon2").val("");
-	    	$("#radius2").val("");
+	    	$("#latVenue").val("");
+	    	$("#lonVenue").val("");
+	    	$("#radiusVenue").val("");
 	    }
 	});
 	
@@ -71,25 +72,25 @@ $(window).load(function() {
 	/*
 	 * This function overrides the form action when the form is submitted
 	 */
-	$("#form1Submit").click(function() {
+	$("#tweetFormSubmit").click(function() {
 		clearInterval(streamFunctionId);
 		$("#map-canvas").fadeOut(FADESPEED);
 		
 		// Form validation
 		var valid = false;
 		var validationError = "Unknown validation error";
-		if ( $.trim( $("#query").val() ) != "" ) {
+		if ( $.trim( $("#queryTweet").val() ) != "" ) {
 
-			if ( $("#enableLoc").is(":checked") ) {
-				if ( $.trim( $("#lat").val() ) != "" &&
-					 $.trim( $("#lon").val() ) != "" &&
-					 $.trim( $("#radius").val() ) != "" ) {
+			if ( $("#enableLocTweet").is(":checked") ) {
+				if ( $.trim( $("#latTweet").val() ) != "" &&
+					 $.trim( $("#lonTweet").val() ) != "" &&
+					 $.trim( $("#radiusTweet").val() ) != "" ) {
 					
-					if ( $.isNumeric( $("#lat").val() ) &&
-						 $.isNumeric( $("#lon").val() ) &&
-						 $.isNumeric( $("#radius").val() ) ) {
+					if ( $.isNumeric( $("#latTweet").val() ) &&
+						 $.isNumeric( $("#lonTweet").val() ) &&
+						 $.isNumeric( $("#radiusTweet").val() ) ) {
 
-						if ( $("#radius").val() > 0 ) {
+						if ( $("#radiusTweet").val() > 0 ) {
 							valid = true;
 								
 						} else {
@@ -114,7 +115,7 @@ $(window).load(function() {
 		
 		
 		if (valid) {			
-			$("#dynamicText").fadeOut(FADESPEED, function() {
+			$("#pageContent").fadeOut(FADESPEED, function() {
 		        $(this).html(LOADING_IMG_BIG).fadeIn(FADESPEED);
 		    });
 			
@@ -122,7 +123,7 @@ $(window).load(function() {
 				url: SERVLET,
 				type: 'post',
 				datatype: 'json',
-				data: $('#form1').serialize(),
+				data: $('#tweetForm').serialize(),
 				success: function(data){
 					var json = data.split("\n");
 					var tweetIds = JSON.parse(json[0]);
@@ -170,71 +171,65 @@ $(window).load(function() {
 						result += "No matching tweets found. Try searching for a different term, or increasing the location radius.";
 					}
 	
-					$("#dynamicText").fadeOut(FADESPEED, function() {
+					$("#pageContent").fadeOut(FADESPEED, function() {
 				        $(this).html(result).fadeIn(FADESPEED);
 				    });
 				},
 				error: function(xhr,textStatus,errorThrown){
-					$("#dynamicText").html(errorThrown);
+					$("#pageContent").html(errorThrown);
 				}
 			});
 		
 		} else {
-			$("#dynamicText").fadeOut(FADESPEED, function() {
+			$("#pageContent").fadeOut(FADESPEED, function() {
 				$("#resultsTitle").text("");
 				$("#resultsInfo").text("");
-				$("#dynamicText").html("<div class='alert alert-danger'>Error: " + validationError + "</div>").fadeIn(FADESPEED);
+				$("#pageContent").html("<div class='alert alert-danger'>Error: " + validationError + "</div>").fadeIn(FADESPEED);
 		    });
 		}
 	});
 	
 	
 	// Form 2
-	$("#form2Submit").click(function() {
+	$("#keywordFormSubmit").click(function() {
 		clearInterval(streamFunctionId);
 		$("#map-canvas").fadeOut(FADESPEED);
-		$("#dynamicText").fadeOut(FADESPEED, function() {
-	        $(this).html(LOADING_IMG_BIG).fadeIn(FADESPEED);
-	    });
-		
 		
 		// Form validation
 		var valid = false;
 		var validationError = "Unknown validation error";
-		if ( $.trim( $("#users").val() ) != "" &&
-			 $.trim( $("#keywords").val() ) != "" &&
-			 $.trim( $("#days").val() != "" ) ) {
-			
-			var usernames = $("#users").val().split(" ");
-			if ( usernames.length <= 10 ) {
-				
-				if ( $.isNumeric( $("#keywords").val() ) && $("#keywords").val() > 0 ) {
-					
-					if ( $.isNumeric( $("#days").val() ) && $("#days").val() > 0 && $("#days").val() < 100 ) {
-					
+		if ( $.trim( $("#usernamesKeyword").val() ) != "" &&
+			 $.trim( $("#keywordsKeyword").val() ) != "" &&
+			 $.trim( $("#daysKeyword").val() != "" ) ) {			
+			var usernames = $("#usernamesKeyword").val().split(" ");
+			if ( usernames.length <= 10 ) {				
+				if ( $.isNumeric( $("#keywordsKeyword").val() ) && $("#keywordsKeyword").val() > 0 ) {					
+					if ( $.isNumeric( $("#daysKeyword").val() ) && $("#daysKeyword").val() > 0 && $("#daysKeyword").val() < 100 ) {
+						valid = true;					
 					} else {
 						validationError = "Days must be a number between 1 and 99";
-					}
-					
+					}					
 				} else {
 					validationError = "Keywords to find must be a number greater than zero";
-				}
-			
+				}			
 			} else {
 				validationError = "Up to 10 usernames can be entered only";
-			}
-		
+			}		
 		} else {
 			validationError = "All fields must be filled in";
 		}	
 		
 		
 		if (valid) {
+			$("#pageContent").fadeOut(FADESPEED, function() {
+		        $(this).html(LOADING_IMG_BIG).fadeIn(FADESPEED);
+		    });
+			
 			$.ajax({
 				url: SERVLET,
 				type: 'post',
 				datatype: 'json',
-				data: $('#form2').serialize(),
+				data: $('#keywordForm').serialize(),
 				success: function(data){
 					var json = data.split("\n");
 					var terms = JSON.parse(json[0]);
@@ -279,7 +274,7 @@ $(window).load(function() {
 						result += "</div>";
 						result += "</div>";
 					});
-					$("#dynamicText").fadeOut(FADESPEED, function() {
+					$("#pageContent").fadeOut(FADESPEED, function() {
 				        $(this).html(result).fadeIn(FADESPEED);
 				    });
 					$.each( userObjects , function() {
@@ -287,29 +282,31 @@ $(window).load(function() {
 					});
 				},
 				error: function(jqXHR,textStatus,errorThrown){
-					$("#dynamicText").html(errorThrown);
+					$("#pageContent").html(errorThrown);
 				}
 			});
 			
 		} else {
-			$("#dynamicText").fadeOut(FADESPEED, function() {
+			$("#pageContent").fadeOut(FADESPEED, function() {
 				$("#resultsTitle").text("");
 				$("#resultsInfo").text("");
-				$("#dynamicText").html("<div class='alert alert-danger'>Error: " + validationError + "</div>").fadeIn(FADESPEED);
+				$("#pageContent").html("<div class='alert alert-danger'>Error: " + validationError + "</div>").fadeIn(FADESPEED);
 		    });
 		}
 	});
 	
 	
 	// Form 3
-	$("#form3Submit").click(function() {
+	$("#checkinFormSubmit").click(function() {
+		clearInterval(streamFunctionId);
+		$("#map-canvas").fadeOut(FADESPEED);
 		
 		// Form validation
 		var valid = false;
 		var validationError = "Unknown validation error";
-		if ( $.trim( $("#username").val() ) != "" ) {
-			if ( $.trim( $("#days2").val() ) != "" ) {
-				if ( $.isNumeric( $("#days2").val() ) && $("#days2").val() >= 0 ) {
+		if ( $.trim( $("#usernameCheckin").val() ) != "" ) {
+			if ( $.trim( $("#daysCheckin").val() ) != "" ) {
+				if ( $.isNumeric( $("#daysCheckin").val() ) && $("#daysCheckin").val() >= 0 ) {
 					valid = true;
 				} else {
 					validationError = "Days to search must be a number greater than or equal to 0";
@@ -326,13 +323,13 @@ $(window).load(function() {
 			map = new google.maps.Map(document.getElementById("map-canvas"), {mapTypeId: google.maps.MapTypeId.ROADMAP});
 			bounds = new google.maps.LatLngBounds();
 		
-			$("#dynamicText").fadeOut(FADESPEED, function() {
+			$("#pageContent").fadeOut(FADESPEED, function() {
 		        $(this).html(LOADING_IMG_BIG).fadeIn(FADESPEED);
 		    });
 			
 			getUserVenues(true);
 			
-			if ($("#days2").val() == "0") {
+			if ($("#daysCheckin").val() == "0") {
 				$("#userRequest").val("0");
 				streamFunctionId = setInterval(function() { getUserVenues(false); }, 20000);
 			} else {
@@ -340,10 +337,10 @@ $(window).load(function() {
 			}
 			
 		} else {
-			$("#dynamicText").fadeOut(FADESPEED, function() {
+			$("#pageContent").fadeOut(FADESPEED, function() {
 				$("#resultsTitle").text("");
 				$("#resultsInfo").text("");
-				$("#dynamicText").html("<div class='alert alert-danger'>Error: " + validationError + "</div>").fadeIn(FADESPEED);
+				$("#pageContent").html("<div class='alert alert-danger'>Error: " + validationError + "</div>").fadeIn(FADESPEED);
 		    });			
 		}
 	});
@@ -353,11 +350,11 @@ $(window).load(function() {
 			url: SERVLET,
 			type: 'post',
 			datatype: 'json',
-			data: $('#form3').serialize(),
+			data: $('#checkinForm').serialize(),
 			success: function(data){
 				var result = "";
 				var venues;
-				($("#days3").val() == "0") ? $("#resultsTitle").text("Results - Live Stream (Refreshes every 20 seconds)") : $("#resultsTitle").text("Results");
+				($("#daysVenue").val() == "0") ? $("#resultsTitle").text("Results - Live Stream (Refreshes every 20 seconds)") : $("#resultsTitle").text("Results");
 				$("#resultsInfo").text("");				
 			
 				if (userRequest) {
@@ -385,7 +382,7 @@ $(window).load(function() {
 				
 				$.each( venues, function() {
 					result += "<div class='venue'>";
-					result += (this.photos.groups[1] && this.photos.groups[1].items.length > 0) ? "<img class='venueImg' src='" + this.photos.groups[1].items[0].url + "'/>" : "";
+					result += (this.photos.groups[1] && this.photos.groups[1].items.length > 0) ? "<div class='venueImg' style='background-image:url(\"" + this.photos.groups[1].items[0].url + "\");'/>" : "";
 					result += "<div class='venueContent'>";
 					result += "<span class='venueName'>" + this.name + ", </span>";
 					result += (this.location.address) ? this.location.address : "";
@@ -425,7 +422,7 @@ $(window).load(function() {
 				if (!userRequest) {
 					$(".tweet").after(result).fadeIn(FADESPEED);
 				} else {
-					$("#dynamicText").fadeOut(FADESPEED, function() {
+					$("#pageContent").fadeOut(FADESPEED, function() {
 				        $(this).html(result).fadeIn(FADESPEED);
 				    });
 				}
@@ -437,7 +434,7 @@ $(window).load(function() {
 			},
 			error: function(xhr,textStatus,errorThrown){
 				clearInterval(streamFunctionId);
-				$("#dynamicText").html(errorThrown);
+				$("#pageContent").html(errorThrown);
 			}
 		});
 	}
@@ -445,18 +442,18 @@ $(window).load(function() {
 	
 	
 	// Form 4
-	$("#form4Submit").click(function() {
+	$("#venueFormSubmit").click(function() {
 		
 		// Form validation
 		var valid = false;
 		var nameValid = false;
 		var locValid = false;
 		var validationError = "Unknown validation error";
-		if ( $.trim( $("#days3").val() ) != "" ) {
-			if ( $.isNumeric( $("#days3").val() ) && $("#days3").val() >= 0 ) {
+		if ( $.trim( $("#daysVenue").val() ) != "" ) {
+			if ( $.isNumeric( $("#daysVenue").val() ) && $("#daysVenue").val() >= 0 ) {
 
 				if ( $("#enableNameVenue").is(":checked") ) {
-					if ( $.trim( $("#venueName").val() ) != "" ) {
+					if ( $.trim( $("#venueNameVenue").val() ) != "" ) {
 						nameValid = true;
 					} else {
 						validationError = "Venue name field cannot be empty";
@@ -464,13 +461,13 @@ $(window).load(function() {
 				}				
 				
 				if ( $("#enableLocVenue").is(":checked") ) {
-					if ( $.trim( $("#lat2").val() ) != "" &&
-						 $.trim( $("#lon2").val() ) != "" &&
-						 $.trim( $("#radius2").val() ) != "" ) {					
-						if ( $.isNumeric( $("#lat2").val() ) &&
-								 $.isNumeric( $("#lon2").val() ) &&
-								 $.isNumeric( $("#radius2").val() ) ) {
-								if ( $("#radius2").val() > 0 ) {
+					if ( $.trim( $("#latVenue").val() ) != "" &&
+						 $.trim( $("#lonVenue").val() ) != "" &&
+						 $.trim( $("#radiusVenue").val() ) != "" ) {					
+						if ( $.isNumeric( $("#latVenue").val() ) &&
+								 $.isNumeric( $("#lonVenue").val() ) &&
+								 $.isNumeric( $("#radiusVenue").val() ) ) {
+								if ( $("#radiusVenue").val() > 0 ) {
 									locValid = true;										
 								} else {
 									validationError = "Radius must be greater than zero";					
@@ -483,8 +480,8 @@ $(window).load(function() {
 					}
 				}
 				
-				if ( ($("#enableNameVenue").is(":checked") && nameValid) ||
-					 ($("#enableLocVenue").is(":checked") && locValid) ||
+				if ( ($("#enableNameVenue").is(":checked") && !$("#enableLocVenue").is(":checked") && nameValid) ||
+					 ($("#enableLocVenue").is(":checked") && !$("#enableNameVenue").is(":checked") && locValid) ||
 					 ($("#enableNameVenue").is(":checked") && nameValid && $("#enableLocVenue").is(":checked") && locValid) ) {
 					valid = true;
 				} else if ( !$("#enableNameVenue").is(":checked") && !$("#enableLocVenue").is(":checked") ) {
@@ -502,22 +499,22 @@ $(window).load(function() {
 			map = new google.maps.Map(document.getElementById("map-canvas"), {mapTypeId: google.maps.MapTypeId.ROADMAP});
 			bounds = new google.maps.LatLngBounds();
 			
-			$("#dynamicText").fadeOut(FADESPEED, function() {
+			$("#pageContent").fadeOut(FADESPEED, function() {
 		        $(this).html(LOADING_IMG_BIG).fadeIn(FADESPEED);
 		    });
 			
 			getUsersAtVenue();
 		
-			if ($("#days3").val() == "0") {
+			if ($("#daysVenue").val() == "0") {
 				streamFunctionId = setInterval(function() { getUsersAtVenue(); }, 20000);
 			} else {
 				clearInterval(streamFunctionId);
 			}
 		} else {
-			$("#dynamicText").fadeOut(FADESPEED, function() {
+			$("#pageContent").fadeOut(FADESPEED, function() {
 				$("#resultsTitle").text("");
 				$("#resultsInfo").text("");
-				$("#dynamicText").html("<div class='alert alert-danger'>Error: " + validationError + "</div>").fadeIn(FADESPEED);
+				$("#pageContent").html("<div class='alert alert-danger'>Error: " + validationError + "</div>").fadeIn(FADESPEED);
 		    });			
 		}
 	});
@@ -528,9 +525,9 @@ $(window).load(function() {
 			url: SERVLET,
 			type: 'post',
 			datatype: 'json',
-			data: $('#form4').serialize(),
+			data: $('#venueForm').serialize(),
 			success: function(data){								
-				($("#days3").val() == "0") ? $("#resultsTitle").text("Results - Live Stream (Refreshes every 20 seconds)") : $("#resultsTitle").text("Results");
+				($("#daysVenue").val() == "0") ? $("#resultsTitle").text("Results - Live Stream (Refreshes every 20 seconds)") : $("#resultsTitle").text("Results");
 				$("#resultsInfo").text("");		
 				var json = data.split("\n");
 				var venues = JSON.parse(json[0]);
@@ -539,8 +536,8 @@ $(window).load(function() {
 				var i = 0;
 
 				if ( !$.isEmptyObject(venues) ) {
-					if ( $("#dynamicText").find(".venue").length == 0 ) {
-						result += "<div class='row'><div class='col-md-8'>";
+					if ( $("#pageContent").find(".venue").length == 0 ) {
+						result += ($("#enableLocVenue").is(":checked")) ? "<div class='row'><div class='col-md-8'>" : "";
 						result += "<h2 style='margin:20px 0;'>Check-ins in this area</h2>";
 						result += "<a href='#' id='expandAllCheckins'>Expand all venue check-ins</a> | ";
 						result += "<a href='#' id='collapseAllCheckins'>Collapse all venue check-ins</a>";
@@ -548,7 +545,7 @@ $(window).load(function() {
 					$.each(venues, function(venueId,venueObj){	
 						result += "<div class='venueSection'>";
 						result += "<div class='venue venueDark'>";
-						result += (venueObj.photos.groups[1] && venueObj.photos.groups[1].items.length > 0) ? "<img class='venueImg' src='" + venueObj.photos.groups[1].items[0].url + "'/>" : "";
+						result += (venueObj.photos.groups[1] && venueObj.photos.groups[1].items.length > 0) ? "<div class='venueImg' style='background-image:url(\"" + venueObj.photos.groups[1].items[0].url + "\");'/>" : "";
 						result += "<div class='venueContent'>";
 						result += "<span class='venueName'>" + venueObj.name + ", </span>";
 						result += (venueObj.location.address) ? venueObj.location.address : "";
@@ -608,7 +605,7 @@ $(window).load(function() {
 					    result += "</div>";
 
 					});	
-					if ( $("#dynamicText").find(".venue").length == 0 ) {
+					if ( $("#pageContent").find(".venue").length == 0 && $("#enableLocVenue").is(":checked") ) {
 						result += "</div>";
 						result += "<div class='col-md-4'>";
 						result += "<ul class='listGroup nearbyVenues'>";
@@ -616,7 +613,7 @@ $(window).load(function() {
 						result += "</ul>";
 						result += "</div></div>";
 						
-						getNearbyVenues($("#lat2").val(), $("#lon2").val(), $("#radius2").val());
+						getNearbyVenues($("#latVenue").val(), $("#lonVenue").val(), $("#radiusVenue").val());
 					}
 					
 				    if (!$("#map-canvas").is(":visible")) $("#map-canvas").fadeIn(FADESPEED);
@@ -626,16 +623,16 @@ $(window).load(function() {
 					if (map.getZoom() > 15) map.setZoom(15);
 					
 				} else {
-					if ($("#days3").val() != "0") {
+					if ($("#daysVenue").val() != "0") {
 						result = "No users have visited this location. Try broadening the search by increasing the location radius or the number of days to search .";
 						if ($("#map-canvas").is(":visible")) $("#map-canvas").fadeOut(FADESPEED);	
 					}
 				}
 				
-				if ( $("#dynamicText").find(".venue").length > 0 ) {
+				if ( $("#pageContent").find(".venue").length > 0 ) {
 					$(".venueSection").prepend(result).fadeIn(FADESPEED);
 				} else {
-					$("#dynamicText").fadeOut(FADESPEED, function() {
+					$("#pageContent").fadeOut(FADESPEED, function() {
 				        $(this).html(result).fadeIn(FADESPEED);
 				    });
 
@@ -644,7 +641,7 @@ $(window).load(function() {
 
 			},
 			error: function(xhr,textStatus,errorThrown){
-				$("#dynamicText").html(errorThrown);
+				$("#pageContent").html(errorThrown);
 			}
 		});
 		
