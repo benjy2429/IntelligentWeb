@@ -12,10 +12,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
 import com.claygregory.api.google.places.*;
 import com.claygregory.api.google.places.Place;
-
 import exceptions.FileException;
 import fi.foyt.foursquare.api.*;
 import fi.foyt.foursquare.api.entities.*;
