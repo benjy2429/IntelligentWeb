@@ -1,6 +1,5 @@
 package projectFiles;
 
-import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.Proxy;
 import java.net.URL;
@@ -12,19 +11,27 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import com.claygregory.api.google.places.*;
 import com.claygregory.api.google.places.Place;
-import exceptions.FileException;
+import exceptions.QueryException;
 import fi.foyt.foursquare.api.*;
 import fi.foyt.foursquare.api.entities.*;
 import twitter4j.*;
 
-public class Queries {
 
-	
+/**
+ * This file provides methods for collecting and processing data through queries from the social web
+ * @author Luke Heavens & Ben Carr
+ */
+public class Queries {
+	//Social web objects
 	private Twitter twitter;
 	private FoursquareApi foursquare;
-
+	//Logger
+	private static final Logger LOGGER = Logger.getLogger(Queries.class.getName());
+	
 	
 	/**
 	 * Queries Constructor for a Twitter connection
@@ -50,35 +57,75 @@ public class Queries {
 	 * getTwitterUser finds a user by their Twitter screen name and returns their user object
 	 * @param username - The user's Twitter screen name
 	 * @return A user object for the given username
-	 * @throws TwitterException
+	 * @throws QueryException
 	 */
-	public User getTwitterUser(String username) throws TwitterException {
-		return twitter.showUser(username);
+	public User getTwitterUser(String username) throws QueryException {
+		try {
+			return twitter.showUser(username);
+		} catch (Exception ex) {
+			//Catch any errrors, log them, then thow a query exception
+			LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
+			throw new QueryException("Error getting twitter user from username");
+		}
 	}
 
+	
 	/**
 	 * getTwitterUsers finds multiple Twitter users by a list of Twitter screen names 
 	 * @param users - A List of Twitter screen names
 	 * @return A list of Twitter user objects for the given usernames
-	 * @throws TwitterException
+	 * @throws QueryException
 	 */
-	public List<User> getTwitterUsers(List<String> users) throws TwitterException {
-		String[] userNamesArray = new String[users.size()];
-		return twitter.lookupUsers(users.toArray(userNamesArray));
+	public List<User> getTwitterUsers(List<String> users) throws QueryException {
+		try {
+			String[] userNamesArray = new String[users.size()];
+			return twitter.lookupUsers(users.toArray(userNamesArray));
+		} catch (Exception ex) {
+			//Catch any errrors, log them, then thow a query exception
+			LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
+			throw new QueryException("Error getting twitter users from a list of usernames");
+		}
 	}
 	
-	public Status getTwitterFromId(long tweetId) throws TwitterException {
-		return twitter.showStatus(tweetId);
+	
+	//TODO refactor this funciton (twitter -> tweet):
+	/**
+	 * This function takes a tweetId and returns the tweet (status) object
+	 * @param tweetId - The id of a tweet
+	 * @return - The tweet (status) object
+	 * @throws QueryException
+	 */
+	public Status getTwitterFromId(long tweetId) throws QueryException {
+		try {
+			return twitter.showStatus(tweetId);
+		} catch (Exception ex) {
+			//Catch any errrors, log them, then thow a query exception
+			LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
+			throw new QueryException("Error getting status from tweet id");
+		}
 	}
 	
-	public List<Status> getUsersTweets(String screenName) throws TwitterException{
-		Query query = new Query("from:" + screenName);
-		query.setCount(100);
-		QueryResult result = twitter.search(query);
-		return result.getTweets();
+	
+	/**
+	 * This function gets the last 100 tweets made by a user  
+	 * @param screenName - User whose tweets are desired
+	 * @return The last 100 tweets made by the user
+	 * @throws QueryException
+	 */
+	public List<Status> getUsersTweets(String screenName) throws QueryException{
+		try {
+			Query query = new Query("from:" + screenName);
+			query.setCount(100);
+			QueryResult result = twitter.search(query);
+			return result.getTweets();
+		} catch (Exception ex) {
+			//Catch any errrors, log them, then thow a query exception
+			LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
+			throw new QueryException("Error getting user tweets from username");
+		}
 	}
 	
-	// 1. Tracking public discussions on specific topics
+	
 	/** 
 	 * getTrendingTweets finds any tweets which match the query (and geolocation if available)
 	 * @param queryString - Search term to be used to find tweets
@@ -86,21 +133,28 @@ public class Queries {
 	 * @param longitude - Geolocation longitude (can be NaN)
 	 * @param radius - Geolocation radius in kilometers (can be NaN)
 	 * @return List of Status objects (tweets)
+	 * @throws QueryException
 	 */
-	public List<Status> getTrendingTweets(String queryString, Double latitude, Double longitude, double radius) throws TwitterException {
-		Query query= new Query( queryString ); 
-		
-		// Add geolocation if available
-		if ( !Double.isNaN(latitude) && !Double.isNaN(longitude) && !Double.isNaN(radius) ) {
-			query.setGeoCode(new GeoLocation(latitude, longitude), radius, Query.KILOMETERS); //TODO Maybe add ability to choose between Km or Miles
+	public List<Status> getTrendingTweets(String queryString, Double latitude, Double longitude, double radius) throws QueryException {
+		try {
+			Query query= new Query(queryString); 
+			
+			// Add geolocation if available
+			if (!Double.isNaN(latitude) && !Double.isNaN(longitude) && !Double.isNaN(radius)) {
+				query.setGeoCode(new GeoLocation(latitude, longitude), radius, Query.KILOMETERS); //TODO Maybe add ability to choose between Km or Miles
+			}
+			
+			query.setCount(10);
+			//query.setResultType(Query.POPULAR); //TODO Check result ordering
+			
+			QueryResult result = twitter.search(query);
+	
+			return result.getTweets();
+		} catch (Exception ex) {
+			//Catch any errrors, log them, then thow a query exception
+			LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
+			throw new QueryException("Error getting tweets from query");
 		}
-		
-		query.setCount(10);
-		//query.setResultType(Query.POPULAR); //TODO Check result ordering
-		
-		QueryResult result = twitter.search(query);
-
-		return result.getTweets();
 	}
 	
 	
@@ -108,94 +162,109 @@ public class Queries {
 	 * getRetweeters finds 10 users who have retweeted a given tweet
 	 * @param tweetId - The unique id of the tweet
 	 * @return A list of user objects who have retweeted the tweet
-	 * @throws TwitterException
+	 * @throws QueryException
 	 */
-	public List<User> getRetweeters(long tweetId) throws TwitterException {
-		ResponseList<Status> retweetList = twitter.getRetweets( tweetId );
-		LinkedList<User> users = new LinkedList<User>();
-		for (Status retweet : retweetList ) {
-			users.add( retweet.getUser() );
-			if (users.size() == 10) break;
+	public List<User> getRetweeters(long tweetId) throws QueryException {
+		try {
+			ResponseList<Status> retweetList = twitter.getRetweets(tweetId);
+			LinkedList<User> users = new LinkedList<User>();
+			for (Status retweet : retweetList) {
+				users.add(retweet.getUser());
+				if (users.size() == 10) break;
+			}
+			return users;
+		} catch (Exception ex) {
+			//Catch any errrors, log them, then thow a query exception
+			LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
+			throw new QueryException("Error getting retweeters from tweet id");
 		}
-		return users;
 	}
 
 	
-	// 2a. What users are discussing
+	//TODO potential for improvement? rather long:
 	/**
 	 * This function can review tweets from a number of users and extract words that are used frequently. This should indicate discussion topics that are popular.
 	 * A stop list is used to filter out words that are not content specific
 	 * @param users - The number of users to review
 	 * @param termsDesired - The number of terms to extract
 	 * @param daySpan - From how many days ago should tweets be extracted
-	 * @return - A list of strings containing keywords and counts
-	 * @throws TwitterException - An error relating to the use of the twitter API
-	 * @throws FileException - An error that has occurred as a result of accessing files on the server
+	 * @return - A pair of lists of terms. The t item of the pair contains the desired ranked terms, the u contains the remaining unranked terms
+	 * @throws QueryException
 	 */
-	public Pair<LinkedList<Term>,LinkedList<Term>> getDiscussedTopics(LinkedList<User> users, int termsDesired, int daySpan) throws FileException, TwitterException {
+	public Pair<LinkedList<Term>,LinkedList<Term>> getDiscussedTopics(LinkedList<User> users, int termsDesired, int daySpan) throws QueryException{
 		//Calculate the date "daySpan" days ago
 		Calendar cal = Calendar.getInstance();
-		cal.add( Calendar.DAY_OF_YEAR, -daySpan);
+		cal.add(Calendar.DAY_OF_YEAR, -daySpan);
 		Date sinceDate = cal.getTime();
 		String formattedDate = new SimpleDateFormat("yyyy-MM-dd").format(sinceDate);
+		
 		//Make an inverted index of terms. Each term maps to a pair containing the total count and a user count map. The user count map, maps a user name to their term count
 		Map<String, Pair<Integer,Map<String,Integer>>> termUserMap = new HashMap<String, Pair<Integer,Map<String,Integer>>>();
-		//For each of the passed users
-		for(User user : users){//TODO strip out naughty things in string
-			String userName = user.getScreenName();
-			//Get all their tweets in the last "daySpan" days
-			Query query = new Query("from:" + userName).since(formattedDate);
-			query.setCount(100);
-			QueryResult result = twitter.search(query);
-			while(query!=null){
-				List<Status> statuses = result.getTweets();
-				//For each tweet
-				for(Status status : statuses){
-					//Remove undesired characters and separate tweet into separate words
-					String[] words = status.getText().replaceAll("[^\\w #@']", "").toLowerCase().split("\\s+");
-					//For each of the words
-					for(String word : words){
-						if(word.isEmpty()){break;}
-						//Check the word isn't in the stop list, doesn't start with an '@' character and isn't a link that starts with "http"
-						StopList stopList = new StopList();
-						if(!stopList.wordInStopList(word) && word.charAt(0) != '@' && !word.contains("http")){ //TODO charAt(0) out of range error
-							//Now we know that the word is one we wish to record, we add it to the data structure
-							Pair<Integer,Map<String, Integer>> pair = termUserMap.get(word);
-							Map<String, Integer> userCountMap;
-							int totalCount = 1; 
-							//Has the word been seen by anyone before?
-							if(pair == null){
-								//Word not seen before map so create a new user map
-								userCountMap = new HashMap<String,Integer>();
-								userCountMap.put(userName, 1);
-							} else {
-								//Word has been seen before so get the current user map
-								userCountMap = pair.u;
-								Integer termCount = userCountMap.get(userName);
-								//Have we seen this word by this user before?
-								if(termCount == null){ 
-									//User has not used word before so add them to the user map for this word and update the total count
+		
+		try {
+			//For each of the passed users
+			for(User user : users){//TODO strip out naughty things in string
+				String userName = user.getScreenName();
+				//Get all their tweets in the last "daySpan" days
+				Query query = new Query("from:" + userName).since(formattedDate);
+				query.setCount(100);
+				QueryResult result = twitter.search(query);
+				while(query!=null){
+					List<Status> statuses = result.getTweets();
+					//For each tweet
+					for(Status status : statuses){
+						//Remove undesired characters and separate tweet into separate words
+						String[] words = status.getText().replaceAll("[^\\w #@']", "").toLowerCase().split("\\s+");
+						//For each of the words
+						for(String word : words){
+							if(word.isEmpty()){break;}
+							//Check the word isn't in the stop list, doesn't start with an '@' character and isn't a link that starts with "http"
+							StopList stopList = new StopList();
+							if(!stopList.wordInStopList(word) && word.charAt(0) != '@' && !word.contains("http")){ //TODO charAt(0) out of range error
+								//Now we know that the word is one we wish to record, we add it to the data structure
+								Pair<Integer,Map<String, Integer>> pair = termUserMap.get(word);
+								Map<String, Integer> userCountMap;
+								int totalCount = 1; 
+								//Has the word been seen by anyone before?
+								if(pair == null){
+									//Word not seen before map so create a new user map
+									userCountMap = new HashMap<String,Integer>();
 									userCountMap.put(userName, 1);
-									totalCount += termUserMap.get(word).t;
 								} else {
-									//User has used word before so increment the user count and the total count
-									userCountMap.put(userName, termCount+1);
-									totalCount += termUserMap.get(word).t;
+									//Word has been seen before so get the current user map
+									userCountMap = pair.u;
+									Integer termCount = userCountMap.get(userName);
+									//Have we seen this word by this user before?
+									if(termCount == null){ 
+										//User has not used word before so add them to the user map for this word and update the total count
+										userCountMap.put(userName, 1);
+										totalCount += termUserMap.get(word).t;
+									} else {
+										//User has used word before so increment the user count and the total count
+										userCountMap.put(userName, termCount+1);
+										totalCount += termUserMap.get(word).t;
+									}
 								}
+								//Add the new/updated counts to the map overwriting any existing information about the term
+								pair = new Pair<Integer, Map<String, Integer>>(totalCount, userCountMap);
+								termUserMap.put(word, pair);
 							}
-							//Add the new/updated counts to the map overwriting any existing information about the term
-							pair = new Pair<Integer, Map<String, Integer>>(totalCount, userCountMap);
-							termUserMap.put(word, pair);
 						}
 					}
+					//Get next set of tweets if possible
+					query=result.nextQuery();
+					if(query!=null) {
+						result=twitter.search(query);
+					}
 				}
-				//Get next set of tweets if possible
-				query=result.nextQuery();
-				if(query!=null) {
-					result=twitter.search(query);
-				}
+				
 			}
-		}		
+		} catch (Exception ex) {
+			//Catch any errrors, log them, then thow a query exception
+			LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
+			throw new QueryException("Error generating frequent term counts");
+		}
+		
 		//All the words have been appropriately added to the data structure so now we find the most frequent terms
 		LinkedList<Term> frequentTerms = new LinkedList<Term>();
 		//For as many words as needed, the most used word is obtained, utilised then removed so the next most frequent can be obtained
@@ -240,65 +309,80 @@ public class Queries {
 	}
 	
 	
-	// 2b. What venues a specific user has visited in the last X days
 	/**
 	 * getUserVenues finds any venues that a user has visited in the past x days
 	 * @param username - Twitter username to search for 
 	 * @param days - Days in the past to search for checkins (0 uses live streaming)
 	 * @return List of Checkins also containing venue information
+	 * @throws QueryException
 	 */
-	public List<CompleteVenue> getUserVenues(String username, int days) throws Exception, TwitterException, FoursquareApiException { //TODO Use twitter streaming api if days==0
-		List<CompleteVenue> resultList = new LinkedList<CompleteVenue>();
-		
-		// Calculate date minus days parameter
-		Calendar cal = Calendar.getInstance();
-		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-		if (days > 0) {
-			cal.add( Calendar.DAY_OF_YEAR, -days);
-		}
-		
-		Query query = new Query("from:" + username + " foursquare").since( dateFormat.format( cal.getTime() ) );
-		QueryResult result = twitter.search(query);
-		
-		while(query!=null){
-			// Cycle through matching tweets
-			for (Status tweet : result.getTweets()) {
-				CompleteVenue venue = getVenueFromTweet(tweet);
-				if(venue!=null){
-					resultList.add(venue);
+	public List<CompleteVenue> getUserVenues(String username, int days) throws QueryException { //TODO Use twitter streaming api if days==0
+		try {
+			List<CompleteVenue> resultList = new LinkedList<CompleteVenue>();
+			
+			// Calculate date minus days parameter
+			Calendar cal = Calendar.getInstance();
+			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+			if (days > 0) {
+				cal.add(Calendar.DAY_OF_YEAR, -days);
+			}
+			
+			Query query = new Query("from:" + username + " foursquare").since(dateFormat.format(cal.getTime()));
+			QueryResult result = twitter.search(query);
+			
+			while(query!=null){
+				// Cycle through matching tweets
+				for (Status tweet : result.getTweets()) {
+					CompleteVenue venue = getVenueFromTweet(tweet);
+					if(venue!=null){
+						resultList.add(venue);
+					}
+				}
+				//Get next set of tweets if possible
+				query=result.nextQuery();
+				if(query!=null) {
+					result=twitter.search(query);
 				}
 			}
-			//Get next set of tweets if possible
-			query=result.nextQuery();
-			if(query!=null) {
-				result=twitter.search(query);
-			}
+			return resultList;
+		} catch (Exception ex) {
+			//Catch any errrors, log them, then thow a query exception
+			LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
+			throw new QueryException("Error getting venues from username");
 		}
-		return resultList;
 	}
 	
-	public CompleteVenue getVenueFromTweet(Status tweet){
-		// Extract foursquare links and retrieve foursquare checkin information
-		for (URLEntity url : tweet.getURLEntities()) {
-			try {
-				String[] fsParams = expandFoursquareUrl( url.getExpandedURL() );
-				Result<Checkin> fsResult = foursquare.checkin( fsParams[0], fsParams[1] );
+	
+	/**
+	 * This function attempts to get a venue based on a tweet that contains foursquare information
+	 * @param tweet - A tweet that is suspected of containing foursquare information
+	 * @return A venue object if a venue is found, null otherwise
+	 * @throws QueryException
+	 */
+	public CompleteVenue getVenueFromTweet(Status tweet) throws QueryException {
+		try {
+			// Extract foursquare links and retrieve foursquare checkin information
+			for (URLEntity url : tweet.getURLEntities()) {
+				String[] fsParams = expandFoursquareUrl(url.getExpandedURL());
+				Result<Checkin> fsResult = foursquare.checkin(fsParams[0], fsParams[1]);
 				
 				// Get venue data from foursquare checkin
 				if (fsResult.getMeta().getCode() == 200) {
-					//resultList.add( fsResult.getResult() );
+					//resultList.add(fsResult.getResult());
 					
-					Result<CompleteVenue> venues = foursquare.venue( fsResult.getResult().getVenue().getId() );
+					Result<CompleteVenue> venues = foursquare.venue(fsResult.getResult().getVenue().getId());
 					
 					if (venues.getMeta().getCode() == 200) {
 						return venues.getResult();
 					}
 				}
-			} catch (Exception e) {
-				System.out.println(e.getMessage());
 			}
+			return null;
+		} catch (Exception ex) {
+			//Catch any errrors, log them, then thow a query exception
+			LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
+			throw new QueryException("Error getting venue from tweet");
 		}
-		return null;
 	}
 	
 	
@@ -306,35 +390,37 @@ public class Queries {
 	 * expandFoursquareUrl takes a shortened Foursquare URL (4sq.com) and extracts user_id and authorisation code
 	 * @param shortUrl - String of shortened Foursquare URL
 	 * @return String array of user_id and authorisation code 
-	 * @throws IOException, ArrayIndexOutOfBoundsException 
-	 * @throws Exception
+	 * @throws QueryException
 	 */
-	private String[] expandFoursquareUrl(String shortUrl) throws IOException, ArrayIndexOutOfBoundsException {
-        URL url = new URL(shortUrl);
-        String[] expandedUrl = {"",""};
-        
-        if (url.getHost().equals("4sq.com")) {
-        
-	        HttpURLConnection connection = (HttpURLConnection) url.openConnection(Proxy.NO_PROXY);
-	        connection.setInstanceFollowRedirects(false);
-	        connection.connect();
-	        URL longUrl = new URL( connection.getHeaderField("Location") );
-	        connection.getInputStream().close();
+	private String[] expandFoursquareUrl(String shortUrl) throws QueryException {
+		try {
+	        URL url = new URL(shortUrl);
+	        String[] expandedUrl = {"",""};
 	        
-	        expandedUrl[0] = longUrl.getPath().replace("?s=", "/").split("/")[3];
-    		expandedUrl[1] = longUrl.getQuery().substring(2,29);
-        
-        }
-
-		return expandedUrl;
+	        if (url.getHost().equals("4sq.com")) {
+	        
+		        HttpURLConnection connection = (HttpURLConnection) url.openConnection(Proxy.NO_PROXY);
+		        connection.setInstanceFollowRedirects(false);
+		        connection.connect();
+		        URL longUrl = new URL(connection.getHeaderField("Location"));
+		        connection.getInputStream().close();
+		        
+		        expandedUrl[0] = longUrl.getPath().replace("?s=", "/").split("/")[3];
+	    		expandedUrl[1] = longUrl.getQuery().substring(2,29);
+	        
+	        }
+	
+			return expandedUrl;
+		} catch (Exception ex) {
+			//Catch any errrors, log them, then thow a query exception
+			LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
+			throw new QueryException("Error expanding foursquare url");
+		}
 	}
 	
 	
-	
-	
-	// 3. Who is visiting venues in a specific geographic area (or visiting a named venue) or have done so in the last X days
 	/**
-	 * getUsersAtVenue finds users who have vistited a venue in the past X days
+	 * getUsersAtVenue finds users who have vistited a venues in a specific geographic area and/or with a certain name in the last X days
 	 * @param venueName - Name of a venue as a String
 	 * @param latitude - Geolocation latitude
 	 * @param longitude - Geolocation longitude
@@ -342,38 +428,48 @@ public class Queries {
 	 * @param days - Days in the past to search for (0 = Live Stream)
 	 * @param venues - Hashmap of venueIds and CompleteVenue objects
 	 * @param venueTweets - Hashmap of tweetIds and Status objects
-	 * @throws TwitterException 
+	 * @throws QueryException
 	 */
-	public void getUsersAtVenue(String venueName, double latitude, double longitude, double radius, int days, Map<String, CompleteVenue> venues, Map<String, List<Status>> venueTweets) throws TwitterException {
-		Query query= new Query(); 
-		String queryText = "";
-		if ( !venueName.isEmpty() ) {
-			queryText = "foursquare " + venueName + " ";
-		} else {
-			queryText = ("foursquare ");
-		}
-		// Add geolocation if available
-		if ( !Double.isNaN(latitude) && !Double.isNaN(longitude) && !Double.isNaN(radius) ) {
-			query.setGeoCode(new GeoLocation(latitude, longitude), radius, Query.KILOMETERS); //TODO Maybe add ability to choose between Km or Miles
-		} 
-		query.setQuery(queryText);
-
-		// Calculate date minus days parameter
-		Calendar cal = Calendar.getInstance();
-		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-		cal.add( Calendar.DAY_OF_YEAR, -days);
-		query.since( dateFormat.format( cal.getTime() ) );
-		
-		//query.setCount(10);
-		
-		QueryResult result = twitter.search(query);
-
-		getUserVenuesFromTweets(result.getTweets(), venues, venueTweets);		
+	public void getUsersAtVenue(String venueName, double latitude, double longitude, double radius, int days, Map<String, CompleteVenue> venues, Map<String, List<Status>> venueTweets) throws QueryException {
+		try {
+			Query query= new Query(); 
+			String queryText = "";
+			if (!venueName.isEmpty()) {
+				queryText = "foursquare " + venueName + " ";
+			} else {
+				queryText = ("foursquare ");
+			}
+			// Add geolocation if available
+			if (!Double.isNaN(latitude) && !Double.isNaN(longitude) && !Double.isNaN(radius)) {
+				query.setGeoCode(new GeoLocation(latitude, longitude), radius, Query.KILOMETERS); //TODO Maybe add ability to choose between Km or Miles
+			} 
+			query.setQuery(queryText);
+	
+			// Calculate date minus days parameter
+			Calendar cal = Calendar.getInstance();
+			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+			cal.add(Calendar.DAY_OF_YEAR, -days);
+			query.since(dateFormat.format(cal.getTime()));
 			
+			QueryResult result = twitter.search(query);
+	
+			getUserVenuesFromTweets(result.getTweets(), venues, venueTweets);	
+		} catch (Exception ex) {
+			//Catch any errrors, log them, then thow a query exception
+			LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
+			throw new QueryException("Error users at venue");
+		}
 	}
 	
 	
-	public void getUserVenuesFromTweets(List<Status> tweetsList, Map<String, CompleteVenue> venues, Map<String, List<Status>> venueTweets) {
+	/**
+	 * This method gets venues that users have visited from a series of tweets
+	 * @param tweetsList
+	 * @param venues
+	 * @param venueTweets
+	 * @throws QueryException
+	 */
+	public void getUserVenuesFromTweets(List<Status> tweetsList, Map<String, CompleteVenue> venues, Map<String, List<Status>> venueTweets) throws QueryException {
 		// Cycle through matching tweets
 		for (Status tweet : tweetsList) {
 			CompleteVenue venue = getVenueFromTweet(tweet);
@@ -391,26 +487,37 @@ public class Queries {
 	}
 	
 	
-	public List<Place> getNearbyPlaces(double lat, double lon, double radius) {
+	/**
+	 * Get the 10 most popular places in the geographic region passed using the Google Places api
+	 * @param lat - Latitude
+	 * @param lon - Longitude
+	 * @param radius
+	 * @return - A list of nearby places
+	 * @throws QueryException
+	 */
+	public List<Place> getNearbyPlaces(double lat, double lon, double radius) throws QueryException{
 		List<Place> placeList = new LinkedList<Place>();
 		GooglePlaces placesApi = new GooglePlaces("AIzaSyAQSRWiDPQTAeFTilEGZuyouNaF0biz7ks");
 		PlacesResult result = placesApi.search((float)lat, (float)lon, (int)Math.round(radius*1000), false);
-		
 		if (result.isOkay()) {
 			for (Place place : result) {
-				//System.out.println(place.getName() + ", " + place.getVicinity() + ", " + place.getGeometry().getLocation());
 				placeList.add(place);
 				if (placeList.size() == 10) break;
 			}
 		} else {
-			System.out.println("Error fetching nearby venues!");
+			throw new QueryException("Error fetching nearby venues");
 		}
-		
 		return placeList;
 	}
 	
 	
-	//Define a tuple for use in storing counts about keywords
+	/**
+	 * Define a tuple for storing two objects
+	 * @author Luke Heavens & Ben Carr
+	 *
+	 * @param <T> Left object
+	 * @param <U> Right object
+	 */
 	class Pair<T, U> {         
 		public final T t;
 		public final U u;
@@ -421,6 +528,12 @@ public class Queries {
 		}
 	}
 	
+	//TODO make term and pair classes in their own rights since they are used outside this class now
+	
+	/**
+	 * Define a Term
+	 * @author Luke Heavens & Ben Carr
+	 */
 	class Term{
 		public int rank;
 		public String term;

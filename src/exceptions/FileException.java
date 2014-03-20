@@ -1,4 +1,5 @@
 package exceptions;
+
 /**
  * This exception is used if there is a problem trying to access files 
  * @author Luke Heavens & Ben Carr
