@@ -14,7 +14,6 @@ import twitter4j.*;
  */
 
 public class StreamingQueries {
-
 	private final int TIMEOUT_SECONDS = 60;
 	private TwitterStream twitterStream;
 	private List<Status> tweets = new LinkedList<Status>();
