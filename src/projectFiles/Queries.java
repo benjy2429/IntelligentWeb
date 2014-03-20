@@ -143,7 +143,7 @@ public class Queries {
 				query.setGeoCode(new GeoLocation(latitude, longitude), radius, Query.KILOMETERS); //TODO Maybe add ability to choose between Km or Miles
 			}
 			
-			query.setCount(10);
+			query.setCount(10); //TODO load more tweets?
 			//query.setResultType(Query.POPULAR); //TODO Check result ordering
 			
 			QueryResult result = twitter.search(query);
@@ -198,14 +198,13 @@ public class Queries {
 		String formattedDate = new SimpleDateFormat("yyyy-MM-dd").format(sinceDate);
 		
 		//Make an inverted index of terms. Each term maps to a pair containing the total count and a user count map. The user count map, maps a user name to their term count
-		Map<String, Pair<Integer,Map<String,Integer>>> termUserMap = new HashMap<String, Pair<Integer,Map<String,Integer>>>();
+		Map<String, Pair<Integer,Map<Long,Integer>>> termUserMap = new HashMap<String, Pair<Integer,Map<Long,Integer>>>();
 		
 		try {
 			//For each of the passed users
-			for(User user : users){//TODO strip out naughty things in string
-				String userName = user.getScreenName();
+			for(User user : users){
 				//Get all their tweets in the last "daySpan" days
-				Query query = new Query("from:" + userName).since(formattedDate);
+				Query query = new Query("from:" + user.getScreenName()).since(formattedDate);
 				query.setCount(100);
 				QueryResult result = twitter.search(query);
 				while(query!=null){
@@ -221,31 +220,31 @@ public class Queries {
 							StopList stopList = new StopList();
 							if(!stopList.wordInStopList(word) && word.charAt(0) != '@' && !word.contains("http")){ //TODO charAt(0) out of range error
 								//Now we know that the word is one we wish to record, we add it to the data structure
-								Pair<Integer,Map<String, Integer>> pair = termUserMap.get(word);
-								Map<String, Integer> userCountMap;
+								Pair<Integer,Map<Long, Integer>> pair = termUserMap.get(word);
+								Map<Long, Integer> userCountMap;
 								int totalCount = 1; 
 								//Has the word been seen by anyone before?
 								if(pair == null){
 									//Word not seen before map so create a new user map
-									userCountMap = new HashMap<String,Integer>();
-									userCountMap.put(userName, 1);
+									userCountMap = new HashMap<Long,Integer>();
+									userCountMap.put(user.getId(), 1);
 								} else {
 									//Word has been seen before so get the current user map
 									userCountMap = pair.u;
-									Integer termCount = userCountMap.get(userName);
+									Integer termCount = userCountMap.get(user.getId());
 									//Have we seen this word by this user before?
 									if(termCount == null){ 
 										//User has not used word before so add them to the user map for this word and update the total count
-										userCountMap.put(userName, 1);
+										userCountMap.put(user.getId(), 1);
 										totalCount += termUserMap.get(word).t;
 									} else {
 										//User has used word before so increment the user count and the total count
-										userCountMap.put(userName, termCount+1);
+										userCountMap.put(user.getId(), termCount+1);
 										totalCount += termUserMap.get(word).t;
 									}
 								}
 								//Add the new/updated counts to the map overwriting any existing information about the term
-								pair = new Pair<Integer, Map<String, Integer>>(totalCount, userCountMap);
+								pair = new Pair<Integer, Map<Long, Integer>>(totalCount, userCountMap);
 								termUserMap.put(word, pair);
 							}
 						}
@@ -270,7 +269,7 @@ public class Queries {
 		for(int i=0; i<termsDesired;i++){
 			String mostCommonWord = "";
 			int highestCount = Integer.MIN_VALUE;
-			for (Entry<String, Pair<Integer,Map<String, Integer>>> termMapEntry : termUserMap.entrySet()) {
+			for (Entry<String, Pair<Integer,Map<Long, Integer>>> termMapEntry : termUserMap.entrySet()) {
 				if(termMapEntry.getValue().t>highestCount){
 					mostCommonWord = termMapEntry.getKey();
 					highestCount = termMapEntry.getValue().t;
@@ -283,8 +282,8 @@ public class Queries {
 				newTerm.rank = i+1;
 				newTerm.term = mostCommonWord;
 				newTerm.totalCount = highestCount;
-				for (Entry<String, Integer> userCountEntry : termUserMap.get(mostCommonWord).u.entrySet()) {
-					newTerm.userCounts.add(new Pair<String,Integer>(userCountEntry.getKey(), userCountEntry.getValue()));
+				for (Entry<Long, Integer> userCountEntry : termUserMap.get(mostCommonWord).u.entrySet()) {
+					newTerm.userCounts.add(new Pair<Long,Integer>(userCountEntry.getKey(), userCountEntry.getValue()));
 				}
 				frequentTerms.add(newTerm);
 			}
@@ -292,14 +291,14 @@ public class Queries {
 		}
 		LinkedList<Term> unrankedTerms = new LinkedList<Term>();
 		//Add the remaining unranked
-		for (Entry<String, Pair<Integer,Map<String, Integer>>> termMapEntry : termUserMap.entrySet()) {
+		for (Entry<String, Pair<Integer,Map<Long, Integer>>> termMapEntry : termUserMap.entrySet()) {
 			if(termMapEntry.getValue().t >= 5){
 				Term newTerm = new Term();
 				newTerm.rank = 0;
 				newTerm.term = termMapEntry.getKey();
 				newTerm.totalCount = termMapEntry.getValue().t;
-				for (Entry<String, Integer> userCountEntry : termMapEntry.getValue().u.entrySet()) {
-					newTerm.userCounts.add(new Pair<String,Integer>(userCountEntry.getKey(), userCountEntry.getValue()));
+				for (Entry<Long, Integer> userCountEntry : termMapEntry.getValue().u.entrySet()) {
+					newTerm.userCounts.add(new Pair<Long,Integer>(userCountEntry.getKey(), userCountEntry.getValue()));
 				}
 				unrankedTerms.add(newTerm);
 			}
@@ -537,7 +536,7 @@ public class Queries {
 		public int rank;
 		public String term;
 		public int totalCount;
-		public LinkedList<Pair<String,Integer>> userCounts = new LinkedList<Pair<String,Integer>>();
+		public LinkedList<Pair<Long,Integer>> userCounts = new LinkedList<Pair<Long,Integer>>();
 	}
 
 

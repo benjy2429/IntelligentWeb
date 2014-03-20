@@ -111,17 +111,16 @@ public class WebServlet extends HttpServlet {
 		PrintWriter out = response.getWriter();		
 		try {
 			String requestId = request.getParameter("requestId");    	
-			Gson gson = new Gson();
 			String json;
 			switch (requestId){
-				case "tweetFormRequest" : json = tweetFormRequest(gson, request); break;
-				case "retweetersForm" : json = retweetersForm(gson, request); break;
-				case "keywordFormRequest" : json = keywordFormRequest(gson, request); break;
-				case "checkinFormRequest" : json = checkinFormRequest(gson, request); break;
-				case "venuesFormRequest" : json = venuesFormRequest(gson, request); break;
-				case "fetchUserForProfile" : json = fetchUserForProfile(gson, request); break;
-				case "fetchTweetsForProfile" : json = fetchTweetsForProfile(gson, request); break;
-				case "getNearbyVenues" : json = getNearbyVenues(gson, request); break;  
+				case "tweetFormRequest" : json = tweetFormRequest(request); break;
+				case "retweetersForm" : json = retweetersForm(request); break;
+				case "keywordFormRequest" : json = keywordFormRequest(request); break;
+				case "checkinFormRequest" : json = checkinFormRequest(request); break;
+				case "venuesFormRequest" : json = venuesFormRequest(request); break;
+				case "fetchUserForProfile" : json = fetchUserForProfile(request); break;
+				case "fetchTweetsForProfile" : json = fetchTweetsForProfile(request); break;
+				case "getNearbyVenues" : json = getNearbyVenues(request); break;  
 				default : json = "Invalid POST call"; break;
 			}
 			out.print(json);
@@ -132,31 +131,39 @@ public class WebServlet extends HttpServlet {
 		out.close();
 	}
 
-	private String tweetFormRequest(Gson gson, HttpServletRequest request) throws FatalInternalException {
+	
+	/**
+	 * Performs a twitter query using request data and returns tweets and their Ids in the form of a JSON string 
+	 * Saves examined data in the system database in a background thread
+	 * @param request - The HttpServletRequest object
+	 * @return - JSON string
+	 * @throws FatalInternalException
+	 */
+	private String tweetFormRequest(HttpServletRequest request) throws FatalInternalException {
 		try {
-			DatabaseConnector dbConn = new DatabaseConnector();
-			dbConn.establishConnection(); 
+			//Close any currently open twitter streams //TODO why does this function do this, but not the next one?
 			if (twitterStream != null) {
 				twitterStream.getTwitterStream().shutdown();
 				twitterStream = null;
 			}
-
+			
+			//Create a new query object 
 			Queries query = new Queries(initTwitter());
 
+			//Validate user input //TODO ensure sufficient validation
+			//Collect location data if entered //TODO check for if
 			Double lat, lon, radius;
+			lat = lon = radius = Double.NaN;
 			try {
 				lat = Double.parseDouble(request.getParameter("latTweet"));
 				lon = Double.parseDouble(request.getParameter("lonTweet"));
 				radius = Double.parseDouble(request.getParameter("radiusTweet"));
 			} catch (NumberFormatException nfe) {
-				System.out.println("WARNING: Invalid location parameters, performing query without geolocation data");
-				lat = Double.NaN;
-				lon = Double.NaN;
-				radius = Double.NaN;
+				LOGGER.log(Level.WARNING, "Invalid location parameters, performing query without geolocation data");
 			}
 			
-			List<Status> result;
-			
+			//Perform relevant query
+			final List<Status> result;
 			try {
 				result = query.getTrendingTweets(request.getParameter("queryTweet"), lat, lon, radius);
 			} catch (QueryException ex) {
@@ -164,162 +171,183 @@ public class WebServlet extends HttpServlet {
 				throw new FatalInternalException("An internal error has occured whilst dealing with a query");
 			}
 			
-			//Have to parse ids as string and send them separately as twitter4j does not support the id_str parameter and javascript cannot handle type long
+			//Have to extract and parse tweetIds as string in order to send separately as twitter4j does not support the id_str parameter and javascript cannot handle type long
 			ArrayList<String> tweetIds = new ArrayList<String>();
-
-
 			for(Status status : result) {
-				dbConn.addUsers(status.getUser());
 				tweetIds.add(String.valueOf(status.getId()));
 			}
-
-			dbConn.closeConnection();
 			
+			//Create a new thread to store data in the database in the background without delaying response from webpage
+			Thread thread = new Thread(new Runnable() {
+				@Override
+				public void run() {
+					LOGGER.log(Level.FINE, "Starting background thread for database storage");
+					DatabaseConnector dbConn = new DatabaseConnector();
+					dbConn.establishConnection(); 
+					for(Status status : result) {
+						dbConn.addUsers(status.getUser());
+					}
+					dbConn.closeConnection();
+					LOGGER.log(Level.FINE, "Ending background thread for database storage");
+				}
+			});
+			thread.start();
+			
+			//Generate a JSON string using gson and the data collected
+			Gson gson = new Gson();
 			String json = gson.toJson(tweetIds);
 			json += "\n";
 			json += gson.toJson(result);
-
 			return json;
+			
 		} catch (FatalInternalException ex) {
 			throw ex;
 		} catch (Exception ex) {
+			//If any other errors occur, log it and throw a fatal internal exception
 			LOGGER.log(Level.SEVERE, ex.getMessage());
 			throw new FatalInternalException("An internal error has occured");
 		}
 	}
 
 
-	private String retweetersForm(Gson gson, HttpServletRequest request) throws FatalInternalException {
+	/**
+	 * Gets a tweet from a tweetId and then finds a list of users who retweeted it in the form of a JSON string
+	 * Saves examined data in the system database in a background thread
+	 * @param request - The HttpServletRequest object
+	 * @return - JSON string
+	 * @throws FatalInternalException
+	 */
+	private String retweetersForm(HttpServletRequest request) throws FatalInternalException {
 		try {
-			DatabaseConnector dbConn = new DatabaseConnector();
-			dbConn.establishConnection(); 
-			
+			//Create a new query object 
 			Queries query = new Queries(initTwitter());
+			
+			//Obtain the tweet id from the request parameters
 			long tweetId = Long.parseLong(request.getParameter("tweetId"));
 			
-			Status tweet;
-
+			//Get the tweeter and retweeters from tweet id 
+			final User tweeter;
+			final List<User> retweeters;
 			try {
-				tweet = query.getTweetFromId(tweetId);
-			} catch (QueryException ex) {
-				LOGGER.log(Level.SEVERE, ex.getMessage());
-				throw new FatalInternalException("An internal error has occured whilst dealing with a query");
-			}
-
-			List<User> retweeters;
-			try {
+				tweeter = query.getTweetFromId(tweetId).getUser();
 				retweeters = query.getRetweeters(tweetId);
 			} catch (QueryException ex) {
 				LOGGER.log(Level.SEVERE, ex.getMessage());
 				throw new FatalInternalException("An internal error has occured whilst dealing with a query");
 			}
 			
-			dbConn.addUsers(tweet.getUser());
-			long tweeterId = tweet.getUser().getId();
-			for(User user : retweeters){
-				dbConn.addUsers(user);
-				dbConn.addContact(tweeterId,user.getId());
-			}
-
-			dbConn.closeConnection();
-			
+			//Create a new thread to store data in the database in the background without delaying response from web page
+			Thread thread = new Thread(new Runnable() {
+				@Override
+				public void run() {
+					LOGGER.log(Level.FINE, "Starting background thread for database storage");
+					DatabaseConnector dbConn = new DatabaseConnector();
+					dbConn.establishConnection(); 			
+					dbConn.addUsers(tweeter);
+					for(User user : retweeters){
+						dbConn.addUsers(user);
+						dbConn.addContact(tweeter.getId(), user.getId());
+					}
+					dbConn.closeConnection();
+					LOGGER.log(Level.FINE, "Ending background thread for database storage");
+				}
+			});
+			thread.start();
+		
+			//Generate a JSON string using gson and the data collected
+			Gson gson = new Gson();
 			return gson.toJson(retweeters);
 			
 		} catch (FatalInternalException ex) {
 			throw ex;
 		} catch (Exception ex) {
+			//If any other errors occur, log it and throw a fatal internal exception
 			LOGGER.log(Level.SEVERE, ex.getMessage());
 			throw new FatalInternalException("An internal error has occured");
 		}
 	} 
 
-	private String keywordFormRequest(Gson gson, HttpServletRequest request) throws FatalInternalException {
+	
+	/**
+	 * Gets frequently used terms amongst several users in the form of a JSON string
+	 * Saves examined data in the system database in a background thread
+	 * @param request - The HttpServletRequest object
+	 * @return - JSON string
+	 * @throws FatalInternalException
+	 */
+	private String keywordFormRequest(HttpServletRequest request) throws FatalInternalException {
 		try {
+			//Close any currently open twitter streams
 			if (twitterStream != null) {
 				twitterStream.getTwitterStream().shutdown();
 				twitterStream = null;
 			}
-
-			Queries query = new Queries(initTwitter()); 
-			LinkedList<String> usersNames = new LinkedList<String>(Arrays.asList(request.getParameter("usernamesKeyword").split(" ")));
 			
-			final LinkedList<User> users = new LinkedList<User>();
-			try {
-				users.addAll(query.getTwitterUsers(usersNames));
-			} catch (QueryException ex) {
-				LOGGER.log(Level.SEVERE, ex.getMessage());
-				throw new FatalInternalException("An internal error has occured whilst dealing with a query");
-			}
-
+			//Create a new query object 
+			Queries query = new Queries(initTwitter()); 
+			
+			//TODO validation
+			//Create a list of individual usernames the number of keywords to obtain and the maximum number of days in the past to search over
+			LinkedList<String> usersNames = new LinkedList<String>(Arrays.asList(request.getParameter("usernamesKeyword").split(" ")));
 			int keywords = Integer.parseInt(request.getParameter("keywordsKeyword"));
 			int days = Integer.parseInt(request.getParameter("daysKeyword"));
-
-
+			
+			//Obtain users from the usernames given, then find terms used frequently between them
+			final LinkedList<User> users = new LinkedList<User>();
 			Pair<LinkedList<Term>, LinkedList<Term>> terms;
 			try {
+				users.addAll(query.getTwitterUsers(usersNames));
 				terms = query.getDiscussedTopics(users, keywords, days);
 			} catch (QueryException ex) {
 				LOGGER.log(Level.SEVERE, ex.getMessage());
 				throw new FatalInternalException("An internal error has occured whilst dealing with a query");
 			}
-			//TODO only recording top ten
-			
+	
+			//Get the list of ranked terms to return through JSON string
 			List<Term> rankedTerms = new LinkedList<Term>();
 			rankedTerms.addAll(terms.t);
 
+			//Get the list of all terms used (ranked and unranked) for storage in the database
 			final List<Term> allTerms = new LinkedList<Term>();
 			allTerms.addAll(terms.t);
 			allTerms.addAll(terms.u);
 
+			//Create a new thread to store data in the database in the background without delaying response from web page
 			Thread thread = new Thread(new Runnable() {
 				@Override
 				public void run() {
-					System.out.println("Starting Thread");
+					LOGGER.log(Level.FINE, "Starting background thread for term database storage");
 					DatabaseConnector dbConn = new DatabaseConnector();
 					dbConn.establishConnection(); 
+					//Add users to database
 					for(User user : users){
 						dbConn.addUsers(user);
 					}
 					for(Term term : allTerms){
+						//Add terms to database and get id
 						int wordId = dbConn.addWord(term.term);
-						if (wordId == -1){
-							wordId = dbConn.getWordId(term.term);
-						}
+						
+						//If already exists, then look it up
+						if (wordId == -1) {wordId = dbConn.getWordId(term.term);}
+						
+						//If we still don't have an id then something has gone wrong
 						if (wordId != -1){
-							for(Pair<String, Integer> userCount : term.userCounts){
-								long userId = -1;
-								for(User user : users){
-									if(user.getScreenName().equals(userCount.t)){
-										userId = user.getId();
-									}
-								}
-								if(userId != -1){
-									dbConn.addUserTermPair(userId,wordId, userCount.u);
-								} else {
-									try {
-										throw new Exception("A discrepancy with a user has occured.");
-									} catch (Exception e) {
-										// TODO Auto-generated catch block
-										e.printStackTrace();
-									}
-								}
+							//Add the pairings of user to word in the database
+							for(Pair<Long, Integer> userCount : term.userCounts){
+								dbConn.addUserTermPair(userCount.t, wordId, userCount.u);
 							}
 						} else {
-							try {
-								throw new Exception("A discrepancy with a term has occured.");
-							} catch (Exception e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							}
+							LOGGER.log(Level.WARNING, "A term exists in the database but its id could not be obtained. Term: " + term.term);
 						}
 					}
 					dbConn.closeConnection();
-					System.out.println("Ending Thread");
+					LOGGER.log(Level.FINE, "Ending background thread for term database storage");
 				}
 			});
 			thread.start();
 
-
+			//Generate a JSON string using gson and the data collected
+			Gson gson = new Gson();
 			String json = gson.toJson(rankedTerms);		
 			json += "\n";
 			json += gson.toJson(users);
@@ -328,29 +356,36 @@ public class WebServlet extends HttpServlet {
 		} catch (FatalInternalException ex) {
 			throw ex;
 		} catch (Exception ex) {
+			//If any other errors occur, log it and throw a fatal internal exception
 			LOGGER.log(Level.SEVERE, ex.getMessage());
 			throw new FatalInternalException("An internal error has occured");
 		}
-
 	} 
 
-	private String checkinFormRequest(Gson gson, HttpServletRequest request) throws FatalInternalException {
-		try {
-			String json = "";
-			
-			DatabaseConnector dbConn = new DatabaseConnector();
-			dbConn.establishConnection(); 
 	
+	/**
+	 * Gets venues visited by a user over a number of days and return in the form of a JSON string
+	 * The user is also returned if it is the first request
+	 * Saves examined data in the system database in a background thread
+	 * @param request - The HttpServletRequest object
+	 * @return - JSON string
+	 * @throws FatalInternalException
+	 */
+	private String checkinFormRequest(HttpServletRequest request) throws FatalInternalException {
+		try {
+			//Create a new query object 
 			Queries query = new Queries(initTwitter(), initFoursquare());
 			
+			//Over how many days should be looked
 			int days = 0;
 			try {
 				days = Integer.parseInt(request.getParameter("daysCheckin"));
 			} catch (NumberFormatException nfe) {
 				LOGGER.log(Level.WARNING, "Invalid days parameter, defaulting to 0 (live stream)");
 			}
-	
-			User user;
+				
+			//Get the user object from the passed username
+			final User user;
 			try {
 				user = query.getTwitterUser(request.getParameter("usernameCheckin"));
 			} catch (QueryException ex) {
@@ -358,62 +393,48 @@ public class WebServlet extends HttpServlet {
 				throw new FatalInternalException("An internal error has occured whilst dealing with a query");
 			}
 			
-			dbConn.addUsers(user);
-	
-			// Send user if requested (Only needed first time for streaming)
-			if (request.getParameter("userRequest").equals("1")) {
-				json = gson.toJson(user);
-				json += "\n";
-			}
-	
-	
+			//Get list of venues
+			final List<CompleteVenue> result;
 			if (days > 0) {
+				//If days is >0 then not a live stream 
 				if (twitterStream != null) {
 					twitterStream.getTwitterStream().shutdown();
 					twitterStream = null;
 				}
 	
-				List<CompleteVenue> result;
+				//Perform query to obtain venues
 				try {
 					result = query.getUserVenues(user.getScreenName(), days);
 				} catch (QueryException ex) {
 					LOGGER.log(Level.SEVERE, ex.getMessage());
 					throw new FatalInternalException("An internal error has occured whilst dealing with a query");
 				}
+			
+			} else {
+				//Output warning if defaulted
+				if(days < 0) {LOGGER.log(Level.WARNING, "Days must be greater or equal to zero, defaulting to 0 (live stream)");}
 				
-				for(CompleteVenue venue : result){
-					dbConn.addVenues(venue);
-					dbConn.addUserVenue(user.getId(),venue.getId());
-				}
-				json += gson.toJson(result);
-	
-			} else if (days == 0) {
+				//A live stream should be used, first check if a stream is already opened
 				if (twitterStream == null || twitterStream.isShutdown()) {    	    			
-						// Open live stream
-						System.out.println("Opening Twitter stream..");
+						//Live stream not open so open live stream
+						LOGGER.log(Level.FINE, "Opening Twitter stream..");
 						twitterStream = new StreamingQueries(initTwitterStream());
 						twitterStream.addUserVenuesListener(user.getId());
-						System.out.println("Twitter stream opened");
+						LOGGER.log(Level.FINE, "Twitter stream opened");
 	
-						// Get venues visited today
-						List<CompleteVenue> result;
+						//Perform query to obtain venues visited today
 						try {
 							result = query.getUserVenues(user.getScreenName(), days);
 						} catch (QueryException ex) {
 							LOGGER.log(Level.SEVERE, ex.getMessage());
 							throw new FatalInternalException("An internal error has occured whilst dealing with a query");
 						}
-						
-						for(CompleteVenue venue : result){
-							dbConn.addVenues(venue);
-							dbConn.addUserVenue(user.getId(),venue.getId());
-						}
-						
-						json += gson.toJson(result);
-						
 				} else {
+					//Live stream is already opened so obtain tweets collected
 					List<Status> liveTweets = twitterStream.getTweets();
-					List<CompleteVenue> result = new LinkedList<CompleteVenue>();
+					
+					//Perform query to obtain venues visited today
+					result = new LinkedList<CompleteVenue>();
 					for (Status tweet : liveTweets) {
 						try {
 							result.add(query.getVenueFromTweet(tweet));
@@ -422,39 +443,75 @@ public class WebServlet extends HttpServlet {
 							throw new FatalInternalException("An internal error has occured whilst dealing with a query");
 						}
 					}
+					
+					//Clear recorded tweets, ready for new tweets to be recorded
+					twitterStream.clearLists();
+				} 
+			}
+			
+			//Determine whether this is the first time this request has been made
+			final boolean firstTime = request.getParameter("userRequest").equals("1");
+			
+			//Create a new thread to store data in the database in the background without delaying response from web page
+			Thread thread = new Thread(new Runnable() {
+				@Override
+				public void run() {
+					LOGGER.log(Level.FINE, "Starting background thread for term database storage");
+					DatabaseConnector dbConn = new DatabaseConnector();
+					dbConn.establishConnection(); 
+					//Add users to database
+					if (firstTime) {
+						dbConn.addUsers(user);
+					}
+					//Add venues to database
 					for(CompleteVenue venue : result){
 						dbConn.addVenues(venue);
 						dbConn.addUserVenue(user.getId(),venue.getId());
 					}
-					json += gson.toJson(result);
-					twitterStream.clearLists();
-				}  
-	
-	
-			} else {
-				throw new Exception("Days must be greater or equal to zero");
+					dbConn.closeConnection();
+					LOGGER.log(Level.FINE, "Ending background thread for term database storage");
+				}
+			});
+			thread.start();
+			
+			//Generate a JSON string using gson and the data collected
+			String json = "";
+			Gson gson = new Gson();
+			
+			// Send user if requested (Only needed first time for streaming)
+			if (firstTime) {
+				json = gson.toJson(user);
+				json += "\n";
 			}
 			
-			dbConn.closeConnection();
+			json += gson.toJson(result);
 			
 			return json;
 			
 		} catch (FatalInternalException ex) {
 			throw ex;
 		} catch (Exception ex) {
+			//If any other errors occur, log it and throw a fatal internal exception
 			LOGGER.log(Level.SEVERE, ex.getMessage());
 			throw new FatalInternalException("An internal error has occured");
 		}
 	} 
 
-	private String venuesFormRequest(Gson gson, HttpServletRequest request) throws FatalInternalException {
-		try {
-			String json = "";
-			DatabaseConnector dbConn = new DatabaseConnector();
-			dbConn.establishConnection(); 
 	
+	/**
+	 * Gets venues that match the conditions of the search and tweets from people who have checked into these venues in the form of a JSON string
+	 * Saves examined data in the system database in a background thread
+	 * @param request - The HttpServletRequest object
+	 * @return - JSON string
+	 * @throws FatalInternalException
+	 */
+	private String venuesFormRequest(HttpServletRequest request) throws FatalInternalException {
+		try {
+			
+			//Create a new query object 
 			Queries query = new Queries(initTwitter(), initFoursquare());
 	
+			//Over how many days should be looked
 			int days = 0;
 			try {
 				days = Integer.parseInt(request.getParameter("daysVenue"));
@@ -462,28 +519,34 @@ public class WebServlet extends HttpServlet {
 				LOGGER.log(Level.WARNING, "Invalid days parameter, defaulting to 0 (live stream)");
 			}
 	
-			Double lat, lon, radius;
+			//TODO some sort of checking here?
 			String venueName = request.getParameter("venueNameVenue");
+			
+			//Get location parameters //TODO what if deliberatly blank
+			Double lat, lon, radius;
+			lat = lon = radius = Double.NaN;
 			try {
 				lat = Double.parseDouble(request.getParameter("latVenue"));
 				lon = Double.parseDouble(request.getParameter("lonVenue"));
 				radius = Double.parseDouble(request.getParameter("radiusVenue"));
 			} catch (NumberFormatException nfe) {
 				LOGGER.log(Level.WARNING, "Invalid location parameters, performing query with venue name");
-				lat = Double.NaN;
-				lon = Double.NaN;
-				radius = Double.NaN;
 			}
-			Map<String, CompleteVenue> venues= new HashMap<String,CompleteVenue>();
-			Map<String,List<Status>> venueTweets= new HashMap<String, List<Status>>();
+			
+			
+			//Create data structures fo rstoring relevant information
+			final Map<String, CompleteVenue> venues = new HashMap<String,CompleteVenue>();
+			final Map<String,List<Status>> venueTweets = new HashMap<String, List<Status>>();
 	
-	
+			
 			if (days > 0) {
+				//If days is >0 then not a live stream
 				if (twitterStream != null) {
 					twitterStream.getTwitterStream().shutdown();
 					twitterStream = null;
 				}
 	
+				//Perform query to see which users have visited a venue 
 				try {
 					query.getUsersAtVenue(venueName, lat, lon, radius, days, venues, venueTweets);
 				} catch (QueryException ex) {
@@ -491,51 +554,49 @@ public class WebServlet extends HttpServlet {
 					throw new FatalInternalException("An internal error has occured whilst dealing with a query");
 				}
 				
-				for (Entry<String, CompleteVenue> entry : venues.entrySet()) {
-					dbConn.addVenues(entry.getValue());
-					for(Status tweet : venueTweets.get(entry.getKey())){
-						dbConn.addUsers(tweet.getUser());
-						dbConn.addUserVenue(tweet.getUser().getId(), entry.getKey());
-					}
-				}
-				json = gson.toJson(venues);
-				json += ("\n");
-				json += gson.toJson(venueTweets);
-	
-			} else if (days == 0) {
+			} else {
+				//Output warning if defaulted
+				if(days < 0) {LOGGER.log(Level.WARNING, "Days must be greater or equal to zero, defaulting to 0 (live stream)");}
+				//A live stream should be used, first check if a stream is already opened
 				if (twitterStream == null || twitterStream.isShutdown()) {
-					// Open live stream
-					System.out.println("Opening Twitter stream..");
+					//Live stream not open so open live stream
+					LOGGER.log(Level.FINE, "Opening Twitter stream..");
 					twitterStream = new StreamingQueries(initTwitterStream());
 					twitterStream.addUsersAtVenueListener(venueName, lat, lon, radius);
-					System.out.println("Twitter stream opened");
+					LOGGER.log(Level.FINE, "Twitter stream opened");
+
 	
-					// Get venues visited today
+					//Get users who have visited the venue today
 					try {
 						query.getUsersAtVenue(venueName, lat, lon, radius, days, venues, venueTweets);
 					} catch (QueryException ex) {
 						LOGGER.log(Level.SEVERE, ex.getMessage());
 						throw new FatalInternalException("An internal error has occured whilst dealing with a query");
 					}
-					for (Entry<String, CompleteVenue> entry : venues.entrySet()) {
-						dbConn.addVenues(entry.getValue());
-						for(Status tweet : venueTweets.get(entry.getKey())){
-							dbConn.addUsers(tweet.getUser());
-							dbConn.addUserVenue(tweet.getUser().getId(), entry.getKey());
-						}
-					}
-					json = gson.toJson(venues);
-					json += ("\n");
-					json += gson.toJson(venueTweets);
+
 	
 				} else {
+					//Live stream is already opened so obtain tweets collected
 					List<Status> liveTweets = twitterStream.getTweets();
+					//Perform query to get user venues form tweets
 					try {
 						query.getUserVenuesFromTweets(liveTweets, venues, venueTweets);
 					} catch (QueryException ex) {
 						LOGGER.log(Level.SEVERE, ex.getMessage());
 						throw new FatalInternalException("An internal error has occured whilst dealing with a query");
 					}
+					//Clear list of recorded tweets ready for new tweets
+					twitterStream.clearLists();
+				}  
+			} 
+	
+			//Create a new thread to store data in the database in the background without delaying response from web page
+			Thread thread = new Thread(new Runnable() {
+				@Override
+				public void run() {
+					LOGGER.log(Level.FINE, "Starting background thread for term database storage");
+					DatabaseConnector dbConn = new DatabaseConnector();
+					dbConn.establishConnection(); 
 					for (Entry<String, CompleteVenue> entry : venues.entrySet()) {
 						dbConn.addVenues(entry.getValue());
 						for(Status tweet : venueTweets.get(entry.getKey())){
@@ -543,39 +604,44 @@ public class WebServlet extends HttpServlet {
 							dbConn.addUserVenue(tweet.getUser().getId(), entry.getKey());
 						}
 					}
-					json = gson.toJson(venues);
-					json += ("\n");
-					json += gson.toJson(venueTweets);
-					twitterStream.clearLists();
-				}  
-	
-	
-			} else {
-				throw new Exception("Days must be greater or equal to zero");
-			}
-	
-			try {
-				query.getNearbyPlaces(lat, lon, radius);
-			} catch (QueryException ex) {
-				LOGGER.log(Level.SEVERE, ex.getMessage());
-				throw new FatalInternalException("An internal error has occured whilst dealing with a query");
-			}
-	
-			dbConn.closeConnection();
+					dbConn.closeConnection();
+					LOGGER.log(Level.FINE, "Ending background thread for term database storage");
+				}
+			});
+			thread.start();
+			
+			//Generate a JSON string using gson and the data collected
+			String json = "";
+			Gson gson = new Gson();
+			
+			json = gson.toJson(venues);
+			json += ("\n");
+			json += gson.toJson(venueTweets);
 			
 			return json;
 			
 		} catch (FatalInternalException ex) {
 			throw ex;
 		} catch (Exception ex) {
+			//If any other errors occur, log it and throw a fatal internal exception
 			LOGGER.log(Level.SEVERE, ex.getMessage());
 			throw new FatalInternalException("An internal error has occured");
 		}		
 	} 
 
-	private String fetchUserForProfile(Gson gson, HttpServletRequest request) throws FatalInternalException {
+	
+	/**
+	 * Fetches user information from a given username in the form of a JSON string
+	 * @param request - The HttpServletRequest object
+	 * @return - JSON string
+	 * @throws FatalInternalException
+	 */
+	private String fetchUserForProfile(HttpServletRequest request) throws FatalInternalException {
 		try {
+			//Create a new query object
 			Queries query = new Queries(initTwitter()); 
+			
+			//Perform query to get user from screen name
 			User user;
 			try {
 				user = query.getTwitterUser(request.getParameter("screenName"));
@@ -583,18 +649,33 @@ public class WebServlet extends HttpServlet {
 				LOGGER.log(Level.SEVERE, ex.getMessage());
 				throw new FatalInternalException("An internal error has occured whilst dealing with a query");
 			}
+			
+			//Generate a JSON string using gson and the data collected
+			Gson gson = new Gson();
 			return gson.toJson(user);
+			
 		} catch (FatalInternalException ex) {
 			throw ex;
 		} catch (Exception ex) {
+			//If any other errors occur, log it and throw a fatal internal exception
 			LOGGER.log(Level.SEVERE, ex.getMessage());
 			throw new FatalInternalException("An internal error has occured");
 		}
 	} 
 
-	private String fetchTweetsForProfile(Gson gson, HttpServletRequest request) throws FatalInternalException {
+	
+	/**
+	 * Fetches tweets made by a user in the form of a JSON string
+	 * @param request - The HttpServletRequest object
+	 * @return - JSON string
+	 * @throws FatalInternalException
+	 */
+	private String fetchTweetsForProfile(HttpServletRequest request) throws FatalInternalException {
 		try {
+			//Create a new query object
 			Queries query = new Queries(initTwitter()); 
+			
+			//Perform a query to get tweets from a username
 			List<Status> tweets;
 			try {
 				tweets = query.getUsersTweets(request.getParameter("screenName"));
@@ -602,31 +683,50 @@ public class WebServlet extends HttpServlet {
 				LOGGER.log(Level.SEVERE, ex.getMessage());
 				throw new FatalInternalException("An internal error has occured whilst dealing with a query");
 			}
+			
+			//Generate a JSON string using gson and the data collected
+			Gson gson = new Gson();
 			return gson.toJson(tweets);
+			
 		} catch (FatalInternalException ex) {
 			throw ex;
 		} catch (Exception ex) {
+			//If any other errors occur, log it and throw a fatal internal exception
 			LOGGER.log(Level.SEVERE, ex.getMessage());
 			throw new FatalInternalException("An internal error has occured");
 		}
 	} 
 
-	private String getNearbyVenues(Gson gson, HttpServletRequest request) throws FatalInternalException {
+	/**
+	 * Gets a list of nearby places from coordinates provided in the request object. Returns in the form of a JSON string
+	 * @param request - The HttpServletRequest object
+	 * @return - JSON string
+	 * @throws FatalInternalException
+	 */
+	private String getNearbyVenues(HttpServletRequest request) throws FatalInternalException {
 		try {
+			//Create a new query object
 			Queries query = new Queries(initTwitter()); 
 
+			//Obtain location information
 			double lat = Double.parseDouble(request.getParameter("lat"));
 			double lon = Double.parseDouble(request.getParameter("lon"));
 			double radius = Double.parseDouble(request.getParameter("radius"));
 
+			//Perform a query to obtain a list of places 
 			List<Place> places = new LinkedList<Place>();
 			try {
 				places = query.getNearbyPlaces(lat, lon, radius);
 			} catch (QueryException ex) {
 				LOGGER.log(Level.WARNING, ex.getMessage());
 			}
+			
+			//Generate a JSON string using gson and the data collected
+			Gson gson = new Gson();
 			return gson.toJson(places);
+			
 		} catch (Exception ex) {
+			//If any other errors occur, log it and throw a fatal internal exception
 			LOGGER.log(Level.SEVERE, ex.getMessage());
 			throw new FatalInternalException("An internal error has occured");
 		}
