@@ -16,7 +16,7 @@ import exceptions.DatabaseException;
 
 
 /**
- * This class deals with interactions between the web interface for querying the database and the database
+ * This servlet deals with interactions between the web interface for querying the database and the database
  * @author Luke Heavens & Ben Carr
  */
 public class DatabaseServlet extends HttpServlet {
@@ -91,6 +91,7 @@ public class DatabaseServlet extends HttpServlet {
     		} catch (DatabaseException ex) {
     			//An error occurred whilst accessing the database so catch and log
 				LOGGER.log(Level.SEVERE, ex.getMessage());
+				//TODO deal with this error on webpage
 			} 
     		
     	//If the request indicates a search of a venue then we fetch data concerning the venue entered
@@ -123,6 +124,7 @@ public class DatabaseServlet extends HttpServlet {
     		} catch (DatabaseException ex) {
     			//An error occured whilst accessing the database so catch and log
 				LOGGER.log(Level.SEVERE, ex.getMessage());
+				//TODO deal with this error on webpage
 			}   		
     	}
     	
