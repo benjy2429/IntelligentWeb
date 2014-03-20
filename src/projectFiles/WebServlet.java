@@ -31,6 +31,7 @@ public class WebServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private StreamingQueries twitterStream = null;
        
+	
 	/** 
 	 * confTwitter provides the oAuth configuration settings for a Twitter connection
 	 * @return ConfigurationBuilder
@@ -50,6 +51,7 @@ public class WebServlet extends HttpServlet {
 		return cb;
 	}
     
+	
 	/** 
 	 * initTwitter provides a TwitterAPI connection
 	 * @return TwitterFactory
@@ -57,6 +59,7 @@ public class WebServlet extends HttpServlet {
 	private Twitter initTwitter() throws TwitterException{
 		return (new TwitterFactory(confTwitter().build()).getInstance());
 	}
+	
 	
 	/**
 	 * initTwitterStream provides a TwitterStreamAPI connection
@@ -66,6 +69,7 @@ public class WebServlet extends HttpServlet {
 	private TwitterStream initTwitterStream() throws TwitterException {
 		return (new TwitterStreamFactory(confTwitter().build()).getInstance());
 	}
+	
 	
 	/**
 	 * initFoursquare provides a connection to Foursquare
@@ -82,15 +86,28 @@ public class WebServlet extends HttpServlet {
 	}
 
 	
+	/**
+	 * When the servlet receives a get request, it delivers the queryInterface html file
+	 * @param request - HttpServletRequest object
+	 * @param response - HttpServletResponse object
+	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
+	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		response.sendRedirect("queryInterface.html");
 	}
 	
+	
+	/**
+	 * When the servlet receives a post request, it looks for and examines a requestId parameter. This determines the appropriate action to take.
+	 * A JSON object is constructed which is communicated through the response containing relevant data
+	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response) 
+	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		PrintWriter out = response.getWriter();		
     	String requestId = request.getParameter("requestId");    	
     	Gson gson = new Gson();
     	String json = "";
+    	
     	
     	if(requestId.equals("topicForm")){
 			DatabaseConnector dbConn = new DatabaseConnector();

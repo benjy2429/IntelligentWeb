@@ -2,38 +2,38 @@ package projectFiles;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import twitter4j.Status;
-import twitter4j.TwitterException;
-
 import com.google.gson.Gson;
+import exceptions.DatabaseException;
 
 /**
  * Servlet implementation class DatabaseServlet
  */
 public class DatabaseServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
+	private static final Logger LOGGER = Logger.getLogger(DatabaseServlet.class.getName());
 
 	/**
+	 * When the servlet receives a get request, it delivers the databaseInterface html file
+	 * @param request - HttpServletRequest object
+	 * @param response - HttpServletResponse object
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-
+		response.sendRedirect("databaseInterface.html");
 	}
 
 	/**
+	 * When the servlet receives a post request, it looks for and examines a requestId parameter. This determines the appropriate action to take.
+	 * A JSON object is constructed which is communicated through the response containing relevant data
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -43,7 +43,8 @@ public class DatabaseServlet extends HttpServlet {
     	String json = "";
     	
     	//TODO Change json character encoding to utf-8
-    	  	
+    	
+    	//If the request indicates a search of a user then we fetch data concerning the user entered
     	if (requestId.equals("showUser")) {
     		try {
     			HashMap<String, String> user = new HashMap<String, String>();
@@ -66,20 +67,22 @@ public class DatabaseServlet extends HttpServlet {
     			
     			dbConn.closeConnection();
     			
-    			json = gson.toJson( user );
+    			json = gson.toJson(user);
     			json += "\n";
-    			json += gson.toJson( retweetersOfUser );
+    			json += gson.toJson(retweetersOfUser);
     			json += "\n";
-    			json += gson.toJson( userRetweets );
+    			json += gson.toJson(userRetweets);
     			json += "\n";
-    			json += gson.toJson( userLocations );
+    			json += gson.toJson(userLocations);
     			json += "\n";
-    			json += gson.toJson( userKeywords );
+    			json += gson.toJson(userKeywords);
     			
-    		} catch (SQLException e) {
-				System.out.println(e.getMessage());
-			}    		
-
+    		} catch (DatabaseException ex) {
+    			//An error occured whilst accessing the database so catch and log
+				LOGGER.log(Level.SEVERE, ex.getMessage());
+			} 
+    		
+    	//If the request indicates a search of a venue then we fetch data concerning the venue entered
     	} else if (requestId.equals("showVenue")) {
     		try {
     			HashMap<String, String> venue = new HashMap<String, String>();
@@ -93,16 +96,16 @@ public class DatabaseServlet extends HttpServlet {
     			users = dbConn.getVenueVisitors(venueId);
     			dbConn.closeConnection();
     			
-    			json = gson.toJson( venue );
+    			json = gson.toJson(venue);
     			json += "\n";
-    			json += gson.toJson( users );
-    			
-    		} catch (SQLException e) {
-				System.out.println(e.getMessage());
-			}    		
-    	}
+    			json += gson.toJson(users);
     	
-		out.print( json );
+    		} catch (DatabaseException ex) {
+    			//An error occured whilst accessing the database so catch and log
+				LOGGER.log(Level.SEVERE, ex.getMessage());
+			}   		
+    	}
+		out.print(json);
     	out.close();
 	}
 
