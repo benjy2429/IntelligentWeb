@@ -142,11 +142,10 @@ public class Queries {
 			
 			// Add geolocation if available
 			if (!Double.isNaN(latitude) && !Double.isNaN(longitude) && !Double.isNaN(radius)) {
-				query.setGeoCode(new GeoLocation(latitude, longitude), radius, Query.KILOMETERS); //TODO Maybe add ability to choose between Km or Miles
+				query.setGeoCode(new GeoLocation(latitude, longitude), radius, Query.KILOMETERS);
 			}
 			
 			query.setCount(10); //TODO load more tweets?
-			//query.setResultType(Query.POPULAR); //TODO Check result ordering
 			
 			QueryResult result = twitter.search(query);
 	
@@ -269,7 +268,7 @@ public class Queries {
 							if(word.isEmpty()){break;}
 							//Check the word isn't in the stop list, doesn't start with an '@' character and isn't a link that starts with "http"
 							StopList stopList = new StopList();
-							if(!stopList.wordInStopList(word) && word.charAt(0) != '@' && !word.contains("http")){ //TODO charAt(0) out of range error
+							if(!stopList.wordInStopList(word) && word.charAt(0) != '@' && !word.contains("http")){
 								//Now we know that the word is one we wish to record, we add it to the data structure
 								Pair<Integer,Map<Long, Integer>> pair = termUserMap.get(word);
 								Map<Long, Integer> userCountMap;
@@ -337,7 +336,7 @@ public class Queries {
 	 * @return List of Checkins also containing venue information
 	 * @throws QueryException
 	 */
-	public List<CompleteVenue> getUserVenues(String username, int days) throws QueryException { //TODO Use twitter streaming api if days==0
+	public List<CompleteVenue> getUserVenues(String username, int days) throws QueryException {
 		try {
 			List<CompleteVenue> resultList = new LinkedList<CompleteVenue>();
 			
@@ -462,7 +461,7 @@ public class Queries {
 			}
 			// Add geolocation if available
 			if (!Double.isNaN(latitude) && !Double.isNaN(longitude) && !Double.isNaN(radius)) {
-				query.setGeoCode(new GeoLocation(latitude, longitude), radius, Query.KILOMETERS); //TODO Maybe add ability to choose between Km or Miles
+				query.setGeoCode(new GeoLocation(latitude, longitude), radius, Query.KILOMETERS);
 			} 
 			query.setQuery(queryText);
 	

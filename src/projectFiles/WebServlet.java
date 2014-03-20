@@ -139,7 +139,7 @@ public class WebServlet extends HttpServlet {
 	 */
 	private String tweetFormRequest(HttpServletRequest request) throws FatalInternalException {
 		try {
-			//Close any currently open twitter streams //TODO why does this function do this, but not the next one?
+			//Close any currently open twitter streams
 			if (twitterStream != null) {
 				twitterStream.getTwitterStream().shutdown();
 				twitterStream = null;
@@ -147,17 +147,23 @@ public class WebServlet extends HttpServlet {
 			
 			//Create a new query object 
 			Queries query = new Queries(initTwitter());
-
-			//Validate user input //TODO ensure sufficient validation
-			//Collect location data if entered //TODO check for if
+			
+			//Collect location data if entered
 			Double lat, lon, radius;
 			lat = lon = radius = Double.NaN;
-			try {
-				lat = Double.parseDouble(request.getParameter("latTweet"));
-				lon = Double.parseDouble(request.getParameter("lonTweet"));
-				radius = Double.parseDouble(request.getParameter("radiusTweet"));
-			} catch (NumberFormatException nfe) {
-				LOGGER.log(Level.WARNING, "Invalid location parameters, performing query without geolocation data");
+			if (request.getParameter("enableLocTweet") != null) {
+				try {
+					lat = Double.parseDouble(request.getParameter("latTweet"));
+					lon = Double.parseDouble(request.getParameter("lonTweet"));
+					radius = Double.parseDouble(request.getParameter("radiusTweet"));
+					//Check if the radius is valid 
+					if (radius <= 0) {
+						radius = 1.0;
+						LOGGER.log(Level.WARNING, "Invalid radius! Defaulting to 1km");
+					}
+				} catch (NumberFormatException nfe) {
+					LOGGER.log(Level.WARNING, "Invalid location parameters, performing query without geolocation data");
+				}
 			}
 			
 			//Perform relevant query
@@ -218,6 +224,12 @@ public class WebServlet extends HttpServlet {
 	 */
 	private String retweetersForm(HttpServletRequest request) throws FatalInternalException {
 		try {
+			//Close any currently open twitter streams
+			if (twitterStream != null) {
+				twitterStream.getTwitterStream().shutdown();
+				twitterStream = null;
+			}
+			
 			//Create a new query object 
 			Queries query = new Queries(initTwitter());
 			
@@ -285,12 +297,25 @@ public class WebServlet extends HttpServlet {
 			
 			//Create a new query object 
 			Queries query = new Queries(initTwitter()); 
-			
-			//TODO validation
+
 			//Create a list of individual usernames the number of keywords to obtain and the maximum number of days in the past to search over
-			LinkedList<String> usersNames = new LinkedList<String>(Arrays.asList(request.getParameter("usernamesKeyword").split(" ")));
+			List<String> usersNames = new LinkedList<String>(Arrays.asList(request.getParameter("usernamesKeyword").split(" ")));
 			int keywords = Integer.parseInt(request.getParameter("keywordsKeyword"));
 			int days = Integer.parseInt(request.getParameter("daysKeyword"));
+			
+			// Validation
+			if (usersNames.size() > 10) {
+				usersNames = usersNames.subList(0,9);
+				LOGGER.log(Level.WARNING, "Too many usernames! Only searching with first 10");
+			}
+			if (keywords <= 0 || keywords >= 100) {
+				keywords = 10;
+				LOGGER.log(Level.WARNING, "Keywords invalid! Defaulting to 10 keywords");
+			}
+			if (days <= 0) {
+				days = 1;
+				LOGGER.log(Level.WARNING, "Days <= 0! Defaulting to 1 day");
+			}
 			
 			//Obtain users from the usernames given, then find terms used frequently between them
 			final LinkedList<User> users = new LinkedList<User>();
@@ -381,8 +406,12 @@ public class WebServlet extends HttpServlet {
 			int days = 0;
 			try {
 				days = Integer.parseInt(request.getParameter("daysCheckin"));
+				//Validation
+				if (days < 0) {
+					LOGGER.log(Level.WARNING, "Invalid days parameter! Defaulting to 0 (live stream)");
+				}
 			} catch (NumberFormatException nfe) {
-				LOGGER.log(Level.WARNING, "Invalid days parameter, defaulting to 0 (live stream)");
+				LOGGER.log(Level.WARNING, "Invalid days parameter! Defaulting to 0 (live stream)");
 			}
 				
 			//Get the user object from the passed username
@@ -517,22 +546,31 @@ public class WebServlet extends HttpServlet {
 			int days = 0;
 			try {
 				days = Integer.parseInt(request.getParameter("daysVenue"));
+				if (days < 0) {
+					LOGGER.log(Level.WARNING, "Invalid days parameter, defaulting to 0 (live stream)");
+				}
 			} catch (NumberFormatException nfe) {
 				LOGGER.log(Level.WARNING, "Invalid days parameter, defaulting to 0 (live stream)");
 			}
 	
-			//TODO some sort of checking here?
 			String venueName = request.getParameter("venueNameVenue");
 			
-			//Get location parameters //TODO what if deliberatly blank
+			//Get location parameters
 			Double lat, lon, radius;
 			lat = lon = radius = Double.NaN;
-			try {
-				lat = Double.parseDouble(request.getParameter("latVenue"));
-				lon = Double.parseDouble(request.getParameter("lonVenue"));
-				radius = Double.parseDouble(request.getParameter("radiusVenue"));
-			} catch (NumberFormatException nfe) {
-				LOGGER.log(Level.WARNING, "Invalid location parameters, performing query with venue name");
+			if (request.getParameter("enableLocVenue") != null) {
+				try {
+					lat = Double.parseDouble(request.getParameter("latVenue"));
+					lon = Double.parseDouble(request.getParameter("lonVenue"));
+					radius = Double.parseDouble(request.getParameter("radiusVenue"));
+					//Check if the radius is valid 
+					if (radius <= 0) {
+						radius = 1.0;
+						LOGGER.log(Level.WARNING, "Invalid radius! Defaulting to 1km");
+					}
+				} catch (NumberFormatException nfe) {
+					LOGGER.log(Level.WARNING, "Invalid location parameters, performing query with venue name");
+				}
 			}
 			
 			
@@ -557,8 +595,6 @@ public class WebServlet extends HttpServlet {
 				}
 				
 			} else {
-				//Output warning if defaulted
-				if(days < 0) {LOGGER.log(Level.WARNING, "Days must be greater or equal to zero, defaulting to 0 (live stream)");}
 				//A live stream should be used, first check if a stream is already opened
 				if (twitterStream == null || twitterStream.isShutdown()) {
 					//Live stream not open so open live stream

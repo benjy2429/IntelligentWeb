@@ -181,7 +181,7 @@ $(window).load(function() {
 				    });
 				},
 				error: function(xhr,textStatus,errorThrown){
-					$("#pageContent").html(errorThrown);
+					$("#pageContent").html("<div class='alert alert-danger'>Error: " + errorThrown + "</div>").fadeIn(FADESPEED);
 				}
 			});
 		} else {
@@ -269,7 +269,7 @@ $(window).load(function() {
 				    });
 				},
 				error: function(xhr,textStatus,errorThrown){
-					$("#pageContent").html(errorThrown);
+					$("#pageContent").html("<div class='alert alert-danger'>Error: " + errorThrown + "</div>").fadeIn(FADESPEED);
 				}
 			});
 		} else {
