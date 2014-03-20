@@ -1,3 +1,11 @@
+/*
+ * application.js - Handles all the javascript for the web interface 
+ * This includes all AJAX calls to the servlet, and all JSON parsing
+ * Author: Ben Carr & Luke Heavens
+ * Last Updated: 20/03/2014
+ *
+ */
+
 $(window).load(function() {
 	var FADESPEED = 250;
 	var LOADING_IMG = "<img src='./img/loading.gif' style='vertical-align:text-top;margin-right:5px;' /> Loading..";
@@ -27,7 +35,7 @@ $(window).load(function() {
 	});
 	
 	
-	// Checkbox to toggle visibility of geolocation fields (form 4)
+	// Checkbox to toggle visibility of the venue name field (form 4)
 	$("#enableNameVenue").click(function() { 
 	    if ($(this).is(':checked')) {
 	    	$("#nameFieldsVenue").show(FADESPEED);
@@ -60,7 +68,9 @@ $(window).load(function() {
 	});
 
 	
-	// Form 1
+	/*
+	 * This function overrides the form action when the form is submitted
+	 */
 	$("#form1Submit").click(function() {
 		clearInterval(streamFunctionId);
 		$("#map-canvas").fadeOut(FADESPEED);
@@ -175,7 +185,6 @@ $(window).load(function() {
 				$("#resultsInfo").text("");
 				$("#dynamicText").html("<div class='alert alert-danger'>Error: " + validationError + "</div>").fadeIn(FADESPEED);
 		    });
-
 		}
 	});
 	
