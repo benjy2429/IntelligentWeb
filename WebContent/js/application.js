@@ -268,7 +268,7 @@ $(window).load(function() {
 							var i = 0;
 							var index = -1;
 							$.each( userObjects , function() {
-								if(this.screenName.toLowerCase() == screenName.toLowerCase()){
+								if(this.screenName.toString().toLowerCase() == screenName.toString().toLowerCase()){
 									index = i;
 								}
 								i++;

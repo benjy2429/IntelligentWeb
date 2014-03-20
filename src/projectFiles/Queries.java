@@ -268,7 +268,7 @@ public class Queries {
 							if(word.isEmpty()){break;}
 							//Check the word isn't in the stop list, doesn't start with an '@' character and isn't a link that starts with "http"
 							StopList stopList = new StopList();
-							if(!stopList.wordInStopList(word) && word.charAt(0) != '@' && !word.contains("http")){ //TODO charAt(0) out of range error
+							if(!stopList.wordInStopList(word) && word.charAt(0) != '@' && !word.contains("http")){
 								//Now we know that the word is one we wish to record, we add it to the data structure
 								Pair<Integer,Map<Long, Integer>> pair = termUserMap.get(word);
 								Map<Long, Integer> userCountMap;

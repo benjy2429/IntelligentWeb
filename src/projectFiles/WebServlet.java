@@ -147,21 +147,23 @@ public class WebServlet extends HttpServlet {
 			
 			//Create a new query object 
 			Queries query = new Queries(initTwitter());
-
-			//Collect location data if entered //TODO check for if
+			
+			//Collect location data if entered
 			Double lat, lon, radius;
 			lat = lon = radius = Double.NaN;
-			try {
-				lat = Double.parseDouble(request.getParameter("latTweet"));
-				lon = Double.parseDouble(request.getParameter("lonTweet"));
-				radius = Double.parseDouble(request.getParameter("radiusTweet"));
-				//Check if the radius is valid 
-				if (radius <= 0) {
-					radius = 1.0;
-					LOGGER.log(Level.WARNING, "Invalid radius! Defaulting to 1km");
+			if (request.getParameter("enableLocTweet") != null) {
+				try {
+					lat = Double.parseDouble(request.getParameter("latTweet"));
+					lon = Double.parseDouble(request.getParameter("lonTweet"));
+					radius = Double.parseDouble(request.getParameter("radiusTweet"));
+					//Check if the radius is valid 
+					if (radius <= 0) {
+						radius = 1.0;
+						LOGGER.log(Level.WARNING, "Invalid radius! Defaulting to 1km");
+					}
+				} catch (NumberFormatException nfe) {
+					LOGGER.log(Level.WARNING, "Invalid location parameters, performing query without geolocation data");
 				}
-			} catch (NumberFormatException nfe) {
-				LOGGER.log(Level.WARNING, "Invalid location parameters, performing query without geolocation data");
 			}
 			
 			//Perform relevant query
@@ -556,17 +558,19 @@ public class WebServlet extends HttpServlet {
 			//Get location parameters
 			Double lat, lon, radius;
 			lat = lon = radius = Double.NaN;
-			try {
-				lat = Double.parseDouble(request.getParameter("latVenue"));
-				lon = Double.parseDouble(request.getParameter("lonVenue"));
-				radius = Double.parseDouble(request.getParameter("radiusVenue"));
-				//Check if the radius is valid 
-				if (radius <= 0) {
-					radius = 1.0;
-					LOGGER.log(Level.WARNING, "Invalid radius! Defaulting to 1km");
+			if (request.getParameter("enableLocVenue") != null) {
+				try {
+					lat = Double.parseDouble(request.getParameter("latVenue"));
+					lon = Double.parseDouble(request.getParameter("lonVenue"));
+					radius = Double.parseDouble(request.getParameter("radiusVenue"));
+					//Check if the radius is valid 
+					if (radius <= 0) {
+						radius = 1.0;
+						LOGGER.log(Level.WARNING, "Invalid radius! Defaulting to 1km");
+					}
+				} catch (NumberFormatException nfe) {
+					LOGGER.log(Level.WARNING, "Invalid location parameters, performing query with venue name");
 				}
-			} catch (NumberFormatException nfe) {
-				LOGGER.log(Level.WARNING, "Invalid location parameters, performing query with venue name");
 			}
 			
 			
