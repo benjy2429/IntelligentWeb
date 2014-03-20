@@ -167,23 +167,35 @@
 					<form id="form4" class="forms" method="post" action="">
 						<input name="requestId" id="venuesForm" type="hidden" value="venuesForm">
 						<div class="form-group">
-							<label for="venueName" class="control-label">Venue Name:</label>
-							<input name="venueName" id="venueName" type="text" class="form-control" value="meadowhall">
+							<label for="enableNameVenue" class="control-label">Search by venue name:</label>
+							<input name="enableNameVenue" id="enableNameVenue" type="checkbox" style="vertical-align: text-bottom;" checked>
 						</div>
+						<div id="nameFieldsVenue">
+							<div class="form-group">
+								<label for="venueName" class="control-label">Venue Name:</label>
+								<input name="venueName" id="venueName" type="text" class="form-control" value="meadowhall">
+							</div>
+						</div>				
 						<div class="form-group">
-							<label for="lat" class="control-label">Enter latitude:</label>
-							<input name="lat" id="lat2" type="number" class="form-control" value="53.41391389">
-						</div>
-						<div class="form-group">
-							<label for="lon" class="control-label">Enter longitude:</label>
-							<input name="lon" id="lon2" type="number" class="form-control" value="-1.4125872">
-						</div>
-						<div class="form-group">
-							<label for="radius" class="control-label">Acceptable radius:</label>
-							
-							<div class="input-group">
-  								<input name="radius" id="radius2" type="number" class="form-control" value="5">
-  								<span class="input-group-addon">km</span>
+							<label for="enableLocVenue" class="control-label">Search by location:</label>
+							<input name="enableLocVenue" id="enableLocVenue" type="checkbox" style="vertical-align: text-bottom;">
+						</div>	
+						<div id="locationFieldsVenue" style="display:none;">
+							<div class="form-group">
+								<label for="lat" class="control-label">Enter latitude:</label>
+								<input name="lat" id="lat2" type="number" class="form-control" value="53.41391389">
+							</div>
+							<div class="form-group">
+								<label for="lon" class="control-label">Enter longitude:</label>
+								<input name="lon" id="lon2" type="number" class="form-control" value="-1.4125872">
+							</div>
+							<div class="form-group">
+								<label for="radius" class="control-label">Acceptable radius:</label>
+								
+								<div class="input-group">
+	  								<input name="radius" id="radius2" type="number" class="form-control" value="5">
+	  								<span class="input-group-addon">km</span>
+								</div>
 							</div>
 						</div>
 						<div class="form-group">
