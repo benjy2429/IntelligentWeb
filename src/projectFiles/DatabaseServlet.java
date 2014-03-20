@@ -91,7 +91,8 @@ public class DatabaseServlet extends HttpServlet {
     		} catch (DatabaseException ex) {
     			//An error occurred whilst accessing the database so catch and log
 				LOGGER.log(Level.SEVERE, ex.getMessage());
-				//TODO deal with this error on webpage
+				response.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE); 
+			    out.println(ex.getMessage());
 			} 
     		
     	//If the request indicates a search of a venue then we fetch data concerning the venue entered
@@ -124,7 +125,8 @@ public class DatabaseServlet extends HttpServlet {
     		} catch (DatabaseException ex) {
     			//An error occured whilst accessing the database so catch and log
 				LOGGER.log(Level.SEVERE, ex.getMessage());
-				//TODO deal with this error on webpage
+				response.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE); 
+			    out.println(ex.getMessage());
 			}   		
     	}
     	

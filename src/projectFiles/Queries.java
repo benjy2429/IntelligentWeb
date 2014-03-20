@@ -142,11 +142,10 @@ public class Queries {
 			
 			// Add geolocation if available
 			if (!Double.isNaN(latitude) && !Double.isNaN(longitude) && !Double.isNaN(radius)) {
-				query.setGeoCode(new GeoLocation(latitude, longitude), radius, Query.KILOMETERS); //TODO Maybe add ability to choose between Km or Miles
+				query.setGeoCode(new GeoLocation(latitude, longitude), radius, Query.KILOMETERS);
 			}
 			
 			query.setCount(10); //TODO load more tweets?
-			//query.setResultType(Query.POPULAR); //TODO Check result ordering
 			
 			QueryResult result = twitter.search(query);
 	
@@ -337,7 +336,7 @@ public class Queries {
 	 * @return List of Checkins also containing venue information
 	 * @throws QueryException
 	 */
-	public List<CompleteVenue> getUserVenues(String username, int days) throws QueryException { //TODO Use twitter streaming api if days==0
+	public List<CompleteVenue> getUserVenues(String username, int days) throws QueryException {
 		try {
 			List<CompleteVenue> resultList = new LinkedList<CompleteVenue>();
 			
@@ -462,7 +461,7 @@ public class Queries {
 			}
 			// Add geolocation if available
 			if (!Double.isNaN(latitude) && !Double.isNaN(longitude) && !Double.isNaN(radius)) {
-				query.setGeoCode(new GeoLocation(latitude, longitude), radius, Query.KILOMETERS); //TODO Maybe add ability to choose between Km or Miles
+				query.setGeoCode(new GeoLocation(latitude, longitude), radius, Query.KILOMETERS);
 			} 
 			query.setQuery(queryText);
 	

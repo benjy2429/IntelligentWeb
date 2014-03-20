@@ -175,7 +175,7 @@ $(window).load(function() {
 				    });
 				},
 				error: function(xhr,textStatus,errorThrown){
-					$("#pageContent").html(errorThrown);
+					$("#pageContent").html("<div class='alert alert-danger'>Error: " + errorThrown + "</div>").fadeIn(FADESPEED);
 				}
 			});
 		
@@ -298,7 +298,7 @@ $(window).load(function() {
 					});
 				},
 				error: function(jqXHR,textStatus,errorThrown){
-					$("#pageContent").html(errorThrown);
+					$("#pageContent").html("<div class='alert alert-danger'>Error: " + errorThrown + "</div>").fadeIn(FADESPEED);
 				}
 			});
 			
@@ -474,7 +474,7 @@ $(window).load(function() {
 			},
 			error: function(xhr,textStatus,errorThrown){
 				clearInterval(streamFunctionId);
-				$("#pageContent").html(errorThrown);
+				$("#pageContent").html("<div class='alert alert-danger'>Error: " + errorThrown + "</div>").fadeIn(FADESPEED);
 			}
 		});
 	}
@@ -706,7 +706,7 @@ $(window).load(function() {
 				}
 			},
 			error: function(xhr,textStatus,errorThrown){
-				$("#pageContent").html(errorThrown);
+				$("#pageContent").html("<div class='alert alert-danger'>Error: " + errorThrown + "</div>").fadeIn(FADESPEED);
 			}
 		});		
 	}
@@ -776,7 +776,7 @@ $(window).load(function() {
 				}
 			},
 			error: function(xhr,textStatus,errorThrown){
-				console.log(errorThrown);
+				$("#pageContent").html("<div class='alert alert-danger'>Error: " + errorThrown + "</div>").fadeIn(FADESPEED);
 			}
 		});		
 	}
@@ -824,7 +824,7 @@ $(window).load(function() {
 				}
 			},
 			error: function(xhr,textStatus,errorThrown){
-				$("Error finding retweeters").insertAfter(tweet);
+				$("#pageContent").prepend("<div class='alert alert-danger'>Error: " + errorThrown + "</div>").fadeIn(FADESPEED);
 			}
 		});	
 		// Prevent the anchor tag from going to its href location
@@ -937,7 +937,7 @@ $(window).load(function() {
 					$("#userProfile" + screenName).modal("show"); //If generating modal then the click event to show it might not be executed if model hasnt yet been defined, hence we ensure it is shown after construction
 				},
 				error: function(xhr,textStatus,errorThrown){
-					alert("Error fetching profile information for user");
+					$("#pageContent").prepend("<div class='alert alert-danger'>Error: " + errorThrown + "</div>").fadeIn(FADESPEED);
 				}
 			});
 		}
@@ -952,7 +952,7 @@ $(window).load(function() {
 					populateModalTweets(screenName, JSON.parse(data));
 				},
 				error: function(xhr,textStatus,errorThrown){
-					$("#profileTweetsFor" + screenName).html("Error fetching tweets for user profile");
+					$("#profileTweetsFor" + screenName).html("<div class='alert alert-danger'>Error: " + errorThrown + "</div>").fadeIn(FADESPEED);
 				}
 			});
 		}

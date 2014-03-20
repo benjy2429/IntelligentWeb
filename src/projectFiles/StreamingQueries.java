@@ -3,6 +3,9 @@ package projectFiles;
 import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import twitter4j.*;
 
 /**
@@ -20,6 +23,8 @@ public class StreamingQueries {
 	private List<Status> tweets = new LinkedList<Status>();
 	private Calendar shutdownTime;
 	private boolean shutdown = false; 
+	//Logger
+	private static final Logger LOGGER = Logger.getLogger(StreamingQueries.class.getName());
 
 	
 	/**
@@ -62,7 +67,7 @@ public class StreamingQueries {
 			if (Calendar.getInstance().getTime().before( shutdownTime.getTime() )) {
 				tweets.add(status);				
 			} else {
-				System.out.println("Shutting down Twitter stream..");
+				LOGGER.log(Level.FINE, "Shutting down Twitter stream..");
 				clearLists();
 				shutdown = true;
 				twitterStream.shutdown();
@@ -100,7 +105,7 @@ public class StreamingQueries {
 			if (Calendar.getInstance().getTime().before( shutdownTime.getTime() )) {
 				tweets.add(status);				
 			} else {
-				System.out.println("Shutting down Twitter stream..");
+				LOGGER.log(Level.FINE, "Shutting down Twitter stream..");
 				clearLists();
 				shutdown = true;
 				twitterStream.shutdown();
