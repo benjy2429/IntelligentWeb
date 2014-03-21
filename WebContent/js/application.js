@@ -417,7 +417,7 @@ $(window).load(function() {
 				// Iterate through the venues and display their information
 				$.each( venues, function() {
 					result += "<div class='venue'>";
-					result += (this.photos.groups[1] && this.photos.groups[1].items.length > 0) ? "<div class='venueImg' style='background-image:url(\"" + this.photos.groups[1].items[0].url + "\");'/>" : "";
+					result += (this.photos && this.photos.groups[1] && this.photos.groups[1].items.length > 0) ? "<div class='venueImg' style='background-image:url(\"" + this.photos.groups[1].items[0].url + "\");'/>" : "";
 					result += "<div class='venueContent'>";
 					result += "<span class='venueName'>" + this.name + ", </span>";
 					result += (this.location.address) ? this.location.address : "";
