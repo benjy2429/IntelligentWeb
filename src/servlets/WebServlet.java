@@ -1,4 +1,4 @@
-package projectFiles;
+package servlets;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -11,16 +11,26 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import projectFiles.DatabaseConnector;
+import projectFiles.Pair;
+import projectFiles.Term;
+import queries.Queries;
+import queries.StreamingQueries;
+
 import com.google.gson.*;
+
 import twitter4j.*;
 import twitter4j.conf.*;
 import exceptions.*;
 import fi.foyt.foursquare.api.*;
 import fi.foyt.foursquare.api.entities.*;
+
 import com.claygregory.api.google.places.Place;
 
 

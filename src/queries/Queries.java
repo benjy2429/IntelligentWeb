@@ -1,4 +1,4 @@
-package projectFiles;
+package queries;
 
 import java.net.HttpURLConnection;
 import java.net.Proxy;
@@ -13,6 +13,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import projectFiles.Pair;
+import projectFiles.StopList;
+import projectFiles.Term;
 
 import com.claygregory.api.google.places.*;
 import com.claygregory.api.google.places.Place;

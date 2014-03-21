@@ -1,4 +1,4 @@
-package projectFiles;
+package queries;
 
 import java.util.Calendar;
 import java.util.LinkedList;

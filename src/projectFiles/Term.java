@@ -6,7 +6,7 @@ import java.util.LinkedList;
  * Defines a frequently used term
  * @author Luke Heavens & Ben Carr
  */
-class Term {
+public class Term {
 	public int rank;
 	public String term;
 	public int totalCount;
