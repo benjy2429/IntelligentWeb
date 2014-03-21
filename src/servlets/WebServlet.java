@@ -132,7 +132,6 @@ public class WebServlet extends HttpServlet {
 				default : json = "Invalid POST call"; break;
 			}	    	
 			out.print(json);
-			System.out.println(json);
 		} catch (FatalInternalException ex) {
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR); 
 		    out.println(ex.getMessage());

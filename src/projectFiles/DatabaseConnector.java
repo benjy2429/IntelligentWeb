@@ -397,9 +397,9 @@ public class DatabaseConnector {
 	public HashMap<String,String> showVenue(String venueName) throws DatabaseException {
 		try {
 			HashMap<String,String> venue = new HashMap<String,String>();
-			String sql = "SELECT * FROM Locations WHERE name = ?";
+			String sql = "SELECT * FROM Locations WHERE name LIKE ?";
 			PreparedStatement preStmt = dbConnection.prepareStatement(sql);
-			preStmt.setString(1, venueName);
+			preStmt.setString(1, "%" + venueName + "%");
 			ResultSet result = preStmt.executeQuery();
 			if (result.next()) {
 				venue.put("locId", result.getString("locId"));

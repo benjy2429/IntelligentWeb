@@ -102,7 +102,7 @@ public class StreamingQueries {
 		@Override public void onStatus(Status status) {
 			// If the shutdown time is after the current time, record the tweet, otherwise close the connection
 			if (Calendar.getInstance().getTime().before( shutdownTime.getTime() )) {
-				tweets.add(status);				
+				tweets.add(status);		
 			} else {
 				LOGGER.log(Level.FINE, "Shutting down Twitter stream..");
 				clearLists();
@@ -135,9 +135,8 @@ public class StreamingQueries {
 			double lon2 = longitude + radiusAdjustDeg;
 			locationsToTrack = new double[][]{{lon1, lat1}, {lon2, lat2}};
 		} else {
-			stringsToTrack = new String[]{"foursquare " + venueName};
-		}		
-		
+			stringsToTrack = new String[]{venueName};
+		}				
 		twitterStream.filter(new FilterQuery(count, idToFollow, stringsToTrack, locationsToTrack));
 	}
 	
