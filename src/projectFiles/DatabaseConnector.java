@@ -66,7 +66,7 @@ public class DatabaseConnector {
 	 */
 	public void addUsers(User user){
 		try {
-			String sql = "REPLACE INTO Users VALUES (?,?,?,?,?,?,?,?)";
+			String sql = "REPLACE INTO Users(userId,fullName,screenName,hometown,profileImgUrl,bigProfileImgUrl,bannerImgUrl,description) VALUES (?,?,?,?,?,?,?,?)";
 			PreparedStatement preStmt = dbConnection.prepareStatement(sql);
 			preStmt.setString(1, String.valueOf(user.getId()));
 			preStmt.setString(2, user.getName());
@@ -91,7 +91,7 @@ public class DatabaseConnector {
 	 */
 	public void addVenues(CompleteVenue venue){
 		try {
-			String sql = "REPLACE INTO Locations VALUES (?,?,?,?,?,?,?)";
+			String sql = "REPLACE INTO Locations(locId,name,imageUrl,address,city,websiteUrl,description) VALUES (?,?,?,?,?,?,?)";
 			PreparedStatement preStmt = dbConnection.prepareStatement(sql);
 			preStmt.setString(1, venue.getId());
 			preStmt.setString(2, venue.getName());
@@ -123,7 +123,7 @@ public class DatabaseConnector {
 	 */
 	public void addContact(long tweeterId, long retweeterId) {
 		try {
-			String sql = "INSERT IGNORE INTO UserUserContact VALUES (?,?)";
+			String sql = "INSERT IGNORE INTO UserUserContact(userA,userB) VALUES (?,?)";
 			PreparedStatement preStmt = dbConnection.prepareStatement(sql);
 			preStmt.setString(1, String.valueOf(tweeterId));
 			preStmt.setString(2, String.valueOf(retweeterId));
@@ -197,7 +197,7 @@ public class DatabaseConnector {
 	 */
 	public void addUserVenue(long userId, String venueId) {
 		try {		
-			String sql = "INSERT IGNORE INTO UserLocation VALUES (?,?)";
+			String sql = "INSERT IGNORE INTO UserLocation(userId,locId) VALUES (?,?)";
 			PreparedStatement preStmt = dbConnection.prepareStatement(sql);
 			preStmt.setString(1, String.valueOf(userId));
 			preStmt.setString(2, venueId);
