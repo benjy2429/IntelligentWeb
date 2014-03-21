@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<!--
+ * queryInterface.html - HTML file for the social web query interface
+ * Content for this page is created dynamically using AJAX calls in the javascript
+ * Author: Ben Carr & Luke Heavens
+ * Last Updated: 20/03/2014
+-->
+
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>Query Interface</title>
+
+	<!-- Stylesheets -->
+	<link rel="stylesheet" type="text/css" href="./css/application.css">
+	<link rel="stylesheet" type="text/css" href="./css/bootstrap.min.css">
+
+</head>
+
+<body>
+		
+	<nav class="navbar navbar-default navbar-static-top" role="navigation">
+	  <div class="container-fluid">
+	    <div class="navbar-header">
+	      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+	        <span class="sr-only">Toggle navigation</span>
+	        <span class="icon-bar"></span>
+	        <span class="icon-bar"></span>
+	        <span class="icon-bar"></span>
+	      </button>
+	      <a class="navbar-brand" href="queryInterface.html">COM3504: The Intelligent Web - Ben Carr &amp; Luke Heavens</a>
+	    </div>
+	    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+	      <ul class="nav navbar-nav navbar-right">
+	        <li class="active"><a href="queryInterface.html">Query the Web</a></li>
+	        <li><a href="databaseInterface.html">Query the Database</a></li>
+	      </ul>
+	    </div>
+	  </div>
+	</nav>
+
+	<div class="container-fluid wrapper">
+			
+		<div class="formWrapper">		
+			
+			<div class="panel-group" id="accordion">
+			  <div class="panel panel-info">
+			    <div class="panel-heading">
+			      <h4 class="panel-title">
+			        <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
+			          Search for tweets
+			        </a>
+			      </h4>
+			    </div>
+			    <div id="collapseOne" class="panel-collapse collapse in">
+			      <div class="panel-body">
+			        			
+					<form id="tweetForm" class="forms" method="post" action="">
+						<input name="requestId" id="tweetFormRequest" type="hidden" value="tweetFormRequest">
+						<div class="form-group">
+							<label for="queryTweet" class="control-label">Enter a search query:</label>
+							<input name="queryTweet" id="queryTweet" type="text" class="form-control">
+						</div>	
+						<div class="form-group">
+							<label for="enableLocTweet" class="control-label">Filter by location:</label>
+							<input name="enableLocTweet" id="enableLocTweet" type="checkbox" style="vertical-align: text-bottom;">
+						</div>
+						<div id="locationFieldsTweet" style="display:none;">
+							<div class="form-group">
+								<label for="latTweet" class="control-label">Enter latitude: </label>
+								<input name="latTweet" id="latTweet" type="number" class="form-control">
+							</div>
+							<div class="form-group">
+								<label for="lonTweet" class="control-label">Enter longitude: </label>
+								<input name="lonTweet" id="lonTweet" type="number" class="form-control">
+							</div>
+							<div class="form-group">
+								<label for="radiusTweet" class="control-label">Acceptable radius:</label>
+								
+								<div class="input-group">
+	  								<input name="radiusTweet" id="radiusTweet" type="number" class="form-control">
+	  								<span class="input-group-addon">km</span>
+								</div>
+							</div>
+						</div>
+						<div class="form-group">
+							<button type="submit" id="tweetFormSubmit" class="btn btn-default">Submit</button>
+							<button type="reset" class="btn btn-default">Reset</button>
+						</div>
+					</form>
+
+			      </div>
+			    </div>
+			  </div>
+			  
+			  <div class="panel panel-default">
+			    <div class="panel-heading">
+			      <h4 class="panel-title">
+			        <a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo">
+			          Search for keywords
+			        </a>
+			      </h4>
+			    </div>
+			    <div id="collapseTwo" class="panel-collapse collapse">
+			      <div class="panel-body">
+			      			      	
+					<form id="keywordForm" class="forms" method="post" action="">
+						<input name="requestId" id="keywordFormRequest" type="hidden" value="keywordFormRequest">
+						<div class="form-group">
+							<label for="usernamesKeyword" class="control-label">Usernames (separated by spaces)</label>
+							<input name="usernamesKeyword" id="usernamesKeyword" type="text" class="form-control">
+						</div>
+						<div class="form-group">
+							<label for="keywordsKeyword" class="control-label">Keywords to find:</label>
+							<input name="keywordsKeyword" id="keywordsKeyword" type="number" class="form-control">
+						</div>
+						<div class="form-group">
+							<label for="daysKeyword" class="control-label">Number of days to search:</label>
+							<input name="daysKeyword" id="daysKeyword" type="number" class="form-control">
+						</div>
+						<div class="form-group">
+							<button type="submit" id="keywordFormSubmit" class="btn btn-default">Submit</button>
+							<button type="reset" class="btn btn-default">Reset</button>
+						</div>
+					</form>
+
+			      </div>
+			    </div>
+			  </div>	  
+			  
+			  <div class="panel panel-default">
+			    <div class="panel-heading">
+			      <h4 class="panel-title">
+			        <a data-toggle="collapse" data-parent="#accordion" href="#collapseThree">
+			          Search for user check-ins
+			        </a>
+			      </h4>
+			    </div>
+			    <div id="collapseThree" class="panel-collapse collapse">
+			      <div class="panel-body">
+
+					<form id="checkinForm" class="forms" method="post" action="">
+						<input name="requestId" id="checkinFormRequest" type="hidden" value="checkinFormRequest">
+						<input name="userRequest" id="userRequest" type="hidden" value="1">
+						<div class="form-group">
+							<label for="usernameCheckin" class="control-label">Username:</label>
+							<div class="input-group">
+								<span class="input-group-addon">@</span>			
+								<input name="usernameCheckin" id="usernameCheckin" type="text" class="form-control">					
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="daysCheckin" class="control-label">Days to search:</label>
+							<input name="daysCheckin" id="daysCheckin" type="number" class="form-control">
+						</div>
+						<div class="form-group">
+							<button type="submit" id="checkinFormSubmit" class="btn btn-default">Submit</button>
+							<button type="reset" class="btn btn-default">Reset</button>
+						</div>
+					</form>
+
+			      </div>
+			    </div>
+			  </div>
+			  
+  			  <div class="panel panel-default">
+			    <div class="panel-heading">
+			      <h4 class="panel-title">
+			        <a data-toggle="collapse" data-parent="#accordion" href="#collapseFour">
+			          Search for venues
+			        </a>
+			      </h4>
+			    </div>
+			    <div id="collapseFour" class="panel-collapse collapse">
+			      <div class="panel-body">
+
+					<form id="venueForm" class="forms" method="post" action="">
+						<input name="requestId" id="venuesFormRequest" type="hidden" value="venuesFormRequest">
+						<div class="form-group">
+							<label for="enableNameVenue" class="control-label">Search by venue name:</label>
+							<input name="enableNameVenue" id="enableNameVenue" type="checkbox" style="vertical-align: text-bottom;" checked>
+						</div>
+						<div id="nameFieldsVenue">
+							<div class="form-group">
+								<label for="venueNameVenue" class="control-label">Venue Name:</label>
+								<input name="venueNameVenue" id="venueNameVenue" type="text" class="form-control">
+							</div>
+						</div>				
+						<div class="form-group">
+							<label for="enableLocVenue" class="control-label">Search by location:</label>
+							<input name="enableLocVenue" id="enableLocVenue" type="checkbox" style="vertical-align: text-bottom;">
+						</div>	
+						<div id="locationFieldsVenue" style="display:none;">
+							<div class="form-group">
+								<label for="latVenue" class="control-label">Enter latitude:</label>
+								<input name="latVenue" id="latVenue" type="number" class="form-control">
+							</div>
+							<div class="form-group">
+								<label for="lonVenue" class="control-label">Enter longitude:</label>
+								<input name="lonVenue" id="lonVenue" type="number" class="form-control">
+							</div>
+							<div class="form-group">
+								<label for="radiusVenue" class="control-label">Acceptable radius:</label>
+								
+								<div class="input-group">
+	  								<input name="radiusVenue" id="radiusVenue" type="number" class="form-control">
+	  								<span class="input-group-addon">km</span>
+								</div>
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="daysVenue" class="control-label">Days to search:</label>
+							<input name="daysVenue" id="daysVenue" type="number" class="form-control">
+						</div>
+						<div class="form-group">
+							<button type="submit" id="venueFormSubmit" class="btn btn-default">Submit</button>
+							<button type="reset" class="btn btn-default">Reset</button>
+						</div>
+					</form>
+			      </div>
+			    </div>
+			  </div>
+			</div>
+	
+		</div>
+	
+		<div class="row">
+			<div class="results">
+				<h2 id="resultsTitle">Welcome</h2>
+				<div id="map-canvas"></div>
+				<div id="resultsInfo">Use the forms on the left to search the social web</div>
+				<div id="pageContent"></div>
+			</div>
+		</div>
+	
+	</div>
+	
+	
+	<!-- Javascript -->
+	<script type="text/javascript" src="./js/jquery-2.1.0.min.js"></script>
+	<script type="text/javascript" src="./js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAQSRWiDPQTAeFTilEGZuyouNaF0biz7ks&sensor=false"></script>
+	<script type="text/javascript" src="./js/application.js"></script>
+	
+	<div id="modalWindows"></div>
+</body>
+</html>

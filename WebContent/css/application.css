@@ -1,0 +1,313 @@
+html {
+	height: 100%;
+	margin: 0;
+	padding: 0;
+}
+
+body {
+	height: 100%;
+}
+
+.wrapper {
+	padding: 20px 50px 50px;
+}
+
+#map-canvas {
+	width: 100%;
+	height: 350px;
+	display: none;
+}
+
+/* Google Maps infobox scroll fix */
+.mapInfobox {
+	line-height: 1.35;
+	overflow: hidden;
+	white-space: nowrap;
+}
+
+.formWrapper {
+	position: relative;
+	float: left;
+	width: 300px;
+	margin-left: 50px;
+}
+
+.forms {
+	padding: 20px;
+}
+
+.results {
+	padding-left: 430px;
+	padding-right: 50px;
+}
+
+.tweet {
+	min-height: 90px;
+	margin: 15px 10px;
+	border-bottom: 1px solid #e7e7e7;
+}
+
+.tweet:hover, .frequentWord:hover{
+	/*background-color: #f4f8f9;*/
+}
+
+.tweetImg {
+	width: 50px;
+	height: 50px;
+	float: left;
+	border-radius: 5px;
+	margin: 4px 0px;
+}
+
+.tweetImgSmall {
+	width: 30px;
+	height: 30px;
+	vertical-align: middle;
+	margin: 2px 5px 5px 0px;
+	border-radius: 5px;
+}
+
+.tweetContent {
+	margin-left: 70px;
+}
+
+.tweetUser, .term {
+	font-weight: bold;
+}
+
+.tweetStats {
+	color: #bbb;
+	margin-bottom: 12px;
+}
+
+.getRetweets {
+	margin-left: 5px;
+}
+
+.frequentWord{
+	min-height: 90px;
+	margin: 30px 0px 0px 0px;
+	border-bottom: 1px solid #e7e7e7;
+}
+
+.wordRank {
+	width: 55px;
+	height: 60px;
+	float: left;
+	font-size: 40px;
+	margin-right: 20px;
+	text-align: right;
+}
+
+.termStats{
+	padding-top: 17px;
+	margin-left: 75px;
+}
+
+.termCount{
+	margin: 0 20px;
+	font-style: italic;
+}
+
+.viewUserCounts{
+	font-style: italic;
+}
+
+.userCounts{
+	display: none;
+	margin-left:90px;
+	margin-top:15px;
+}
+
+.userCount{
+	margin-bottom: 15px;
+}
+
+.visitProfile{
+	font-weight:bold;
+}
+
+.venue {
+	min-height: 120px;
+	padding: 20px 10px 0;
+	border-bottom: 1px solid #e7e7e7;
+}
+
+.venueImg {
+	height: 80px;
+	width: 80px;
+	float: left;
+	border-radius: 5px;
+	background-color: #eee;
+	background-size: cover;
+	background-position: center;
+}
+
+.venueContent {
+	margin-left: 100px;
+	min-height: 80px;
+	padding-bottom: 20px;
+}
+
+.venueName {
+	font-weight: bold;
+}
+
+.modal-header {
+	background-image: url("https://abs.twimg.com/a/1394610173/img/t1/grey_header_web.jpg");
+	background-color: #bbb;
+	background-size: cover;
+	color: #fff;
+	text-shadow: 0px 1px 1px rgba(0, 0, 0, 0.5);
+	font-weight: bold;
+	position: relative;
+	height: 150px;
+} 
+
+button.close {
+	color: #fff !important;
+	text-shadow: 0px 1px 1px rgba(0, 0, 0, 0.5) !important;
+	opacity: 1 !important;
+}
+
+.userProfileBannerDark {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	top: 0;
+	left: 0;
+	background-color: rgba(0,0,0,0.5);
+	padding: 15px;
+	overflow: hidden;
+}
+
+.userProfileStats {
+	margin: 0 !important;
+	padding: 15px 0;
+	box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+	font-weight: bold; 
+}
+
+.userProfileStats div {
+	border-left: 1px solid #e7e7e7;
+}
+
+.profileTweets {
+	margin-top: -15px;
+	overflow-x: hidden;
+	overflow-y: scroll;
+	max-height: 300px;
+}
+
+.modalTweet {
+	padding: 15px 0;
+	border-bottom: 1px solid #E7E7E7;
+}
+
+.profileLink {
+	text-align: center;
+	display: inline-block;
+	width: 100%;
+	margin-top: 15px;
+}
+
+.panel-heading {
+	transition: all 0.35s;
+}
+
+.venueDark {
+	background-color: #eee;
+	margin-bottom:20px;
+}
+
+.showVenueCheckinsContainer{
+	text-align:right;
+	margin-top:-20px;
+}
+
+.checkin {
+	min-height: 70px;
+	margin: 10px 10px 0 70px;
+}
+
+.nearbyVenues {
+	margin-top: 25px;
+}
+
+.bigUserProfile {
+	text-align: center;
+	background-color: #eee;
+	box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+	margin-bottom: 30px;
+	position: relative;
+	background-size: cover;
+	background-position: center;
+	color: #fff;
+	text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+	min-height: 300px;
+	height: auto;
+	display: block;
+}
+
+.bigUserProfile a, .bigUserProfile a:hover, .bigUserProfile a:active, .bigUserProfile a:focus {
+	color: white;
+	text-decoration: underline;
+}
+
+.bigUserProfileDark {
+	min-height: 300px;
+	height: auto !important;
+	height: 100%;
+	background-color: rgba(0,0,0,0.5);
+	padding: 20px;
+}
+
+.userProfileImg {
+	width: 128px;
+	height: 128px;
+	box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+	border-radius: 10px;
+	background-size: cover;
+	background-position: center;
+	background-color: #fff;
+	display: inline-block;
+}
+
+.userProfileVenue {
+	min-height: 100px;
+	padding: 10px 0;
+}
+
+.userProfileVenueImg {
+	float: left;
+	width: 80px;
+	height: 80px;
+	border-radius: 5px;
+	background-size: cover;
+	background-position: center;
+}
+
+.userProfileVenue .venueContent {
+	padding: 0;
+}
+
+.venueVisitorImg {
+	width: 50px;
+	height: 50px;
+	border-radius: 5px;
+}
+
+a.visitUserProfile {
+	color: black;
+}
+
+a.visitUserProfileSmall {
+	display: inline-block;
+	width: 50px;
+	height: 50px;
+	margin: 0 15px 15px 0;
+}
+
+.list-group-item {
+	overflow-x: auto;
+}

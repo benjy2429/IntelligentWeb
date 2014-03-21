@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<!--
+ * queryInterface.html - HTML file for the social web query interface
+ * Content for this page is created dynamically using AJAX calls in the javascript
+ * Author: Ben Carr & Luke Heavens
+ * Last Updated: 20/03/2014
+-->
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>Query Interface</title>
+
+	<!-- Stylesheets -->
+	<link rel="stylesheet" type="text/css" href="./css/application.css">
+	<link rel="stylesheet" type="text/css" href="./css/bootstrap.min.css">
+
+</head>
+
+<body>
+		
+	<nav class="navbar navbar-default navbar-static-top" role="navigation">
+	  <div class="container-fluid">
+	    <div class="navbar-header">
+	      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+	        <span class="sr-only">Toggle navigation</span>
+	        <span class="icon-bar"></span>
+	        <span class="icon-bar"></span>
+	        <span class="icon-bar"></span>
+	      </button>
+	      <a class="navbar-brand" href="queryInterface.html">COM3504: The Intelligent Web - Ben Carr &amp; Luke Heavens</a>
+	    </div>
+	    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+	      <ul class="nav navbar-nav navbar-right">
+	        <li><a href="queryInterface.html">Query the Web</a></li>
+	        <li class="active"><a href="databaseInterface.html">Query the Database</a></li>
+	      </ul>
+	    </div>
+	  </div>
+	</nav>
+
+	<div class="container-fluid wrapper">
+			
+		<div class="formWrapper">		
+			
+			<div class="panel-group" id="accordion">
+			  <div class="panel panel-info">
+			    <div class="panel-heading">
+			      <h4 class="panel-title">
+			        <a id="userPanel" data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
+			          Search for users
+			        </a>
+			      </h4>
+			    </div>
+			    <div id="collapseOne" class="panel-collapse collapse in">
+			      <div class="panel-body">
+			        			
+					<form id="showUserForm" class="forms" method="post" action="">
+						<input name="requestId" id="showUser" type="hidden" value="showUser">
+						<div class="form-group">
+							<label for="username" class="control-label">Enter a username:</label>
+							<div class="input-group">
+								<span class="input-group-addon">@</span>			
+								<input name="username" id="username" type="text" class="form-control">								
+							</div>
+						</div>
+						<div class="form-group">
+							<button type="submit" id="showUserFormSubmit" class="btn btn-default">Submit</button>
+							<button type="reset" class="btn btn-default">Reset</button>
+						</div>
+					</form>
+
+			      </div>
+			    </div>
+			  </div>
+			  <div class="panel panel-default">
+  			    <div class="panel-heading">
+			      <h4 class="panel-title">
+			        <a id="venuePanel" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo">
+			          Search for venues
+			        </a>
+			      </h4>
+			    </div>
+			    <div id="collapseTwo" class="panel-collapse collapse">
+			      <div class="panel-body">
+			        			
+					<form id="showVenueForm" class="forms" method="post" action="">
+						<input name="requestId" id="showVenue" type="hidden" value="showVenue">
+						<div class="form-group">
+							<label for="venueName" class="control-label">Enter a venue name:</label>
+							<input name="venueName" id="venueName" type="text" class="form-control">
+						</div>	
+						<div class="form-group">
+							<button type="submit" id="showVenueFormSubmit" class="btn btn-default">Submit</button>
+							<button type="reset" class="btn btn-default">Reset</button>
+						</div>
+					</form>
+
+			      </div>
+			    </div>
+			  </div>  
+			</div>
+	
+		</div>
+	
+		<div class="row">
+			<div class="results">
+				<h2 id="resultsTitle">Welcome</h2>
+				<div id="resultsInfo">Use the forms on the left to search the database</div>
+				<div id="pageContent"></div>
+			</div>
+		</div>
+	
+	</div>
+	
+	
+	<!-- Javascript -->
+	<script type="text/javascript" src="./js/jquery-2.1.0.min.js"></script>
+	<script type="text/javascript" src="./js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="./js/database.js"></script>
+	
+	<div id="modalWindows"></div>
+</body>
+</html>
