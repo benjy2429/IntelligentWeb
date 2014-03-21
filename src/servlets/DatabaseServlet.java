@@ -53,7 +53,7 @@ public class DatabaseServlet extends HttpServlet {
     	String json = "";
     	
     	//TODO Change json character encoding to utf-8
-    	
+   
     	//If the request indicates a search of a user then we fetch data concerning the user entered
     	if (requestId.equals("showUser")) {
     		try {

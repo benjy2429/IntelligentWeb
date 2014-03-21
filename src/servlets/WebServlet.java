@@ -130,7 +130,7 @@ public class WebServlet extends HttpServlet {
 				case "fetchTweetsForProfile" : json = fetchTweetsForProfile(request); break;
 				case "getNearbyVenues" : json = getNearbyVenues(request); break;  
 				default : json = "Invalid POST call"; break;
-			}
+			}	    	
 			out.print(json);
 		} catch (FatalInternalException ex) {
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR); 

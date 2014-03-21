@@ -572,7 +572,7 @@ $(window).load(function() {
 	/*
 	 * This function performs an AJAX call to the servlet to get a list of venues
 	 */
-	function getUsersAtVenue() { //TODO Combine same venue when streaming
+	function getUsersAtVenue() {
 		$.ajax({
 			url: SERVLET,
 			type: 'post',

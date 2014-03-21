@@ -149,7 +149,7 @@ public class Queries {
 				query.setGeoCode(new GeoLocation(latitude, longitude), radius, Query.KILOMETERS);
 			}
 			
-			query.setCount(10); //TODO load more tweets?
+			query.setCount(10);
 			
 			QueryResult result = twitter.search(query);
 	
