@@ -496,16 +496,20 @@ public class Queries {
 	public void getUserVenuesFromTweets(List<Status> tweetsList, Map<String, CompleteVenue> venues, Map<String, List<Status>> venueTweets) throws QueryException {
 		// Cycle through matching tweets
 		for (Status tweet : tweetsList) {
-			CompleteVenue venue = getVenueFromTweet(tweet);
-			if(venue!=null){
-				if(!venues.containsKey(venue.getId())){
-					venues.put(venue.getId(),venue);
-					List<Status> tweetList = new LinkedList<Status>();
-					tweetList.add(tweet);
-					venueTweets.put(venue.getId(), tweetList);
-				} else {
-					venueTweets.get(venue.getId()).add(tweet);
-				} 
+			try {
+				CompleteVenue venue = getVenueFromTweet(tweet);
+				if(venue!=null){
+					if(!venues.containsKey(venue.getId())){
+						venues.put(venue.getId(),venue);
+						List<Status> tweetList = new LinkedList<Status>();
+						tweetList.add(tweet);
+						venueTweets.put(venue.getId(), tweetList);
+					} else {
+						venueTweets.get(venue.getId()).add(tweet);
+					} 
+				}
+			} catch (Exception ex) {
+				LOGGER.log(Level.FINE, "Not a valid Foursquare link", ex);
 			}
 		}
 	}
