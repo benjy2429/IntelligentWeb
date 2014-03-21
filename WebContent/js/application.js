@@ -323,6 +323,9 @@ $(window).load(function() {
 		// Hide Google Maps if visible
 		$("#map-canvas").fadeOut(FADESPEED);
 		
+		// Reset the userRequest parameter to 1
+		$("#userRequest").val("1");
+		
 		// Form validation
 		var valid = false;
 		var validationError = "Unknown validation error";
