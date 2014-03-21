@@ -14,14 +14,14 @@
     </description>
     <display-name>WebServlet</display-name>
     <servlet-name>WebServlet</servlet-name>
-    <servlet-class>projectFiles.WebServlet</servlet-class>
+    <servlet-class>servlets.WebServlet</servlet-class>
   </servlet>
   <servlet>
   	<description>
   	</description>
   	<display-name>DatabaseServlet</display-name>
   	<servlet-name>DatabaseServlet</servlet-name>
-  	<servlet-class>projectFiles.DatabaseServlet</servlet-class>
+  	<servlet-class>servlets.DatabaseServlet</servlet-class>
   </servlet>
   <servlet-mapping>
     <servlet-name>WebServlet</servlet-name>
