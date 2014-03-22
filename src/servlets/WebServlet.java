@@ -554,7 +554,6 @@ public class WebServlet extends HttpServlet {
 	 */
 	private String venuesFormRequest(HttpServletRequest request) throws FatalInternalException {
 		try {
-			System.out.println(Boolean.parseBoolean(request.getParameter("shutdownStream")));
 			//Close any currently open twitter streams if necessary
 			if (twitterStream != null && Boolean.parseBoolean(request.getParameter("shutdownStream"))) {
 				twitterStream.getTwitterStream().shutdown();
