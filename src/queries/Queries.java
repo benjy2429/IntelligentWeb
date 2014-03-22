@@ -505,7 +505,8 @@ public class Queries {
 						venueTweetsList.add(tweet);
 						venueTweets.put(venue.getId(), venueTweetsList);
 					} else {
-						List<Status> venueTweetsList = venueTweets.get(venue.getId());
+						List<Status> venueTweetsList = new LinkedList<Status>();
+						venueTweetsList = venueTweets.get(venue.getId());
 						venueTweetsList.add(tweet);
 						venueTweets.put(venue.getId(), venueTweetsList);
 					} 

@@ -625,7 +625,11 @@ public class WebServlet extends HttpServlet {
 	
 				} else {
 					//Live stream is already opened so obtain tweets collected
-					List<Status> liveTweets = twitterStream.getTweets();
+					List<Status> liveTweets = new LinkedList<Status>();
+					liveTweets.addAll(twitterStream.getTweets());
+					//Clear list of recorded tweets ready for new tweets
+					twitterStream.clearLists();
+					
 					//Perform query to get user venues form tweets
 					try {
 						query.getUserVenuesFromTweets(liveTweets, venues, venueTweets);
@@ -633,8 +637,6 @@ public class WebServlet extends HttpServlet {
 						LOGGER.log(Level.SEVERE, ex.getMessage());
 						throw new FatalInternalException("An internal error has occured whilst dealing with a query");
 					}
-					//Clear list of recorded tweets ready for new tweets
-					twitterStream.clearLists();
 				}  
 			} 
 	
