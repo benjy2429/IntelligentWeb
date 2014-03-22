@@ -501,11 +501,13 @@ public class Queries {
 				if(venue!=null){
 					if(!venues.containsKey(venue.getId())){
 						venues.put(venue.getId(),venue);
-						List<Status> tweetList = new LinkedList<Status>();
-						tweetList.add(tweet);
-						venueTweets.put(venue.getId(), tweetList);
+						List<Status> venueTweetsList = new LinkedList<Status>();
+						venueTweetsList.add(tweet);
+						venueTweets.put(venue.getId(), venueTweetsList);
 					} else {
-						venueTweets.get(venue.getId()).add(tweet);
+						List<Status> venueTweetsList = venueTweets.get(venue.getId());
+						venueTweetsList.add(tweet);
+						venueTweets.put(venue.getId(), venueTweetsList);
 					} 
 				}
 			} catch (Exception ex) {
