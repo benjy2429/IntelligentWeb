@@ -30,10 +30,10 @@ CREATE TABLE IF NOT EXISTS `Keywords` (
 -- Dumping structure for table team007.Locations
 CREATE TABLE IF NOT EXISTS `Locations` (
   `locId` varchar(25) NOT NULL,
-  `name` varchar(50) default NULL,
+  `name` tinytext,
   `imageUrl` tinytext,
   `address` tinytext,
-  `city` varchar(25) default NULL,
+  `city` tinytext,
   `websiteUrl` tinytext,
   `description` text,
   `lastUpdated` timestamp NOT NULL default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP,
