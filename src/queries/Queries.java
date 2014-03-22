@@ -511,7 +511,7 @@ public class Queries {
 		try {
 			for (Status tweet : tweetsList) {
 				CompleteVenue venue = getVenueFromTweet(tweet);
-				if(venue!=null && venue.getName().contains(venueName)){
+				if(venue!=null && venue.getName().toLowerCase().contains(venueName.toLowerCase())){
 					if(!venues.containsKey(venue.getId())){
 						venues.put(venue.getId(),venue);
 						List<Status> venueTweetsList = new LinkedList<Status>();
@@ -543,14 +543,19 @@ public class Queries {
 	 */
 	public List<Place> getNearbyPlaces(double lat, double lon, double radius) throws QueryException{
 		List<Place> placeList = new LinkedList<Place>();
-		GooglePlaces placesApi = new GooglePlaces("AIzaSyAQSRWiDPQTAeFTilEGZuyouNaF0biz7ks");
-		PlacesResult result = placesApi.search((float)lat, (float)lon, (int)Math.round(radius*1000), false);
-		if (result.isOkay()) {
-			for (Place place : result) {
-				placeList.add(place);
-				if (placeList.size() == 10) break;
+		try {
+			GooglePlaces placesApi = new GooglePlaces("AIzaSyAQSRWiDPQTAeFTilEGZuyouNaF0biz7ks");
+			PlacesResult result = placesApi.search((float)lat, (float)lon, (int)Math.round(radius*1000), false);
+			if (result.isOkay()) {
+				for (Place place : result) {
+					placeList.add(place);
+					if (placeList.size() == 10) break;
+				}
+			} else {
+				throw new QueryException("Error fetching nearby venues");
 			}
-		} else {
+		} catch (Exception ex) {
+			LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
 			throw new QueryException("Error fetching nearby venues");
 		}
 		return placeList;
