@@ -675,7 +675,7 @@ public class WebServlet extends HttpServlet {
 			throw ex;
 		} catch (Exception ex) {
 			//If any other errors occur, log it and throw a fatal internal exception
-			LOGGER.log(Level.SEVERE, ex.getMessage());
+			LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
 			throw new FatalInternalException("An internal error has occured");
 		}		
 	} 

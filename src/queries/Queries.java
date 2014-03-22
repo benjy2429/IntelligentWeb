@@ -1,6 +1,8 @@
 package queries;
 
+import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.Proxy;
 import java.net.URL;
 import java.text.SimpleDateFormat;
@@ -21,6 +23,7 @@ import projectFiles.Term;
 import com.claygregory.api.google.places.*;
 import com.claygregory.api.google.places.Place;
 
+import exceptions.InvalidFoursquareUrlException;
 import exceptions.QueryException;
 import fi.foyt.foursquare.api.*;
 import fi.foyt.foursquare.api.entities.*;
@@ -387,18 +390,23 @@ public class Queries {
 		try {
 			// Extract foursquare links and retrieve foursquare checkin information
 			for (URLEntity url : tweet.getURLEntities()) {
-				String[] fsParams = expandFoursquareUrl(url.getExpandedURL());
-				Result<Checkin> fsResult = foursquare.checkin(fsParams[0], fsParams[1]);
-				
-				// Get venue data from foursquare checkin
-				if (fsResult.getMeta().getCode() == 200) {
-					//resultList.add(fsResult.getResult());
+				try {
+					String[] fsParams = expandFoursquareUrl(url.getExpandedURL());
+					Result<Checkin> fsResult = foursquare.checkin(fsParams[0], fsParams[1]);
 					
-					Result<CompleteVenue> venues = foursquare.venue(fsResult.getResult().getVenue().getId());
-					
-					if (venues.getMeta().getCode() == 200) {
-						return venues.getResult();
+					// Get venue data from foursquare checkin
+					if (fsResult.getMeta().getCode() == 200) {
+						//resultList.add(fsResult.getResult());
+						
+						Result<CompleteVenue> venues = foursquare.venue(fsResult.getResult().getVenue().getId());
+						
+						if (venues.getMeta().getCode() == 200) {
+							return venues.getResult();
+						}
 					}
+				} catch (InvalidFoursquareUrlException ex) {
+					//This type of error is expected frequently as not all urls searched will be foursquare
+					LOGGER.log(Level.FINE, ex.getMessage(), ex);
 				}
 			}
 			return null;
@@ -415,8 +423,10 @@ public class Queries {
 	 * @param shortUrl - String of shortened Foursquare URL
 	 * @return String array of user_id and authorisation code 
 	 * @throws QueryException
+	 * @throws InvalidFoursquareUrlException 
+	 * @throws IOException 
 	 */
-	private String[] expandFoursquareUrl(String shortUrl) throws QueryException {
+	private String[] expandFoursquareUrl(String shortUrl) throws InvalidFoursquareUrlException {
 		try {
 	        URL url = new URL(shortUrl);
 	        String[] expandedUrl = {"",""};
@@ -433,12 +443,14 @@ public class Queries {
 	    		expandedUrl[1] = longUrl.getQuery().substring(2,29);
 	        
 	        }
-	
 			return expandedUrl;
+		} catch (NullPointerException | MalformedURLException ex) {
+			//Expected, If the url doesnt contain the desired parameters then its not a valid url
+			throw new InvalidFoursquareUrlException("Not a valid foursquare url: " + shortUrl);
 		} catch (Exception ex) {
 			//Catch any errors, log them, then throw a query exception
 			LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
-			throw new QueryException("Error expanding foursquare url");
+			throw new InvalidFoursquareUrlException("Error expanding foursquare url: " + shortUrl);
 		}
 	}
 	
@@ -495,8 +507,8 @@ public class Queries {
 	 */
 	public void getUserVenuesFromTweets(List<Status> tweetsList, Map<String, CompleteVenue> venues, Map<String, List<Status>> venueTweets) throws QueryException {
 		// Cycle through matching tweets
-		for (Status tweet : tweetsList) {
-			try {
+		try {
+			for (Status tweet : tweetsList) {
 				CompleteVenue venue = getVenueFromTweet(tweet);
 				if(venue!=null){
 					if(!venues.containsKey(venue.getId())){
@@ -511,9 +523,11 @@ public class Queries {
 						venueTweets.put(venue.getId(), venueTweetsList);
 					} 
 				}
-			} catch (Exception ex) {
-				LOGGER.log(Level.FINE, "Not a valid Foursquare link", ex);
 			}
+		} catch (Exception ex) {
+			//Catch any errors, log them, then throw a query exception
+			LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
+			throw new QueryException("Error getting venues from tweets");
 		}
 	}
 	
