@@ -14,7 +14,7 @@ $(window).load(function() {
 	var bounds = new google.maps.LatLngBounds();
 	var streamFunctionId = 0; 
 	var SERVLET = "WebServlet";
-	
+	var shutdownStream = true;
 	
 	// Prevent forms from performing default action
 	$("form").on("submit", function(e) {
@@ -319,6 +319,7 @@ $(window).load(function() {
 	 */
 	$("#checkinFormSubmit").click(function() {
 		// Clear any open streams
+		shutdownStream = true;
 		clearInterval(streamFunctionId);
 		// Hide Google Maps if visible
 		$("#map-canvas").fadeOut(FADESPEED);
@@ -355,7 +356,7 @@ $(window).load(function() {
 			
 			// Perform an AJAX call
 			getUserVenues(true);
-			
+			shutdownStream = false;
 			// If live stream required
 			if ($("#daysCheckin").val() == "0") {
 				$("#userRequest").val("0");
@@ -385,7 +386,7 @@ $(window).load(function() {
 			url: SERVLET,
 			type: 'post',
 			datatype: 'json',
-			data: $('#checkinForm').serialize(),
+			data: $('#checkinForm').serialize() + "&shutdownStream=" + shutdownStream,
 			success: function(data){
 				var result = "";
 				var venues;
@@ -489,6 +490,7 @@ $(window).load(function() {
 	 */
 	$("#venueFormSubmit").click(function() {
 		// Clear any open streams
+		shutdownStream = true;
 		clearInterval(streamFunctionId);
 		// Hide Google Maps if visible
 		$("#map-canvas").fadeOut(FADESPEED);
@@ -552,7 +554,7 @@ $(window).load(function() {
 			
 			// Perform an AJAX call
 			getUsersAtVenue();
-			
+			shutdownStream = false;
 			// If live stream required
 			if ($("#daysVenue").val() == "0") {
 				// Set the stream function and call every 20 seconds
@@ -580,7 +582,7 @@ $(window).load(function() {
 			url: SERVLET,
 			type: 'post',
 			datatype: 'json',
-			data: $('#venueForm').serialize(),
+			data: $('#venueForm').serialize() + "&shutdownStream=" + shutdownStream,
 			success: function(data){								
 				($("#daysVenue").val() == "0") ? $("#resultsTitle").text("Results - Live Stream (Refreshes every 20 seconds)") : $("#resultsTitle").text("Results");
 				$("#resultsInfo").text("");		
