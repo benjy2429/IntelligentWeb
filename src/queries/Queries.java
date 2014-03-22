@@ -473,7 +473,7 @@ public class Queries {
 			if (!venueName.isEmpty()) {
 				queryText = "foursquare " + venueName + " ";
 			} else {
-				queryText = ("foursquare ");
+				queryText = ("foursquare");
 			}
 			// Add geolocation if available
 			if (!Double.isNaN(latitude) && !Double.isNaN(longitude) && !Double.isNaN(radius)) {
@@ -489,7 +489,7 @@ public class Queries {
 			
 			QueryResult result = twitter.search(query);
 	
-			getUserVenuesFromTweets(result.getTweets(), venues, venueTweets);	
+			getUserVenuesFromTweets(result.getTweets(), venueName, venues, venueTweets);	
 		} catch (Exception ex) {
 			//Catch any errors, log them, then throw a query exception
 			LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
@@ -500,17 +500,18 @@ public class Queries {
 	
 	/**
 	 * This method gets venues that users have visited from a series of tweets
-	 * @param tweetsList
-	 * @param venues
-	 * @param venueTweets
+	 * @param tweetsList The list of tweets to be checked
+	 * @param venueName The venue name to check venues against
+	 * @param venues A HashMap of venueId and matching venues to return
+	 * @param venueTweets A HashMap of venueId and matching tweets to return
 	 * @throws QueryException
 	 */
-	public void getUserVenuesFromTweets(List<Status> tweetsList, Map<String, CompleteVenue> venues, Map<String, List<Status>> venueTweets) throws QueryException {
+	public void getUserVenuesFromTweets(List<Status> tweetsList, String venueName, Map<String, CompleteVenue> venues, Map<String, List<Status>> venueTweets) throws QueryException {
 		// Cycle through matching tweets
 		try {
 			for (Status tweet : tweetsList) {
 				CompleteVenue venue = getVenueFromTweet(tweet);
-				if(venue!=null){
+				if(venue!=null && venue.getName().contains(venueName)){
 					if(!venues.containsKey(venue.getId())){
 						venues.put(venue.getId(),venue);
 						List<Status> venueTweetsList = new LinkedList<Status>();

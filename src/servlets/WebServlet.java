@@ -632,7 +632,7 @@ public class WebServlet extends HttpServlet {
 					
 					//Perform query to get user venues form tweets
 					try {
-						query.getUserVenuesFromTweets(liveTweets, venues, venueTweets);
+						query.getUserVenuesFromTweets(liveTweets, venueName, venues, venueTweets);
 					} catch (QueryException ex) {
 						LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
 						throw new FatalInternalException("An internal error has occured whilst dealing with a query");
