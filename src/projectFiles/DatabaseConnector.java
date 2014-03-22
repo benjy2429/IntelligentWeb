@@ -41,7 +41,7 @@ public class DatabaseConnector {
 			dbConnection = DriverManager.getConnection(DB);
 			return true;
 		} catch (Exception ex) {
-			LOGGER.log(Level.SEVERE, "Error establishing connection with database" + ex.getMessage(), ex);
+			LOGGER.log(Level.SEVERE, "Error establishing connection with database - \n" + ex.getMessage(), ex);
 			return false;
 		} 
 	}
@@ -54,7 +54,7 @@ public class DatabaseConnector {
 		try {
 			dbConnection.close();
 		} catch (Exception ex) {
-			LOGGER.log(Level.SEVERE, "Error closing connection with database" + ex.getMessage(), ex);
+			LOGGER.log(Level.SEVERE, "Error closing connection with database - \n" + ex.getMessage(), ex);
 		}
 	}
 	
@@ -79,7 +79,7 @@ public class DatabaseConnector {
 			preStmt.executeUpdate();
 		} catch (Exception ex) {
 			//If any error occurs during a save process, we don't want to do anything other than log the error
-			LOGGER.log(Level.SEVERE, "Error saving user information to database" + ex.getMessage(), ex);
+			LOGGER.log(Level.SEVERE, "Error saving user information to database - \n" + ex.getMessage(), ex);
 		}
 	}
 	
@@ -110,7 +110,7 @@ public class DatabaseConnector {
 			preStmt.executeUpdate();
 		} catch (Exception ex) {
 			//If any error occurs during a save process, we don't want to do anything other than log the error
-			LOGGER.log(Level.SEVERE, "Error saving venue information to database" + ex.getMessage(), ex);
+			LOGGER.log(Level.SEVERE, "Error saving venue information to database - \n" + ex.getMessage(), ex);
 		}
 	}
 
@@ -130,7 +130,7 @@ public class DatabaseConnector {
 			preStmt.executeUpdate();
 		} catch (Exception ex) {
 			//If any error occurs during a save process, we don't want to do anything other than log the error
-			LOGGER.log(Level.SEVERE, "Error storing a user-user contact to database" + ex.getMessage(), ex);
+			LOGGER.log(Level.SEVERE, "Error storing a user-user contact to database - \n" + ex.getMessage(), ex);
 		}
 	}
 
@@ -157,7 +157,7 @@ public class DatabaseConnector {
 	        }
 		} catch (Exception ex) {
 			//If any error occurs during a save process, we don't want to do anything other than log the error
-			LOGGER.log(Level.SEVERE, "Error storing a term to database" + ex.getMessage(), ex);
+			LOGGER.log(Level.SEVERE, "Error storing a term to database - \n" + ex.getMessage(), ex);
 			//Something went wrong so we dont have an id hence return -1
 			return -1;
 		}			
@@ -184,7 +184,7 @@ public class DatabaseConnector {
 			preStmt.executeUpdate();
 		} catch (Exception ex) {
 			//If any error occurs during a save process, we don't want to do anything other than log the error
-			LOGGER.log(Level.SEVERE, "Error storing a user-term pair to database" + ex.getMessage(), ex);
+			LOGGER.log(Level.SEVERE, "Error storing a user-term pair to database - \n" + ex.getMessage(), ex);
 		}
 	}
 
@@ -204,7 +204,7 @@ public class DatabaseConnector {
 			preStmt.executeUpdate();
 		} catch (Exception ex) {
 			//If any error occurs during a save process, we don't want to do anything other than log the error
-			LOGGER.log(Level.SEVERE, "Error storing a user-venue pair to database" + ex.getMessage(), ex);
+			LOGGER.log(Level.SEVERE, "Error storing a user-venue pair to database - \n" + ex.getMessage(), ex);
 		}
 	}
 
@@ -228,7 +228,7 @@ public class DatabaseConnector {
 			 }
 		} catch (Exception ex) {
 			//If any error occurs during a save process, we don't want to do anything other than log the error
-			LOGGER.log(Level.SEVERE, "Error storing a user-venue pair to database" + ex.getMessage(), ex);
+			LOGGER.log(Level.SEVERE, "Error storing a user-venue pair to database - \n" + ex.getMessage(), ex);
 			//Something went wrong so we dont have an id hence return -1
 			return -1;
 		}

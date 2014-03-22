@@ -95,7 +95,7 @@ public class DatabaseServlet extends HttpServlet {
     			
     		} catch (DatabaseException ex) {
     			//An error occurred whilst accessing the database so catch and log
-				LOGGER.log(Level.SEVERE, ex.getMessage());
+				LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
 				response.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE); 
 			    out.println(ex.getMessage());
 			} 
@@ -129,7 +129,7 @@ public class DatabaseServlet extends HttpServlet {
     	
     		} catch (DatabaseException ex) {
     			//An error occured whilst accessing the database so catch and log
-				LOGGER.log(Level.SEVERE, ex.getMessage());
+				LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
 				response.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE); 
 			    out.println(ex.getMessage());
 			}   		
