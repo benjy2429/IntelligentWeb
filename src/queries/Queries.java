@@ -507,8 +507,8 @@ public class Queries {
 	 */
 	public void getUserVenuesFromTweets(List<Status> tweetsList, Map<String, CompleteVenue> venues, Map<String, List<Status>> venueTweets) throws QueryException {
 		// Cycle through matching tweets
-		for (Status tweet : tweetsList) {
-			try {
+		try {
+			for (Status tweet : tweetsList) {
 				CompleteVenue venue = getVenueFromTweet(tweet);
 				if(venue!=null){
 					if(!venues.containsKey(venue.getId())){
@@ -522,11 +522,11 @@ public class Queries {
 						venueTweets.put(venue.getId(), venueTweetsList);
 					} 
 				}
-			} catch (Exception ex) {
-				//Catch any errors, log them, then throw a query exception
-				LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
-				throw new QueryException("Error getting venues from tweets");
 			}
+		} catch (Exception ex) {
+			//Catch any errors, log them, then throw a query exception
+			LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
+			throw new QueryException("Error getting venues from tweets");
 		}
 	}
 	
