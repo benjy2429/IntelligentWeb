@@ -409,6 +409,12 @@ public class WebServlet extends HttpServlet {
 	 */
 	private String checkinFormRequest(HttpServletRequest request) throws FatalInternalException {
 		try {
+			//Close any currently open twitter streams if necessary
+			if (twitterStream != null && Boolean.parseBoolean(request.getParameter("shutdownStream"))) {
+				twitterStream.getTwitterStream().shutdown();
+				twitterStream = null;
+			}
+			
 			//Create a new query object 
 			Queries query = new Queries(initTwitter(), initFoursquare());
 			
@@ -548,6 +554,12 @@ public class WebServlet extends HttpServlet {
 	 */
 	private String venuesFormRequest(HttpServletRequest request) throws FatalInternalException {
 		try {
+			System.out.println(Boolean.parseBoolean(request.getParameter("shutdownStream")));
+			//Close any currently open twitter streams if necessary
+			if (twitterStream != null && Boolean.parseBoolean(request.getParameter("shutdownStream"))) {
+				twitterStream.getTwitterStream().shutdown();
+				twitterStream = null;
+			}
 			
 			//Create a new query object 
 			Queries query = new Queries(initTwitter(), initFoursquare());
