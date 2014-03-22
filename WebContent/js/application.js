@@ -598,10 +598,10 @@ $(window).load(function() {
 						result += "<h2 style='margin:20px 0;'>Check-ins in this area</h2>";
 						result += "<a href='#' id='expandAllCheckins'>Expand all venue check-ins</a> | ";
 						result += "<a href='#' id='collapseAllCheckins'>Collapse all venue check-ins</a>";
+						result += "<div class='venueSection'>";
 					}
 					// Iterate through the venues and write their information
 					$.each(venues, function(venueId,venueObj){	
-						result += "<div class='venueSection'>";
 						result += "<div class='venue venueDark'>";
 						result += (venueObj.photos.groups[1] && venueObj.photos.groups[1].items.length > 0) ? "<div class='venueImg' style='background-image:url(\"" + venueObj.photos.groups[1].items[0].url + "\");'/>" : "";
 						result += "<div class='venueContent'>";
@@ -619,12 +619,12 @@ $(window).load(function() {
 						result += (venueObj.description) ? venueObj.description : "";
 						result += "</div>";
 						result += "<div class='showVenueCheckinsContainer'>";
-						result += "<a href='#' class='showVenueCheckins'>Show check-ins</a>";
+						result += "<a href='#' class='showVenueCheckins' data-venue-id='" + venueObj.id + "'>Show check-ins</a>";
 						result += "</div>";
 						result += "</div>";
 	
 						// Iterate through the tweets and display them under the venue
-					    result += "<div class='venueCheckins' style='display:none'>";
+					    result += "<div class='venueCheckins venueCheckins" + venueObj.id + "' style='display:none'>";
 					    $.each(venueTweetsMap[venueId], function(id,tweetObj){
 							result += "<div class='tweet checkin'>";							
 							result += "<a href='#' data-screen-name='" + tweetObj.user.screenName + "' data-modal-generated='false' data-tweets-populated='false' data-toggle='modal' data-target='#userProfile" + tweetObj.user.screenName + "' class='visitProfile' title='" + tweetObj.user.name + "'>";
@@ -666,9 +666,12 @@ $(window).load(function() {
 				        bounds.extend(marker.position);
 				        
 					    i++;
-					    result += "</div>";
 
 					});	
+					
+					if ( $("#pageContent").find(".venue").length == 0 ) {
+						result += "</div>";
+					}
 					
 					// Display popular venues if this is the first call and if a location was specified
 					if ( $("#pageContent").find(".venue").length == 0 && $("#enableLocVenue").is(":checked") ) {
@@ -692,7 +695,7 @@ $(window).load(function() {
 					
 				} else {
 					// If no data was recieved, show an error and hide the Google Map
-					if ($("#daysVenue").val() != "0") {
+					if ($("#daysVenue").val() != "0" && $("#pageContent").find(".venue").length == 0) {
 						result = "No users have visited this location. Try broadening the search by increasing the location radius or the number of days to search .";
 						if ($("#map-canvas").is(":visible")) $("#map-canvas").fadeOut(FADESPEED);	
 					}
@@ -908,7 +911,8 @@ $(window).load(function() {
 	 */	
 	$(".results").on('click', '.showVenueCheckins', function(e) {	
 		var link = $(this);
-		var venueCheckins = link.parent().parent().parent().find('.venueCheckins');
+		var venueId = $(this).attr("data-venue-id");
+		var venueCheckins = link.parent().parent().parent().find('.venueCheckins' + venueId);
 		var isVisible = venueCheckins.is(':visible');
 		venueCheckins.slideToggle(FADESPEED, function() {
 	        if (!isVisible) {
