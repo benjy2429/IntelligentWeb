@@ -10,7 +10,7 @@ import java.util.LinkedList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import exceptions.DatabaseException;
+import exceptions.DatastoreException;
 import fi.foyt.foursquare.api.entities.CompleteVenue;
 import twitter4j.*;
 
@@ -240,9 +240,9 @@ public class DatabaseConnector {
 	 * If a user is found, details are stored in a hashmap and returned
 	 * @param username - The user to look for
 	 * @return - A hashmap of details
-	 * @throws DatabaseException
+	 * @throws DatastoreException
 	 */
-	public HashMap<String,String> showUser(String username) throws DatabaseException {
+	public HashMap<String,String> showUser(String username) throws DatastoreException {
 		try {
 			HashMap<String,String> userResult = new HashMap<String,String>();
 			String sql = "SELECT * FROM Users WHERE screenName = ?";
@@ -262,7 +262,7 @@ public class DatabaseConnector {
 		} catch (Exception ex) {
 			//An error occured, we don't want to do anything other than log the error and inform the calling class
 			LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
-			throw new DatabaseException("Error fetching user from database");
+			throw new DatastoreException("Error fetching user from database");
 		}
 	}
 
@@ -272,9 +272,9 @@ public class DatabaseConnector {
 	 * If users are found, details are stored in a list of hashmaps and returned
 	 * @param userId - The tweeter id
 	 * @return A List (one for each retweeter) of hash maps (user details) 
-	 * @throws DatabaseException
+	 * @throws DatastoreException
 	 */
-	public LinkedList<HashMap<String,String>> getRetweetersOfUser(long userId) throws DatabaseException {
+	public LinkedList<HashMap<String,String>> getRetweetersOfUser(long userId) throws DatastoreException {
 		try {
 			LinkedList<HashMap<String,String>> retweeters = new LinkedList<HashMap<String,String>>();
 			String sql = "SELECT Users.* FROM Users, UserUserContact WHERE UserUserContact.userA = ? AND Users.userId = UserUserContact.userB";
@@ -292,7 +292,7 @@ public class DatabaseConnector {
 		} catch (Exception ex) {
 			//An error occured, we don't want to do anything other than log the error and inform the calling class
 			LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
-			throw new DatabaseException("Error fetching retweeters from database");
+			throw new DatastoreException("Error fetching retweeters from database");
 		}
 	}
 	
@@ -302,9 +302,9 @@ public class DatabaseConnector {
 	 * If users are found, details are stored in a list of hashmaps and returned
 	 * @param userId - The retweeter id
 	 * @return A list (one for each tweeter) of hash maps (user details)
-	 * @throws DatabaseException
+	 * @throws DatastoreException
 	 */
-	public LinkedList<HashMap<String,String>> getUserRetweets(long userId) throws DatabaseException {
+	public LinkedList<HashMap<String,String>> getUserRetweets(long userId) throws DatastoreException {
 		try {
 			LinkedList<HashMap<String,String>> retweeters = new LinkedList<HashMap<String,String>>();
 			String sql = "SELECT Users.* FROM Users, UserUserContact WHERE UserUserContact.userB = ? AND Users.userId = UserUserContact.userA";
@@ -322,7 +322,7 @@ public class DatabaseConnector {
 		} catch (Exception ex) {
 			//An error occured, we don't want to do anything other than log the error and inform the calling class
 			LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
-			throw new DatabaseException("Error fetching tweets from database");
+			throw new DatastoreException("Error fetching tweets from database");
 		}
 	}
 	
@@ -331,9 +331,9 @@ public class DatabaseConnector {
 	 * This function takes a userId and gets information of venues they have visited
 	 * @param userId - The if of the user to lookup
 	 * @return - A list of (one for each venue visted) hash maps (venue details)
-	 * @throws DatabaseException
+	 * @throws DatastoreException
 	 */
-	public LinkedList<HashMap<String,String>> getUserLocations(long userId) throws DatabaseException {
+	public LinkedList<HashMap<String,String>> getUserLocations(long userId) throws DatastoreException {
 		try {
 			LinkedList<HashMap<String,String>> locations = new LinkedList<HashMap<String,String>>();
 			String sql = "SELECT Locations.* FROM Locations, UserLocation WHERE UserLocation.userId = ? AND Locations.locId = UserLocation.locId";
@@ -354,7 +354,7 @@ public class DatabaseConnector {
 		} catch (Exception ex) {
 			//An error occured, we don't want to do anything other than log the error and inform the calling class
 			LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
-			throw new DatabaseException("Error fetching user locations from database");
+			throw new DatastoreException("Error fetching user locations from database");
 		}
 	}
 	
@@ -363,9 +363,9 @@ public class DatabaseConnector {
 	 * This function takes a userId and gets frequently user terms
 	 * @param userId - The if of the user to lookup
 	 * @return - A list of (one for each term used) hash maps (term and count)
-	 * @throws DatabaseException
+	 * @throws DatastoreException
 	 */
-	public LinkedList<HashMap<String,String>> getUserKeywords(long userId) throws DatabaseException {
+	public LinkedList<HashMap<String,String>> getUserKeywords(long userId) throws DatastoreException {
 		try {
 			LinkedList<HashMap<String,String>> keywords = new LinkedList<HashMap<String,String>>();
 			String sql = "SELECT Keywords.*, UserKeyword.* FROM Keywords, UserKeyword WHERE UserKeyword.userId = ? AND Keywords.wordId = UserKeyword.wordId ORDER BY UserKeyword.count DESC LIMIT 0, 10";
@@ -382,7 +382,7 @@ public class DatabaseConnector {
 		} catch (Exception ex) {
 			//An error occured, we don't want to do anything other than log the error and inform the calling class
 			LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
-			throw new DatabaseException("Error fetching user keywords from database");
+			throw new DatastoreException("Error fetching user keywords from database");
 		}
 	}	
 	
@@ -392,9 +392,9 @@ public class DatabaseConnector {
 	 * If a venue is found, details are stored in a hashmap and returned
 	 * @param venueName - The venue to look for
 	 * @return - A hashmap of details
-	 * @throws DatabaseException
+	 * @throws DatastoreException
 	 */
-	public HashMap<String,String> showVenue(String venueName) throws DatabaseException {
+	public HashMap<String,String> showVenue(String venueName) throws DatastoreException {
 		try {
 			HashMap<String,String> venue = new HashMap<String,String>();
 			String sql = "SELECT * FROM Locations WHERE name LIKE ?";
@@ -414,7 +414,7 @@ public class DatabaseConnector {
 		} catch (Exception ex) {
 			//An error occured, we don't want to do anything other than log the error and inform the calling class
 			LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
-			throw new DatabaseException("Error fetching venue from database");
+			throw new DatastoreException("Error fetching venue from database");
 		}
 	}	
 	
@@ -423,9 +423,9 @@ public class DatabaseConnector {
 	 * This function takes a venueId and gets information of users that have visited
 	 * @param venueId - The id of the venue to lookup
 	 * @return - A list of (one for each user who has visited) hash maps (user details)
-	 * @throws DatabaseException
+	 * @throws DatastoreException
 	 */
-	public LinkedList<HashMap<String,String>> getVenueVisitors(String venueId) throws DatabaseException {
+	public LinkedList<HashMap<String,String>> getVenueVisitors(String venueId) throws DatastoreException {
 		try {
 			LinkedList<HashMap<String,String>> users = new LinkedList<HashMap<String,String>>();
 			String sql = "SELECT Users.* FROM Users, UserLocation WHERE UserLocation.locId = ? AND Users.userId = UserLocation.userId";
@@ -446,7 +446,7 @@ public class DatabaseConnector {
 		} catch (Exception ex) {
 			//An error occured, we don't want to do anything other than log the error and inform the calling class
 			LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
-			throw new DatabaseException("Error fetching user vists to venues from database");
+			throw new DatastoreException("Error fetching user vists to venues from database");
 		}
 	}
 }

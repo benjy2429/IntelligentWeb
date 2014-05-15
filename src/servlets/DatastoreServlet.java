@@ -14,20 +14,21 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import projectFiles.DatabaseConnector;
+import projectFiles.RDFConnector;
 
 import com.google.gson.Gson;
 
-import exceptions.DatabaseException;
+import exceptions.DatastoreException;
 
 
 /**
  * This servlet deals with interactions between the web interface for querying the database and the database
  * @author Luke Heavens & Ben Carr
  */
-public class DatabaseServlet extends HttpServlet {
+public class DatastoreServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	//Logger
-	private static final Logger LOGGER = Logger.getLogger(DatabaseServlet.class.getName());
+	private static final Logger LOGGER = Logger.getLogger(DatastoreServlet.class.getName());
 
 	
 	/**
@@ -66,21 +67,22 @@ public class DatabaseServlet extends HttpServlet {
     			String username = request.getParameter("username");
 
     			//Open database connection
-    			DatabaseConnector dbConn = new DatabaseConnector();
-    			dbConn.establishConnection();
+    			//DatabaseConnector datastoreConn = new DatabaseConnector(); //TODO remove
+    			RDFConnector datastoreConn = new RDFConnector();
+    			datastoreConn.establishConnection();
     			
     			//Get user and id
-    			user = dbConn.showUser(username);
+    			user = datastoreConn.showUser(username);
     			long userId = Long.parseLong(user.get("userId"));
     			
     			//Run database queries and store results
-    			retweetersOfUser = dbConn.getRetweetersOfUser(userId);
-    			userRetweets = dbConn.getUserRetweets(userId);
-    			userLocations = dbConn.getUserLocations(userId);
-    			userKeywords = dbConn.getUserKeywords(userId);
+    			retweetersOfUser = datastoreConn.getRetweetersOfUser(userId);
+    			userRetweets = datastoreConn.getUserRetweets(userId);
+    			userLocations = datastoreConn.getUserLocations(userId);
+    			userKeywords = datastoreConn.getUserKeywords(userId);
     			
     			//Close database connection
-    			dbConn.closeConnection();
+    			datastoreConn.closeConnection();
     			
     			//Store results for JASON
     			json = gson.toJson(user);
@@ -93,7 +95,7 @@ public class DatabaseServlet extends HttpServlet {
     			json += "\n";
     			json += gson.toJson(userKeywords);
     			
-    		} catch (DatabaseException ex) {
+    		} catch (DatastoreException ex) {
     			//An error occurred whilst accessing the database so catch and log
 				LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
 				response.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE); 
@@ -109,25 +111,26 @@ public class DatabaseServlet extends HttpServlet {
     			String venueName = request.getParameter("venueName");
 
     			//Open database connection
-    			DatabaseConnector dbConn = new DatabaseConnector();
-    			dbConn.establishConnection();
+    			//DatabaseConnector datastoreConn = new DatabaseConnector(); //TODO remove
+    			RDFConnector datastoreConn = new RDFConnector();
+    			datastoreConn.establishConnection();
     			
     			//Get venue and id
-    			venue = dbConn.showVenue(venueName);
+    			venue = datastoreConn.showVenue(venueName);
     			String venueId = venue.get("locId");
     			
     			//Run database queries
-    			users = dbConn.getVenueVisitors(venueId);
+    			users = datastoreConn.getVenueVisitors(venueId);
     			
     			//Close database connection
-    			dbConn.closeConnection();
+    			datastoreConn.closeConnection();
     			
     			//Store results for JASON
     			json = gson.toJson(venue);
     			json += "\n";
     			json += gson.toJson(users);
     	
-    		} catch (DatabaseException ex) {
+    		} catch (DatastoreException ex) {
     			//An error occured whilst accessing the database so catch and log
 				LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
 				response.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE); 
