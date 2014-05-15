@@ -13,7 +13,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import projectFiles.DatabaseConnector;
 import projectFiles.RDFConnector;
 
 import com.google.gson.Gson;

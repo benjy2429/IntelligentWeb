@@ -23,8 +23,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
 
-import projectFiles.DatabaseConnector;
 import projectFiles.Pair;
+import projectFiles.RDFConnector;
 import projectFiles.Term;
 import queries.Queries;
 import queries.StreamingQueries;
@@ -276,12 +276,12 @@ public class WebServlet extends HttpServlet {
 				@Override
 				public void run() {
 					LOGGER.log(Level.FINE, "Starting background thread for database storage");
-					DatabaseConnector dbConn = new DatabaseConnector();
-					if (dbConn.establishConnection()) { 
+					RDFConnector datastoreConn = new RDFConnector();
+					if (datastoreConn.establishConnection()) { 
 						for(Status status : result) {
-							dbConn.addUsers(status.getUser());
+							datastoreConn.addUsers(status.getUser());
 						}
-						dbConn.closeConnection();
+						datastoreConn.closeConnection();
 					}
 					LOGGER.log(Level.FINE, "Ending background thread for database storage");
 				}
@@ -342,14 +342,14 @@ public class WebServlet extends HttpServlet {
 				@Override
 				public void run() {
 					LOGGER.log(Level.FINE, "Starting background thread for database storage");
-					DatabaseConnector dbConn = new DatabaseConnector();
-					if(dbConn.establishConnection()) { 			
-						dbConn.addUsers(tweeter);
+					RDFConnector datastoreConn = new RDFConnector();
+					if(datastoreConn.establishConnection()) { 			
+						datastoreConn.addUsers(tweeter);
 						for(User user : retweeters){
-							dbConn.addUsers(user);
-							dbConn.addContact(tweeter.getId(), user.getId());
+							datastoreConn.addUsers(user);
+							datastoreConn.addContact(tweeter.getId(), user.getId());
 						}
-						dbConn.closeConnection();
+						datastoreConn.closeConnection();
 					}
 					LOGGER.log(Level.FINE, "Ending background thread for database storage");
 				}
@@ -432,30 +432,30 @@ public class WebServlet extends HttpServlet {
 				@Override
 				public void run() {
 					LOGGER.log(Level.FINE, "Starting background thread for term database storage");
-					DatabaseConnector dbConn = new DatabaseConnector();
-					if (dbConn.establishConnection()) { 
+					RDFConnector datastoreConn = new RDFConnector();
+					if (datastoreConn.establishConnection()) { 
 						//Add users to database
 						for(User user : users){
-							dbConn.addUsers(user);
+							datastoreConn.addUsers(user);
 						}
 						for(Term term : allTerms){
 							//Add terms to database and get id
-							int wordId = dbConn.addWord(term.term);
+							int wordId = datastoreConn.addWord(term.term);
 							
 							//If already exists, then look it up
-							if (wordId == -1) {wordId = dbConn.getWordId(term.term);}
+							if (wordId == -1) {wordId = datastoreConn.getWordId(term.term);}
 							
 							//If we still don't have an id then something has gone wrong
 							if (wordId != -1){
 								//Add the pairings of user to word in the database
 								for(Pair<Long, Integer> userCount : term.userCounts){
-									dbConn.addUserTermPair(userCount.t, wordId, userCount.u);
+									datastoreConn.addUserTermPair(userCount.t, wordId, userCount.u);
 								}
 							} else {
 								LOGGER.log(Level.WARNING, "A term exists in the database but its id could not be obtained. Term: " + term.term);
 							}
 						}
-						dbConn.closeConnection();
+						datastoreConn.closeConnection();
 					}
 					LOGGER.log(Level.FINE, "Ending background thread for term database storage");
 				}
@@ -583,18 +583,18 @@ public class WebServlet extends HttpServlet {
 				@Override
 				public void run() {
 					LOGGER.log(Level.FINE, "Starting background thread for term database storage");
-					DatabaseConnector dbConn = new DatabaseConnector();
-					if (dbConn.establishConnection()) { 
+					RDFConnector datastoreConn = new RDFConnector();
+					if (datastoreConn.establishConnection()) { 
 						//Add users to database
 						if (firstTime) {
-							dbConn.addUsers(user);
+							datastoreConn.addUsers(user);
 						}
 						//Add venues to database
 						for(CompleteVenue venue : result){
-							dbConn.addVenues(venue);
-							dbConn.addUserVenue(user.getId(),venue.getId());
+							datastoreConn.addVenues(venue);
+							datastoreConn.addUserVenue(user.getId(),venue.getId());
 						}
-						dbConn.closeConnection();
+						datastoreConn.closeConnection();
 					}
 					LOGGER.log(Level.FINE, "Ending background thread for term database storage");
 				}
@@ -736,16 +736,16 @@ public class WebServlet extends HttpServlet {
 				@Override
 				public void run() {
 					LOGGER.log(Level.FINE, "Starting background thread for term database storage");
-					DatabaseConnector dbConn = new DatabaseConnector();
-					if (dbConn.establishConnection()) { 
+					RDFConnector datastoreConn = new RDFConnector();
+					if (datastoreConn.establishConnection()) { 
 						for (Entry<String, CompleteVenue> entry : venues.entrySet()) {
-							dbConn.addVenues(entry.getValue());
+							datastoreConn.addVenues(entry.getValue());
 							for(Status tweet : venueTweets.get(entry.getKey())){
-								dbConn.addUsers(tweet.getUser());
-								dbConn.addUserVenue(tweet.getUser().getId(), entry.getKey());
+								datastoreConn.addUsers(tweet.getUser());
+								datastoreConn.addUserVenue(tweet.getUser().getId(), entry.getKey());
 							}
 						}
-						dbConn.closeConnection();
+						datastoreConn.closeConnection();
 					}
 					LOGGER.log(Level.FINE, "Ending background thread for term database storage");
 				}
