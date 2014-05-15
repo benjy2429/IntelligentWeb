@@ -31,5 +31,22 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/google-places-api-java-0.2-SNAPSHOT-jar-with-dependencies.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/commons-codec-1.6.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/httpclient-4.2.3.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/httpcore-4.2.2.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/jcl-over-slf4j-1.6.4.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/jena-arq-2.11.1.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/jena-core-2.11.1.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="file:/C:/Users/Ben Carr/Documents/Eclipse/IntelligentWeb/lib/javadoc-core/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/jena-iri-1.0.1.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/jena-sdb-1.4.1.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/jena-tdb-1.0.1.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="file:/C:/Users/Ben Carr/Documents/Eclipse/IntelligentWeb/lib/javadoc-tdb/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>

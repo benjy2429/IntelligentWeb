@@ -1,5 +1,8 @@
 package servlets;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -17,6 +20,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.jena.riot.Lang;
+import org.apache.jena.riot.RDFDataMgr;
+
 import projectFiles.DatabaseConnector;
 import projectFiles.Pair;
 import projectFiles.Term;
@@ -24,10 +30,16 @@ import queries.Queries;
 import queries.StreamingQueries;
 
 import com.google.gson.*;
+import com.hp.hpl.jena.query.*;
+import com.hp.hpl.jena.query.Query;
+import com.hp.hpl.jena.rdf.model.*;
+import com.hp.hpl.jena.tdb.*;
+import com.hp.hpl.jena.vocabulary.VCARD;
 
 import twitter4j.*;
 import twitter4j.conf.*;
 import exceptions.*;
+import exceptions.QueryException;
 import fi.foyt.foursquare.api.*;
 import fi.foyt.foursquare.api.entities.*;
 
@@ -116,6 +128,73 @@ public class WebServlet extends HttpServlet {
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response) 
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+
+		
+		// RDF TEST CODE //
+		
+		
+		String rdfFile = "test2.rdf";
+		FileWriter rdfOut = new FileWriter(rdfFile);
+		
+        // some definitions
+        String personURI    = "http://somewhere/JohnSmith";
+        String givenName    = "John";
+        String familyName   = "Smith";
+        String fullName     = givenName + " " + familyName;
+        // create an empty model
+        Model model = ModelFactory.createDefaultModel();
+
+        // create the resource
+        //   and add the properties cascading style
+        Resource johnSmith 
+          = model.createResource(personURI)
+                 .addProperty(VCARD.FN, fullName)
+                 .addProperty(VCARD.N, 
+                              model.createResource()
+                                   .addProperty(VCARD.Given, givenName)
+                                   .addProperty(VCARD.Family, familyName));
+        
+        //RDFDataMgr.write(rdfOut, model, Lang.RDFXML);
+        model.write(new FileOutputStream(rdfFile), Lang.RDFXML.getName());
+        model.write(System.out);
+        
+        System.out.println("--------------------");
+        
+        //read back in
+        Model model2 = ModelFactory.createDefaultModel();
+        model2.read(new FileInputStream(rdfFile), Lang.RDFXML.getName());
+        model2.write(System.out);
+        
+        System.out.println("--------------------");
+        
+        String queryString = 
+        		"PREFIX vcard: <http://www.w3.org/2001/vcard-rdf/3.0#> " +
+        		"SELECT ?fullname " +
+				"WHERE {" +
+        		"	?person vcard:Given \"John\" . " +
+        		"	?person vcard:Given ?given . " +
+				"	?person vcard:Family ?family . " +
+				"	?personURI vcard:N ?person . " +
+				"	?personURI vcard:FN ?fullname . " +
+				"}";
+        
+        Query query = QueryFactory.create(queryString);
+
+	    // Execute the query and obtain results
+	     QueryExecution qe = QueryExecutionFactory.create(query, model2);
+	     ResultSet results = qe.execSelect();
+	
+	     // Output query results	
+	     ResultSetFormatter.out(System.out, results, query);
+	
+	     // Important - free up resources used running the query
+	     qe.close();
+        
+
+	     
+	     
+        // ORIGINAL CODE BELOW //
+        
 		PrintWriter out = response.getWriter();		
 		try {
 			String requestId = request.getParameter("requestId");    	
@@ -137,6 +216,7 @@ public class WebServlet extends HttpServlet {
 		    out.println(ex.getMessage());
 		}
 		out.close();
+		
 	}
 
 	
