@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.sql.PreparedStatement;
 import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
@@ -38,6 +39,13 @@ public class RDFConnector {
 	private String rdfFilePath;
 	private OntModel ontology;
 	private Model rdfModel;
+	
+	private static final String SCHEMA_NS = "http://schema.org/";
+	private static final String BCLH_NS = "http://tomcat.dcs.shef.ac.uk:41032/aca11bmc/";
+	private static final String TWITTER_USER_URI = "https://twitter.com/?profile_id=";
+	private static final String KEYWORD_URI = "http://tomcat.dcs.shef.ac.uk:41032/aca11bmc/Keyword#";
+	private static final String FOURSQUARE_LOCATION_URI = "http://foursquare.com/v/";
+	
 
 	public RDFConnector(String fileLocation){
 		rdfFilePath = fileLocation + RDF_FILE_NAME;
@@ -122,29 +130,39 @@ public class RDFConnector {
 	}
 	
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+
 	
 	public void addUsers(User user) {
-		// TODO Auto-generated method stub
-		
-	}
+		Model model = ModelFactory.createRDFSModel(ontology, ModelFactory.createDefaultModel());	
+		String userUri = TWITTER_USER_URI + user.getId();
 
-	public void addContact(long id, long id2) {
-		// TODO Auto-generated method stub
-		
+        model.createResource(userUri)
+        	.addProperty(ResourceFactory.createProperty(SCHEMA_NS + "name"), user.getName())
+            .addProperty(ResourceFactory.createProperty(SCHEMA_NS + "alternateName"), user.getScreenName())
+            .addProperty(ResourceFactory.createProperty(SCHEMA_NS + "streetAddress"), user.getLocation())
+            .addProperty(ResourceFactory.createProperty(BCLH_NS + "profileImgUrl"), user.getProfileImageURL())
+            .addProperty(ResourceFactory.createProperty(BCLH_NS + "bigProfileImgUrl"), user.getBiggerProfileImageURL())
+            .addProperty(ResourceFactory.createProperty(BCLH_NS + "bannerImgUrl"), user.getProfileBannerRetinaURL())
+            .addProperty(ResourceFactory.createProperty(SCHEMA_NS + "description"), user.getDescription());
+        
+        putRDF(model);	//TODO exception handling
 	}
+	
+
+	public void addContact(long userId1, long userId2) {
+		Model model = ModelFactory.createRDFSModel(ontology, ModelFactory.createDefaultModel());	
+		String user1Uri = TWITTER_USER_URI + String.valueOf(userId1);
+		String user2Uri = TWITTER_USER_URI + String.valueOf(userId2);
+
+        model.createResource(user1Uri)
+        	.addProperty(ResourceFactory.createProperty(SCHEMA_NS + "knows"), user2Uri);
+        
+        putRDF(model);			
+	}
+	
 
 	public int addWord(String term) {
-		// TODO Auto-generated method stub
+		// TODO Not needed anymore? Keywords are per user now
 		return 0;
 	}
 
@@ -153,13 +171,43 @@ public class RDFConnector {
 		return 0;
 	}
 
-	public void addUserTermPair(Long t, int wordId, Integer u) {
-		// TODO Auto-generated method stub
+	
+	public void addUserTermPair(long userId, String word, int wordCount) { // TODO Changed from wordId(int) to word(String). Needs changing everywhere
+		Model model = ModelFactory.createRDFSModel(ontology, ModelFactory.createDefaultModel());	
+		String userUri = TWITTER_USER_URI + String.valueOf(userId);
+		String wordUri = KEYWORD_URI + word;
+
+        model.createResource(userUri)
+        	.addProperty(ResourceFactory.createProperty(BCLH_NS + "said"),
+        			model.createResource(wordUri)
+        				.addProperty(ResourceFactory.createProperty(SCHEMA_NS + "name"), word)
+        				.addProperty(ResourceFactory.createProperty(BCLH_NS + "count"), Integer.toString(wordCount))
+        );
+        
+        putRDF(model);
 		
 	}
 
+	
 	public void addVenues(CompleteVenue venue) {
-		// TODO Auto-generated method stub
+		Model model = ModelFactory.createRDFSModel(ontology, ModelFactory.createDefaultModel());	
+		String venueUri = FOURSQUARE_LOCATION_URI + venue.getId();
+		String photoUrl = "";
+		try {
+			photoUrl = venue.getPhotos().getGroups()[1].getItems()[0].getUrl();
+		} catch (Exception e) {
+			// No venue photos available. Defaulting to empty string
+		}
+
+        model.createResource(venueUri)
+        	.addProperty(ResourceFactory.createProperty(SCHEMA_NS + "name"), venue.getName())
+            .addProperty(ResourceFactory.createProperty(SCHEMA_NS + "photo"), photoUrl)
+            .addProperty(ResourceFactory.createProperty(SCHEMA_NS + "streetAddress"), venue.getLocation().getAddress())
+            .addProperty(ResourceFactory.createProperty(BCLH_NS + "addressLocality"), venue.getLocation().getCity())
+            .addProperty(ResourceFactory.createProperty(BCLH_NS + "url"), venue.getUrl())
+            .addProperty(ResourceFactory.createProperty(SCHEMA_NS + "description"), venue.getDescription());
+        
+        putRDF(model);	
 		
 	}
 
