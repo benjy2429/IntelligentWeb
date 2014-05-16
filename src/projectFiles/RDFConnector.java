@@ -45,8 +45,8 @@ public class RDFConnector {
 			ontology = ModelFactory.createOntologyModel(OntModelSpec.RDFS_MEM);
 			ontology.read(new FileInputStream(fileLocation + ONTOLOGY_FILE_NAME), Lang.RDFXML.getName());
 			
-			Model model = ModelFactory.createRDFSModel(ontology);
-			model.write(new FileOutputStream(rdfFilePath), Lang.RDFXML.getName());
+			//Model model = ModelFactory.createRDFSModel(ontology);
+			//model.write(new FileOutputStream(rdfFilePath), Lang.RDFXML.getName());
 			System.out.println("connection established");
 			return true;
 		} catch (Exception ex) {
@@ -63,17 +63,18 @@ public class RDFConnector {
 	}
 	
 	public void putRDF(Model newModel) throws FileNotFoundException {
-		//Model existingModel = getExistingRDF();
-		//existingModel.add(newModel); //TODO re-enable
-		newModel.write(new FileOutputStream(rdfFilePath), Lang.RDFXML.getName());
-		newModel.write(System.out);
+		Model existingModel = getExistingRDF();
+		existingModel.add(newModel); //TODO re-enable
+		existingModel.write(new FileOutputStream(rdfFilePath), Lang.RDFXML.getName());
+		existingModel.write(System.out);
 	}
 	
 	public void test() throws FileNotFoundException{
         // some definitions
-        String keywordURI    = "http://somewhere/hello";
-        String name    = "Hello";
-        String count   = "29";
+        String keywordURI    = "http://somewhere/cilla";
+        String name    = "Cilla";
+        String screenName = "s3xych1c";
+        String count = "26";
 
         // create an empty model
         Model model = ModelFactory.createRDFSModel(ontology);
@@ -83,7 +84,8 @@ public class RDFConnector {
         Resource helloword 
           = model.createResource(keywordURI)
                  .addProperty(ResourceFactory.createProperty("http://schema.org/name"), name)
-                 .addProperty(ResourceFactory.createProperty("http://tomcat.dcs.shef.ac.uk:41032/aca11bmc/count"), count);
+        		 .addProperty(ResourceFactory.createProperty("http://schema.org/alternateName"), screenName)
+        		 .addProperty(ResourceFactory.createProperty("http://tomcat.dcs.shef.ac.uk:41032/aca11bmc/count"), count);
         
         
         putRDF(model);
