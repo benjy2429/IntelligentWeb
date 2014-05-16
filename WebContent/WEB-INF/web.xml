@@ -31,4 +31,7 @@
   	<servlet-name>DatabaseServlet</servlet-name>
   	<url-pattern>/DatabaseServlet</url-pattern>
   </servlet-mapping>
+  <listener>
+    <listener-class>servlets.ServletListener</listener-class>
+  </listener>
 </web-app>
