@@ -1,6 +1,8 @@
 package servlets;
 
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -55,6 +57,8 @@ public class WebServlet extends HttpServlet {
 	private StreamingQueries twitterStream = null;
 	//Logger
 	private static final Logger LOGGER = Logger.getLogger(WebServlet.class.getName());
+	//
+	private String datastoreLocation;
 
 
 	/** 
@@ -132,63 +136,15 @@ public class WebServlet extends HttpServlet {
 		
 		// RDF TEST CODE //
 		
+		datastoreLocation = getServletConfig().getServletContext().getRealPath("");
+		//String rdfFilePath = datastoreLocation + "/TripleStore.rdf";
 		
-		String rdfFile = "test2.rdf";
-		FileWriter rdfOut = new FileWriter(rdfFile);
+		RDFConnector datastoreConn = new RDFConnector();
+		if (datastoreConn.establishConnection(datastoreLocation)) { 
+			datastoreConn.test();
+		}
 		
-        // some definitions
-        String personURI    = "http://somewhere/JohnSmith";
-        String givenName    = "John";
-        String familyName   = "Smith";
-        String fullName     = givenName + " " + familyName;
-        // create an empty model
-        Model model = ModelFactory.createDefaultModel();
 
-        // create the resource
-        //   and add the properties cascading style
-        Resource johnSmith 
-          = model.createResource(personURI)
-                 .addProperty(VCARD.FN, fullName)
-                 .addProperty(VCARD.N, 
-                              model.createResource()
-                                   .addProperty(VCARD.Given, givenName)
-                                   .addProperty(VCARD.Family, familyName));
-        
-        //RDFDataMgr.write(rdfOut, model, Lang.RDFXML);
-        model.write(new FileOutputStream(rdfFile), Lang.RDFXML.getName());
-        model.write(System.out);
-        
-        System.out.println("--------------------");
-        
-        //read back in
-        Model model2 = ModelFactory.createDefaultModel();
-        model2.read(new FileInputStream(rdfFile), Lang.RDFXML.getName());
-        model2.write(System.out);
-        
-        System.out.println("--------------------");
-        
-        String queryString = 
-        		"PREFIX vcard: <http://www.w3.org/2001/vcard-rdf/3.0#> " +
-        		"SELECT ?fullname " +
-				"WHERE {" +
-        		"	?person vcard:Given \"John\" . " +
-        		"	?person vcard:Given ?given . " +
-				"	?person vcard:Family ?family . " +
-				"	?personURI vcard:N ?person . " +
-				"	?personURI vcard:FN ?fullname . " +
-				"}";
-        
-        Query query = QueryFactory.create(queryString);
-
-	    // Execute the query and obtain results
-	     QueryExecution qe = QueryExecutionFactory.create(query, model2);
-	     ResultSet results = qe.execSelect();
-	
-	     // Output query results	
-	     ResultSetFormatter.out(System.out, results, query);
-	
-	     // Important - free up resources used running the query
-	     qe.close();
         
 
 	     
@@ -277,7 +233,7 @@ public class WebServlet extends HttpServlet {
 				public void run() {
 					LOGGER.log(Level.FINE, "Starting background thread for database storage");
 					RDFConnector datastoreConn = new RDFConnector();
-					if (datastoreConn.establishConnection()) { 
+					if (datastoreConn.establishConnection(datastoreLocation)) { 
 						for(Status status : result) {
 							datastoreConn.addUsers(status.getUser());
 						}
@@ -343,7 +299,7 @@ public class WebServlet extends HttpServlet {
 				public void run() {
 					LOGGER.log(Level.FINE, "Starting background thread for database storage");
 					RDFConnector datastoreConn = new RDFConnector();
-					if(datastoreConn.establishConnection()) { 			
+					if(datastoreConn.establishConnection(datastoreLocation)) { 			
 						datastoreConn.addUsers(tweeter);
 						for(User user : retweeters){
 							datastoreConn.addUsers(user);
@@ -433,7 +389,7 @@ public class WebServlet extends HttpServlet {
 				public void run() {
 					LOGGER.log(Level.FINE, "Starting background thread for term database storage");
 					RDFConnector datastoreConn = new RDFConnector();
-					if (datastoreConn.establishConnection()) { 
+					if (datastoreConn.establishConnection(datastoreLocation)) { 
 						//Add users to database
 						for(User user : users){
 							datastoreConn.addUsers(user);
@@ -584,7 +540,7 @@ public class WebServlet extends HttpServlet {
 				public void run() {
 					LOGGER.log(Level.FINE, "Starting background thread for term database storage");
 					RDFConnector datastoreConn = new RDFConnector();
-					if (datastoreConn.establishConnection()) { 
+					if (datastoreConn.establishConnection(datastoreLocation)) { 
 						//Add users to database
 						if (firstTime) {
 							datastoreConn.addUsers(user);
@@ -737,7 +693,7 @@ public class WebServlet extends HttpServlet {
 				public void run() {
 					LOGGER.log(Level.FINE, "Starting background thread for term database storage");
 					RDFConnector datastoreConn = new RDFConnector();
-					if (datastoreConn.establishConnection()) { 
+					if (datastoreConn.establishConnection(datastoreLocation)) { 
 						for (Entry<String, CompleteVenue> entry : venues.entrySet()) {
 							datastoreConn.addVenues(entry.getValue());
 							for(Status tweet : venueTweets.get(entry.getKey())){

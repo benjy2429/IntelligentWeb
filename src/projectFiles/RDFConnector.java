@@ -1,19 +1,131 @@
 package projectFiles;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.util.HashMap;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import org.apache.jena.riot.Lang;
+
+import com.hp.hpl.jena.ontology.OntModel;
+import com.hp.hpl.jena.ontology.OntModelSpec;
+import com.hp.hpl.jena.query.Query;
+import com.hp.hpl.jena.query.QueryExecution;
+import com.hp.hpl.jena.query.QueryExecutionFactory;
+import com.hp.hpl.jena.query.QueryFactory;
+import com.hp.hpl.jena.query.ResultSet;
+import com.hp.hpl.jena.query.ResultSetFormatter;
+import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.rdf.model.ModelFactory;
+import com.hp.hpl.jena.rdf.model.Property;
+import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.rdf.model.ResourceFactory;
+import com.hp.hpl.jena.vocabulary.VCARD;
 
 import fi.foyt.foursquare.api.entities.CompleteVenue;
 import twitter4j.User;
 
 public class RDFConnector {
+	//Logger
+	private static final Logger LOGGER = Logger.getLogger(DatabaseConnector.class.getName());
+	//File Properties
+	private static final String RDF_FILE_NAME = "/TripleStore.rdf";
+	private static final String ONTOLOGY_FILE_NAME = "/Ontology.rdfs";
+	private String rdfFilePath;
+	private OntModel ontology;
 
-	public boolean establishConnection() {
-		return false;
-		// TODO Auto-generated method stub
-		
+	public boolean establishConnection(String fileLocation) {
+		try {
+			rdfFilePath = fileLocation + RDF_FILE_NAME;
+			
+			ontology = ModelFactory.createOntologyModel(OntModelSpec.RDFS_MEM);
+			ontology.read(new FileInputStream(fileLocation + ONTOLOGY_FILE_NAME), Lang.RDFXML.getName());
+			
+			Model model = ModelFactory.createRDFSModel(ontology);
+			model.write(new FileOutputStream(rdfFilePath), Lang.RDFXML.getName());
+			System.out.println("connection established");
+			return true;
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			//TODO handle correctly
+			return false;
+		}
 	}
 
+	public Model getExistingRDF() throws FileNotFoundException{
+        Model model = ModelFactory.createRDFSModel(ontology);
+        model.read(new FileInputStream(rdfFilePath), Lang.RDFXML.getName());
+		return model;
+	}
+	
+	public void putRDF(Model newModel) throws FileNotFoundException {
+		//Model existingModel = getExistingRDF();
+		//existingModel.add(newModel); //TODO re-enable
+		newModel.write(new FileOutputStream(rdfFilePath), Lang.RDFXML.getName());
+		newModel.write(System.out);
+	}
+	
+	public void test() throws FileNotFoundException{
+        // some definitions
+        String keywordURI    = "http://somewhere/hello";
+        String name    = "Hello";
+        String count   = "29";
+
+        // create an empty model
+        Model model = ModelFactory.createRDFSModel(ontology);
+
+        // create the resource
+        //   and add the properties cascading style
+        Resource helloword 
+          = model.createResource(keywordURI)
+                 .addProperty(ResourceFactory.createProperty("http://schema.org/name"), name)
+                 .addProperty(ResourceFactory.createProperty("http://tomcat.dcs.shef.ac.uk:41032/aca11bmc/count"), count);
+        
+        
+        putRDF(model);
+        
+        /*
+        String queryString = 
+        		"PREFIX vcard: <http://www.w3.org/2001/vcard-rdf/3.0#> " +
+        		"SELECT ?fullname " +
+				"WHERE {" +
+        		"	?person vcard:Given \"Joe\" . " +
+        		"	?person vcard:Given ?given . " +
+				"	?person vcard:Family ?family . " +
+				"	?personURI vcard:N ?person . " +
+				"	?personURI vcard:FN ?fullname . " +
+				"}";
+        
+        Query query = QueryFactory.create(queryString);
+
+	    // Execute the query and obtain results
+	     QueryExecution qe = QueryExecutionFactory.create(query, getExistingRDF());
+	     ResultSet results = qe.execSelect();
+	
+	     // Output query results	
+	     ResultSetFormatter.out(System.out, results, query);
+	
+	     // Important - free up resources used running the query
+	     qe.close();
+	     */
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	public void addUsers(User user) {
 		// TODO Auto-generated method stub
 		
