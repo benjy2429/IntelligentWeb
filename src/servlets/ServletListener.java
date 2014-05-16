@@ -3,6 +3,8 @@ package servlets;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
+import projectFiles.RDFConnector;
+
 public class ServletListener implements ServletContextListener {
 
 	public void contextDestroyed(ServletContextEvent arg0) {
@@ -12,6 +14,8 @@ public class ServletListener implements ServletContextListener {
 
 	public void contextInitialized(ServletContextEvent arg0) {
 		System.out.println("SERVLET IS ABOUT TO BEGIN!!");
+		RDFConnector datastoreConn = new RDFConnector(arg0.getServletContext().getRealPath(""));
+		arg0.getServletContext().setAttribute("rdfConnector", datastoreConn);
 		
 	}
 

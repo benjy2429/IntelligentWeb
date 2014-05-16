@@ -28,7 +28,7 @@ public class DatastoreServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	//Logger
 	private static final Logger LOGGER = Logger.getLogger(DatastoreServlet.class.getName());
-
+	private RDFConnector datastoreConn;
 	
 	/**
 	 * When the servlet receives a get request, it delivers the databaseInterface html file
@@ -51,7 +51,8 @@ public class DatastoreServlet extends HttpServlet {
     	String requestId = request.getParameter("requestId");    	
     	Gson gson = new Gson();
     	String json = "";
-    	
+		datastoreConn = (RDFConnector) getServletConfig().getServletContext().getAttribute("rdfConnector");
+		//TODO check attribute as in webservlet
     	//TODO Change json character encoding to utf-8
    
     	//If the request indicates a search of a user then we fetch data concerning the user entered
@@ -67,7 +68,6 @@ public class DatastoreServlet extends HttpServlet {
 
     			//Open database connection
     			//DatabaseConnector datastoreConn = new DatabaseConnector(); //TODO remove
-    			RDFConnector datastoreConn = new RDFConnector();
     			datastoreConn.establishConnection();
     			
     			//Get user and id
@@ -111,7 +111,6 @@ public class DatastoreServlet extends HttpServlet {
 
     			//Open database connection
     			//DatabaseConnector datastoreConn = new DatabaseConnector(); //TODO remove
-    			RDFConnector datastoreConn = new RDFConnector();
     			datastoreConn.establishConnection();
     			
     			//Get venue and id
