@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.sql.PreparedStatement;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -18,6 +19,7 @@ import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.query.QueryExecution;
 import com.hp.hpl.jena.query.QueryExecutionFactory;
 import com.hp.hpl.jena.query.QueryFactory;
+import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.query.ResultSetFormatter;
 import com.hp.hpl.jena.rdf.model.Model;
@@ -166,6 +168,7 @@ public class RDFConnector {
 		return 0;
 	}
 
+	
 	public int getWordId(String term) {
 		// TODO Auto-generated method stub
 		return 0;
@@ -203,22 +206,69 @@ public class RDFConnector {
         	.addProperty(ResourceFactory.createProperty(SCHEMA_NS + "name"), venue.getName())
             .addProperty(ResourceFactory.createProperty(SCHEMA_NS + "photo"), photoUrl)
             .addProperty(ResourceFactory.createProperty(SCHEMA_NS + "streetAddress"), venue.getLocation().getAddress())
-            .addProperty(ResourceFactory.createProperty(BCLH_NS + "addressLocality"), venue.getLocation().getCity())
-            .addProperty(ResourceFactory.createProperty(BCLH_NS + "url"), venue.getUrl())
+            .addProperty(ResourceFactory.createProperty(SCHEMA_NS + "addressLocality"), venue.getLocation().getCity())
+            .addProperty(ResourceFactory.createProperty(SCHEMA_NS + "url"), venue.getUrl())
             .addProperty(ResourceFactory.createProperty(SCHEMA_NS + "description"), venue.getDescription());
         
         putRDF(model);	
 		
 	}
 
-	public void addUserVenue(long id, String id2) {
-		// TODO Auto-generated method stub
+	
+	public void addUserVenue(long userId, String venueId) {
+		Model model = ModelFactory.createRDFSModel(ontology, ModelFactory.createDefaultModel());	
+		String userUri = TWITTER_USER_URI + String.valueOf(userId);
+		String venueUri = FOURSQUARE_LOCATION_URI + venueId;
+
+        model.createResource(userUri)
+        	.addProperty(ResourceFactory.createProperty(BCLH_NS + "visited"), venueUri);
+        
+        putRDF(model);	
 		
 	}
 	
-	public HashMap<String, String> showUser(String username) {
-		// TODO Auto-generated method stub
-		return null;
+	
+	public HashMap<String, String> showUser(String username) { //TODO NEEDS USERID IN SCHEMA!!
+		
+		HashMap<String,String> userResult = new HashMap<String,String>();
+		
+        String queryString = 
+			"PREFIX schema: <" + SCHEMA_NS + "> " +
+			"PREFIX bclh: <" + BCLH_NS + "> " +
+			"SELECT ?name ?screenName ?hometown ?profileImgUrl ?bigProfileImgUrl ?bannerImgUrl ?description" +
+			"WHERE {" +
+			"	?user schema:alternateName \"" + username + "\" ; " +
+			"		  schema:name ?name ; " +
+			"		  schema:alternateName ?screenName . " +
+			"	OPTIONAL {" +
+			"		?user schema:streetAddress ?hometown ; " +
+			"			  bclh:profileImgUrl ?profileImgUrl ; " +
+			"			  bclh:bigProfileImgUrl ?bigProfileImgUrl ; " +
+			"			  bclh:bannerImgUrl ?bannerImgUrl ; " +
+			"			  schema:description ?description . " +
+			"	}" +
+			"}" +
+			"LIMIT 1";
+        
+        Query query = QueryFactory.create(queryString);
+
+	    QueryExecution qe = QueryExecutionFactory.create(query, rdfModel);
+	    ResultSet results = qe.execSelect();
+	    QuerySolution userGraph = results.next();
+	    
+		userResult.put("fullName", userGraph.getLiteral("name").getString());
+		userResult.put("screenName", userGraph.getLiteral("screenName").getString());
+		if (userGraph.contains("hometown")) { userResult.put("hometown", userGraph.getLiteral("hometown").getString()); }
+		if (userGraph.contains("profileImgUrl")) { userResult.put("profileImgUrl", userGraph.getLiteral("profileImgUrl").getString()); }
+		if (userGraph.contains("bigProfileImgUrl")) { userResult.put("bigProfileImgUrl", userGraph.getLiteral("bigProfileImgUrl").getString()); }
+		if (userGraph.contains("bannerImgUrl")) { userResult.put("bannerImgUrl", userGraph.getLiteral("bannerImgUrl").getString()); }
+		if (userGraph.contains("description")) { userResult.put("description", userGraph.getLiteral("description").getString()); }
+		
+	    ResultSetFormatter.out(System.out, results, query); //TODO Remove - Debugging purposes
+
+	    qe.close();
+
+		return userResult;
 	}
 
 	public List<HashMap<String, String>> getRetweetersOfUser(long userId) {

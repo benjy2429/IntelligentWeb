@@ -21,7 +21,7 @@
   	</description>
   	<display-name>DatabaseServlet</display-name>
   	<servlet-name>DatabaseServlet</servlet-name>
-  	<servlet-class>servlets.DatabaseServlet</servlet-class>
+  	<servlet-class>servlets.DatastoreServlet</servlet-class>
   </servlet>
   <servlet-mapping>
     <servlet-name>WebServlet</servlet-name>
