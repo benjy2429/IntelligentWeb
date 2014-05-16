@@ -62,7 +62,6 @@ public class RDFConnector {
 	public boolean establishConnection(String fileLocation) {
 		try {
 			//TODO check that model is accessible
-			
 			System.out.println("connection established");
 			return true;
 		} catch (Exception ex) {
@@ -80,9 +79,10 @@ public class RDFConnector {
 	
 	public void test() throws FileNotFoundException{
         // some definitions
-        String keywordURI    = "http://somewhere/hello";
-        String name    = "Hello";
-        String count   = "29";
+        String keywordURI    = "http://somewhere/cilla";
+        String name    = "Cilla";
+        String screenName = "s3xych1c";
+        String count = "26";
 
         // create an empty model
 		Model model = ModelFactory.createRDFSModel(ontology, ModelFactory.createDefaultModel());
@@ -92,7 +92,8 @@ public class RDFConnector {
         Resource helloword 
           = model.createResource(keywordURI)
                  .addProperty(ResourceFactory.createProperty("http://schema.org/name"), name)
-                 .addProperty(ResourceFactory.createProperty("http://tomcat.dcs.shef.ac.uk:41032/aca11bmc/count"), count);
+        		 .addProperty(ResourceFactory.createProperty("http://schema.org/alternateName"), screenName)
+        		 .addProperty(ResourceFactory.createProperty("http://tomcat.dcs.shef.ac.uk:41032/aca11bmc/count"), count);
         
         
         putRDF(model);
