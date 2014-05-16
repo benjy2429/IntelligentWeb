@@ -30,10 +30,12 @@ import queries.Queries;
 import queries.StreamingQueries;
 
 import com.google.gson.*;
+import com.hp.hpl.jena.ontology.*;
 import com.hp.hpl.jena.query.*;
 import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.rdf.model.*;
 import com.hp.hpl.jena.tdb.*;
+import com.hp.hpl.jena.util.iterator.ExtendedIterator;
 import com.hp.hpl.jena.vocabulary.VCARD;
 
 import twitter4j.*;
@@ -192,9 +194,25 @@ public class WebServlet extends HttpServlet {
         
 
 	     
+	     // ONTOLOGY TEST //
+	     
+	     String filePath = getServletConfig().getServletContext().getRealPath("") + "\\ontology.rdfs";
+	     OntModel ontology = ModelFactory.createOntologyModel(OntModelSpec.RDFS_MEM);
+	     ontology.read(new FileInputStream(filePath), Lang.RDFXML.getName());
+	     ExtendedIterator<OntClass> clas = ontology.listClasses();
+	     while (clas.hasNext()) {
+	    	 System.out.println(clas.next().toString());
+	     }
+	     /*
+	     Property sa = ontology.getProperty("streetAddress");
+	     System.out.println(sa.getLocalName());
+	     System.out.println(sa.getComment("EN"));
+	     */
+	     
+	     
 	     
         // ORIGINAL CODE BELOW //
-        
+        /*
 		PrintWriter out = response.getWriter();		
 		try {
 			String requestId = request.getParameter("requestId");    	
@@ -216,7 +234,7 @@ public class WebServlet extends HttpServlet {
 		    out.println(ex.getMessage());
 		}
 		out.close();
-		
+		*/
 	}
 
 	
