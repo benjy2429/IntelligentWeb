@@ -37,16 +37,32 @@ public class RDFConnector {
 	private static final String ONTOLOGY_FILE_NAME = "/Ontology.rdfs";
 	private String rdfFilePath;
 	private OntModel ontology;
+	private Model rdfModel;
+
+	public RDFConnector(String fileLocation){
+		rdfFilePath = fileLocation + RDF_FILE_NAME;
+		
+		ontology = ModelFactory.createOntologyModel(OntModelSpec.RDFS_MEM);
+		try {
+			ontology.read(new FileInputStream(fileLocation + ONTOLOGY_FILE_NAME), Lang.RDFXML.getName());
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}	
+		
+		rdfModel = ModelFactory.createRDFSModel(ontology, ModelFactory.createDefaultModel());
+        try {
+        	rdfModel.read(new FileInputStream(rdfFilePath), Lang.RDFXML.getName());
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 
 	public boolean establishConnection(String fileLocation) {
 		try {
-			rdfFilePath = fileLocation + RDF_FILE_NAME;
+			//TODO check that model is accessible
 			
-			ontology = ModelFactory.createOntologyModel(OntModelSpec.RDFS_MEM);
-			ontology.read(new FileInputStream(fileLocation + ONTOLOGY_FILE_NAME), Lang.RDFXML.getName());
-			
-			Model model = ModelFactory.createRDFSModel(ontology);
-			model.write(new FileOutputStream(rdfFilePath), Lang.RDFXML.getName());
 			System.out.println("connection established");
 			return true;
 		} catch (Exception ex) {
@@ -56,17 +72,10 @@ public class RDFConnector {
 		}
 	}
 
-	public Model getExistingRDF() throws FileNotFoundException{
-        Model model = ModelFactory.createRDFSModel(ontology);
-        model.read(new FileInputStream(rdfFilePath), Lang.RDFXML.getName());
-		return model;
-	}
-	
 	public void putRDF(Model newModel) throws FileNotFoundException {
-		//Model existingModel = getExistingRDF();
-		//existingModel.add(newModel); //TODO re-enable
-		newModel.write(new FileOutputStream(rdfFilePath), Lang.RDFXML.getName());
-		newModel.write(System.out);
+		rdfModel.add(newModel);
+		rdfModel.write(new FileOutputStream(rdfFilePath), Lang.RDFXML.getName());
+		rdfModel.write(System.out);
 	}
 	
 	public void test() throws FileNotFoundException{
@@ -76,7 +85,7 @@ public class RDFConnector {
         String count   = "29";
 
         // create an empty model
-        Model model = ModelFactory.createRDFSModel(ontology);
+		Model model = ModelFactory.createRDFSModel(ontology, ModelFactory.createDefaultModel());
 
         // create the resource
         //   and add the properties cascading style

@@ -59,9 +59,14 @@ public class WebServlet extends HttpServlet {
 	private StreamingQueries twitterStream = null;
 	//Logger
 	private static final Logger LOGGER = Logger.getLogger(WebServlet.class.getName());
+	
+	private static final RDFConnector DATASTORE_CONN;
+	
 	//
 	private String datastoreLocation;
 
+	
+	
 
 	/** 
 	 * confTwitter provides the oAuth configuration settings for a Twitter connection
@@ -141,9 +146,8 @@ public class WebServlet extends HttpServlet {
 		datastoreLocation = getServletConfig().getServletContext().getRealPath("");
 		//String rdfFilePath = datastoreLocation + "/TripleStore.rdf";
 		
-		RDFConnector datastoreConn = new RDFConnector();
-		if (datastoreConn.establishConnection(datastoreLocation)) { 
-			datastoreConn.test();
+		if (DATASTORE_CONN.establishConnection(datastoreLocation)) { 
+			DATASTORE_CONN.test();
 		}
 		
 
@@ -250,12 +254,11 @@ public class WebServlet extends HttpServlet {
 				@Override
 				public void run() {
 					LOGGER.log(Level.FINE, "Starting background thread for database storage");
-					RDFConnector datastoreConn = new RDFConnector();
-					if (datastoreConn.establishConnection(datastoreLocation)) { 
+					if (DATASTORE_CONN.establishConnection(datastoreLocation)) { 
 						for(Status status : result) {
-							datastoreConn.addUsers(status.getUser());
+							DATASTORE_CONN.addUsers(status.getUser());
 						}
-						datastoreConn.closeConnection();
+						DATASTORE_CONN.closeConnection();
 					}
 					LOGGER.log(Level.FINE, "Ending background thread for database storage");
 				}
@@ -316,14 +319,13 @@ public class WebServlet extends HttpServlet {
 				@Override
 				public void run() {
 					LOGGER.log(Level.FINE, "Starting background thread for database storage");
-					RDFConnector datastoreConn = new RDFConnector();
-					if(datastoreConn.establishConnection(datastoreLocation)) { 			
-						datastoreConn.addUsers(tweeter);
+					if(DATASTORE_CONN.establishConnection(datastoreLocation)) { 			
+						DATASTORE_CONN.addUsers(tweeter);
 						for(User user : retweeters){
-							datastoreConn.addUsers(user);
-							datastoreConn.addContact(tweeter.getId(), user.getId());
+							DATASTORE_CONN.addUsers(user);
+							DATASTORE_CONN.addContact(tweeter.getId(), user.getId());
 						}
-						datastoreConn.closeConnection();
+						DATASTORE_CONN.closeConnection();
 					}
 					LOGGER.log(Level.FINE, "Ending background thread for database storage");
 				}
@@ -406,30 +408,29 @@ public class WebServlet extends HttpServlet {
 				@Override
 				public void run() {
 					LOGGER.log(Level.FINE, "Starting background thread for term database storage");
-					RDFConnector datastoreConn = new RDFConnector();
-					if (datastoreConn.establishConnection(datastoreLocation)) { 
+					if (DATASTORE_CONN.establishConnection(datastoreLocation)) { 
 						//Add users to database
 						for(User user : users){
-							datastoreConn.addUsers(user);
+							DATASTORE_CONN.addUsers(user);
 						}
 						for(Term term : allTerms){
 							//Add terms to database and get id
-							int wordId = datastoreConn.addWord(term.term);
+							int wordId = DATASTORE_CONN.addWord(term.term);
 							
 							//If already exists, then look it up
-							if (wordId == -1) {wordId = datastoreConn.getWordId(term.term);}
+							if (wordId == -1) {wordId = DATASTORE_CONN.getWordId(term.term);}
 							
 							//If we still don't have an id then something has gone wrong
 							if (wordId != -1){
 								//Add the pairings of user to word in the database
 								for(Pair<Long, Integer> userCount : term.userCounts){
-									datastoreConn.addUserTermPair(userCount.t, wordId, userCount.u);
+									DATASTORE_CONN.addUserTermPair(userCount.t, wordId, userCount.u);
 								}
 							} else {
 								LOGGER.log(Level.WARNING, "A term exists in the database but its id could not be obtained. Term: " + term.term);
 							}
 						}
-						datastoreConn.closeConnection();
+						DATASTORE_CONN.closeConnection();
 					}
 					LOGGER.log(Level.FINE, "Ending background thread for term database storage");
 				}
@@ -557,18 +558,17 @@ public class WebServlet extends HttpServlet {
 				@Override
 				public void run() {
 					LOGGER.log(Level.FINE, "Starting background thread for term database storage");
-					RDFConnector datastoreConn = new RDFConnector();
-					if (datastoreConn.establishConnection(datastoreLocation)) { 
+					if (DATASTORE_CONN.establishConnection(datastoreLocation)) { 
 						//Add users to database
 						if (firstTime) {
-							datastoreConn.addUsers(user);
+							DATASTORE_CONN.addUsers(user);
 						}
 						//Add venues to database
 						for(CompleteVenue venue : result){
-							datastoreConn.addVenues(venue);
-							datastoreConn.addUserVenue(user.getId(),venue.getId());
+							DATASTORE_CONN.addVenues(venue);
+							DATASTORE_CONN.addUserVenue(user.getId(),venue.getId());
 						}
-						datastoreConn.closeConnection();
+						DATASTORE_CONN.closeConnection();
 					}
 					LOGGER.log(Level.FINE, "Ending background thread for term database storage");
 				}
@@ -710,16 +710,15 @@ public class WebServlet extends HttpServlet {
 				@Override
 				public void run() {
 					LOGGER.log(Level.FINE, "Starting background thread for term database storage");
-					RDFConnector datastoreConn = new RDFConnector();
-					if (datastoreConn.establishConnection(datastoreLocation)) { 
+					if (DATASTORE_CONN.establishConnection(datastoreLocation)) { 
 						for (Entry<String, CompleteVenue> entry : venues.entrySet()) {
-							datastoreConn.addVenues(entry.getValue());
+							DATASTORE_CONN.addVenues(entry.getValue());
 							for(Status tweet : venueTweets.get(entry.getKey())){
-								datastoreConn.addUsers(tweet.getUser());
-								datastoreConn.addUserVenue(tweet.getUser().getId(), entry.getKey());
+								DATASTORE_CONN.addUsers(tweet.getUser());
+								DATASTORE_CONN.addUserVenue(tweet.getUser().getId(), entry.getKey());
 							}
 						}
-						datastoreConn.closeConnection();
+						DATASTORE_CONN.closeConnection();
 					}
 					LOGGER.log(Level.FINE, "Ending background thread for term database storage");
 				}
