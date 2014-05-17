@@ -22,6 +22,8 @@ import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.ResourceFactory;
+import com.hp.hpl.jena.sparql.resultset.ResultsFormat;
+
 import fi.foyt.foursquare.api.entities.CompleteVenue;
 import twitter4j.User;
 
@@ -76,9 +78,11 @@ public class RDFConnector {
 	
 	public void test() throws FileNotFoundException{
         // some definitions
-        String uri    = "http://somewhere/meadowhall";
-        String name    = "Meadowhall";
-        String city = "Sheffield";
+        String uri    = "http://somewhere/userA";
+        String name    = "Alice";
+        String id = "userA";
+        String screenName = "alice321";
+        String knows = "http://somewhere/userB";
 
         // create an empty model
 		Model model = ModelFactory.createRDFSModel(ontology, ModelFactory.createDefaultModel());
@@ -88,10 +92,16 @@ public class RDFConnector {
         Resource helloword 
           = model.createResource(uri)
                  .addProperty(ResourceFactory.createProperty(SCHEMA_NS + "name"), name)
-        		 .addProperty(ResourceFactory.createProperty(BCLH_NS + "city"), city);        
+        		 .addProperty(ResourceFactory.createProperty(BCLH_NS + "userId"), id)
+		        .addProperty(ResourceFactory.createProperty(SCHEMA_NS + "alternateName"), screenName)
+		        .addProperty(ResourceFactory.createProperty(SCHEMA_NS + "knows"), knows);
         
-        putRDF(model);
-        
+       putRDF(model);
+   
+	    
+	    
+	    
+	    
         /*
         String queryString = 
         		"PREFIX vcard: <http://www.w3.org/2001/vcard-rdf/3.0#> " +
@@ -264,7 +274,7 @@ public class RDFConnector {
 
 	
 	public List<HashMap<String, String>> getRetweetersOfUser(long userId) {
-		// TODO Auto-generated method stub
+
 		LinkedList<HashMap<String,String>> retweeters = new LinkedList<HashMap<String,String>>();
 		
         String queryString = 
@@ -273,14 +283,15 @@ public class RDFConnector {
 			"SELECT ?name ?screenName ?profileImgUrl" +
 			"WHERE {" +
 			"	?userA bclh:userId \"" + Long.toString(userId) + "\" ; " +
-			"		   schema:knows ?userB ; " + 
+			"		   schema:knows ?userBUri . " + 
+			"   BIND (URI(?userBUri) AS ?userB) . " +
 			"	?userB schema:name ?name ; " +
 			"		   schema:alternateName ?screenName . " +
 			"	OPTIONAL {" +
 			"		?userB bclh:profileImgUrl ?profileImgUrl . " +
 			"	}" +
 			"}";
-
+        
         Query query = QueryFactory.create(queryString);
 
 	    QueryExecution qe = QueryExecutionFactory.create(query, rdfModel);
@@ -290,7 +301,7 @@ public class RDFConnector {
 		    QuerySolution userGraph = results.next();
 		    	    
 		    HashMap<String,String> userHashMap = new HashMap<String,String>();
-		    userHashMap.put("name", userGraph.getLiteral("name").getString());
+		    userHashMap.put("fullName", userGraph.getLiteral("name").getString());
 		    userHashMap.put("screenName", userGraph.getLiteral("screenName").getString());
 			if (userGraph.contains("profileImgUrl")) { userHashMap.put("profileImgUrl", userGraph.getLiteral("profileImgUrl").getString()); }
 			retweeters.add(userHashMap);
@@ -303,10 +314,44 @@ public class RDFConnector {
 
 	
 	public List<HashMap<String, String>> getUserRetweets(long userId) {
-		// TODO Auto-generated method stub
-		return null;
+
+		LinkedList<HashMap<String,String>> retweeters = new LinkedList<HashMap<String,String>>();
+		String userUri = TWITTER_USER_URI + Long.toString(userId);
+		
+        String queryString = 
+			"PREFIX schema: <" + SCHEMA_NS + "> " +
+			"PREFIX bclh: <" + BCLH_NS + "> " +
+			"SELECT ?name ?screenName ?profileImgUrl" +
+			"WHERE {" +
+			"	?userA schema:knows \"" + userUri + "\" ; " + 
+			"		   schema:name ?name ; " +
+			"		   schema:alternateName ?screenName . " +
+			"	OPTIONAL {" +
+			"		?userA bclh:profileImgUrl ?profileImgUrl . " +
+			"	}" +
+			"}";
+        
+        Query query = QueryFactory.create(queryString);
+
+	    QueryExecution qe = QueryExecutionFactory.create(query, rdfModel);
+	    ResultSet results = qe.execSelect();
+	    
+	    while (results.hasNext()) {
+		    QuerySolution userGraph = results.next();
+		    	    
+		    HashMap<String,String> userHashMap = new HashMap<String,String>();
+		    userHashMap.put("fullName", userGraph.getLiteral("name").getString());
+		    userHashMap.put("screenName", userGraph.getLiteral("screenName").getString());
+			if (userGraph.contains("profileImgUrl")) { userHashMap.put("profileImgUrl", userGraph.getLiteral("profileImgUrl").getString()); }
+			retweeters.add(userHashMap);
+	    }
+
+	    qe.close();
+
+		return retweeters;
 	}
 
+	
 	public List<HashMap<String, String>> getUserLocations(long userId) {
 		// TODO Auto-generated method stub
 		return null;
