@@ -78,11 +78,9 @@ public class RDFConnector {
 	
 	public void test() throws FileNotFoundException{
         // some definitions
-        String uri    = "http://somewhere/userA";
-        String name    = "Alice";
-        String id = "userA";
-        String screenName = "alice321";
-        String knows = "http://somewhere/userB";
+        String uri    = "http://somewhere/meadowhall";
+        String name    = "Meadowhall";
+        String id = "mhall";
 
         // create an empty model
 		Model model = ModelFactory.createRDFSModel(ontology, ModelFactory.createDefaultModel());
@@ -92,15 +90,39 @@ public class RDFConnector {
         Resource helloword 
           = model.createResource(uri)
                  .addProperty(ResourceFactory.createProperty(SCHEMA_NS + "name"), name)
-        		 .addProperty(ResourceFactory.createProperty(BCLH_NS + "userId"), id)
-		        .addProperty(ResourceFactory.createProperty(SCHEMA_NS + "alternateName"), screenName)
-		        .addProperty(ResourceFactory.createProperty(SCHEMA_NS + "knows"), knows);
+        		 .addProperty(ResourceFactory.createProperty(BCLH_NS + "venueId"), id);
         
-       putRDF(model);
+//       putRDF(model);
    
 	    
 	    
+	   
+       String queryString = 
+			"PREFIX schema: <" + SCHEMA_NS + "> " +
+			"PREFIX bclh: <" + BCLH_NS + "> " +
+			"SELECT ?name ?photo ?address ?city ?url ?description " +
+			"WHERE {" +
+			"	?user bclh:userId \"userA\" ; " +
+			"		  bclh:visited ?venueUri . " + 
+			"   BIND (URI(?venueUri) AS ?venue) . " +
+			"	?venue schema:name ?name . " +
+			"	OPTIONAL {" +
+			"		?venue schema:photo ?photo ; " +
+			"			   bclh:address ?address ; " +
+			"			   bclh:city ?city ; " +
+			"			   schema:url ?url ; " +
+			"			   schema:description ?description . " +
+			"	}" +
+			"}";        
+       Query query = QueryFactory.create(queryString);
+
+	    QueryExecution qe = QueryExecutionFactory.create(query, rdfModel);
+	    ResultSet results = qe.execSelect();
 	    
+	    ResultSetFormatter.out(System.out, results, query);
+	    
+       
+       
 	    
         /*
         String queryString = 
@@ -234,7 +256,7 @@ public class RDFConnector {
         String queryString = 
 			"PREFIX schema: <" + SCHEMA_NS + "> " +
 			"PREFIX bclh: <" + BCLH_NS + "> " +
-			"SELECT ?userId ?name ?screenName ?hometown ?profileImgUrl ?bigProfileImgUrl ?bannerImgUrl ?description" +
+			"SELECT ?userId ?name ?screenName ?hometown ?profileImgUrl ?bigProfileImgUrl ?bannerImgUrl ?description " +
 			"WHERE {" +
 			"	?user schema:alternateName \"" + username + "\" ; " +
 			"		  bclh:userId ?userId ; " +
@@ -280,7 +302,7 @@ public class RDFConnector {
         String queryString = 
 			"PREFIX schema: <" + SCHEMA_NS + "> " +
 			"PREFIX bclh: <" + BCLH_NS + "> " +
-			"SELECT ?name ?screenName ?profileImgUrl" +
+			"SELECT ?name ?screenName ?profileImgUrl " +
 			"WHERE {" +
 			"	?userA bclh:userId \"" + Long.toString(userId) + "\" ; " +
 			"		   schema:knows ?userBUri . " + 
@@ -321,7 +343,7 @@ public class RDFConnector {
         String queryString = 
 			"PREFIX schema: <" + SCHEMA_NS + "> " +
 			"PREFIX bclh: <" + BCLH_NS + "> " +
-			"SELECT ?name ?screenName ?profileImgUrl" +
+			"SELECT ?name ?screenName ?profileImgUrl " +
 			"WHERE {" +
 			"	?userA schema:knows \"" + userUri + "\" ; " + 
 			"		   schema:name ?name ; " +
@@ -353,8 +375,49 @@ public class RDFConnector {
 
 	
 	public List<HashMap<String, String>> getUserLocations(long userId) {
-		// TODO Auto-generated method stub
-		return null;
+
+		LinkedList<HashMap<String,String>> locations = new LinkedList<HashMap<String,String>>();		
+	
+        String queryString = 
+        	"PREFIX schema: <" + SCHEMA_NS + "> " +
+   			"PREFIX bclh: <" + BCLH_NS + "> " +
+   			"SELECT ?name ?photo ?address ?city ?url ?description " +
+   			"WHERE {" +
+   			"	?user bclh:userId \"" + Long.toString(userId) + "\" ; " +
+   			"		  bclh:visited ?venueUri . " + 
+   			"   BIND (URI(?venueUri) AS ?venue) . " +
+   			"	?venue schema:name ?name . " +
+   			"	OPTIONAL {" +
+   			"		?venue schema:photo ?photo ; " +
+   			"			   bclh:address ?address ; " +
+   			"			   bclh:city ?city ; " +
+   			"			   schema:url ?url ; " +
+   			"			   schema:description ?description . " +
+   			"	}" +
+   			"}";    
+	       
+	    Query query = QueryFactory.create(queryString);
+
+	    QueryExecution qe = QueryExecutionFactory.create(query, rdfModel);
+	    ResultSet results = qe.execSelect();
+	    
+	    while (results.hasNext()) {
+		    QuerySolution venueGraph = results.next();
+		    	    
+		    HashMap<String,String> locationHashMap = new HashMap<String,String>();
+		    
+		    locationHashMap.put("name", venueGraph.getLiteral("name").getString());
+		    if (venueGraph.contains("photo")) { locationHashMap.put("imageUrl", venueGraph.getLiteral("photo").getString()); }
+		    if (venueGraph.contains("address")) { locationHashMap.put("address", venueGraph.getLiteral("address").getString()); }
+		    if (venueGraph.contains("city")) { locationHashMap.put("city", venueGraph.getLiteral("city").getString()); }
+		    if (venueGraph.contains("url")) { locationHashMap.put("websiteUrl", venueGraph.getLiteral("url").getString()); }
+		    if (venueGraph.contains("description")) { locationHashMap.put("description", venueGraph.getLiteral("description").getString()); }
+			locations.add(locationHashMap);
+	    }
+
+	    qe.close();
+
+	    return locations;
 	}
 
 	public List<HashMap<String, String>> getUserKeywords(long userId) {
@@ -367,7 +430,7 @@ public class RDFConnector {
         String queryString = 
 			"PREFIX schema: <" + SCHEMA_NS + "> " +
 			"PREFIX bclh: <" + BCLH_NS + "> " +
-			"SELECT ?venueId ?name ?photo ?address ?city ?url ?description" +
+			"SELECT ?venueId ?name ?photo ?address ?city ?url ?description " +
 			"WHERE {" +
 			"	?venue schema:name ?name ; " +
 			"		   bclh:venueId ?venueId . " +
