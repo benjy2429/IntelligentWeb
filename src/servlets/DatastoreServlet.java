@@ -7,18 +7,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import projectFiles.RDFConnector;
-
 import com.google.gson.Gson;
-
-import exceptions.DatastoreException;
-
 
 /**
  * This servlet deals with interactions between the web interface for querying the database and the database
@@ -57,7 +51,7 @@ public class DatastoreServlet extends HttpServlet {
    
     	//If the request indicates a search of a user then we fetch data concerning the user entered
     	if (requestId.equals("showUser")) {
-//    		try {
+    		try {
     			//Create data structures for results
     			HashMap<String, String> user = new HashMap<String, String>();
     			List<HashMap<String, String>> retweetersOfUser = new LinkedList<HashMap<String, String>>();
@@ -94,16 +88,16 @@ public class DatastoreServlet extends HttpServlet {
     			json += "\n";
     			json += gson.toJson(userKeywords);
     			
-//    		} catch (DatastoreException ex) {
-    			//An error occurred whilst accessing the database so catch and log
-//				LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
-//				response.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE); 
-//			    out.println(ex.getMessage());
-//			} 
+    		} catch (Exception ex) {
+    			//An error occurred whilst communicating with the ddatastore so catch and log
+				LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
+				response.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE); 
+			    out.println(ex.getMessage());
+			} 
     		
     	//If the request indicates a search of a venue then we fetch data concerning the venue entered
     	} else if (requestId.equals("showVenue")) {
-//    		try {
+    		try {
     			//Create data structures for results
     			HashMap<String, String> venue = new HashMap<String, String>();
     			List<HashMap<String, String>> users = new LinkedList<HashMap<String, String>>();
@@ -128,12 +122,12 @@ public class DatastoreServlet extends HttpServlet {
     			json += "\n";
     			json += gson.toJson(users);
     	
-//    		} catch (DatastoreException ex) {
-    			//An error occured whilst accessing the database so catch and log
-//				LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
-//				response.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE); 
-//			    out.println(ex.getMessage());
-//			}   		
+    		} catch (Exception ex) {
+    			//An error occured whilst communicating with the datastore so catch and log
+				LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
+				response.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE); 
+			    out.println(ex.getMessage());
+			}   		
     	}
     	
 		//Output JSON

@@ -1,18 +1,14 @@
 package projectFiles;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.sql.PreparedStatement;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import org.apache.jena.riot.Lang;
-
 import com.hp.hpl.jena.ontology.OntModel;
 import com.hp.hpl.jena.ontology.OntModelSpec;
 import com.hp.hpl.jena.query.Query;
@@ -24,18 +20,14 @@ import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.query.ResultSetFormatter;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
-import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.ResourceFactory;
-import com.hp.hpl.jena.vocabulary.VCARD;
-
-import exceptions.DatastoreException;
 import fi.foyt.foursquare.api.entities.CompleteVenue;
 import twitter4j.User;
 
 public class RDFConnector {
 	//Logger
-	private static final Logger LOGGER = Logger.getLogger(DatabaseConnector.class.getName());
+	private static final Logger LOGGER = Logger.getLogger(RDFConnector.class.getName());
 	//File Properties
 	private static final String RDF_FILE_NAME = "/TripleStore.rdf";
 	private static final String ONTOLOGY_FILE_NAME = "/Ontology.rdfs";
@@ -50,24 +42,14 @@ public class RDFConnector {
 	private static final String FOURSQUARE_LOCATION_URI = "http://foursquare.com/v/";
 	
 
-	public RDFConnector(String fileLocation){
+	public RDFConnector(String fileLocation) throws FileNotFoundException{
 		rdfFilePath = fileLocation + RDF_FILE_NAME;
-		
+	
 		ontology = ModelFactory.createOntologyModel(OntModelSpec.RDFS_MEM);
-		try {
-			ontology.read(new FileInputStream(fileLocation + ONTOLOGY_FILE_NAME), Lang.RDFXML.getName());
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}	
-		
+		ontology.read(new FileInputStream(fileLocation + ONTOLOGY_FILE_NAME), Lang.RDFXML.getName());
+	
 		rdfModel = ModelFactory.createRDFSModel(ontology, ModelFactory.createDefaultModel());
-        try {
-        	rdfModel.read(new FileInputStream(rdfFilePath), Lang.RDFXML.getName());
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+        rdfModel.read(new FileInputStream(rdfFilePath), Lang.RDFXML.getName());
 	}
 
 	public boolean establishConnection() {
@@ -82,9 +64,13 @@ public class RDFConnector {
 		}
 	}
 
-	public void putRDF(Model newModel) throws FileNotFoundException {
+	public void putRDF(Model newModel) {
 		rdfModel.add(newModel);
-		rdfModel.write(new FileOutputStream(rdfFilePath), Lang.RDFXML.getName());
+		try {
+			rdfModel.write(new FileOutputStream(rdfFilePath), Lang.RDFXML.getName());
+		} catch (FileNotFoundException ex) {
+			LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
+		}
 		rdfModel.write(System.out);
 	}
 	

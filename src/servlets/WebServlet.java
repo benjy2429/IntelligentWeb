@@ -417,7 +417,8 @@ public class WebServlet extends HttpServlet {
 							if (wordId != -1){
 								//Add the pairings of user to word in the database
 								for(Pair<Long, Integer> userCount : term.userCounts){
-									datastoreConn.addUserTermPair(userCount.t, wordId, userCount.u);
+									//datastoreConn.addUserTermPair(userCount.t, wordId, userCount.u);
+									//TODO fix
 								}
 							} else {
 								LOGGER.log(Level.WARNING, "A term exists in the database but its id could not be obtained. Term: " + term.term);

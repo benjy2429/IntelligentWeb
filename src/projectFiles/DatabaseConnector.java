@@ -1,4 +1,4 @@
-package projectFiles;
+/*package projectFiles;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -15,10 +15,10 @@ import fi.foyt.foursquare.api.entities.CompleteVenue;
 import twitter4j.*;
 
 
-/**
+*//**
  * This class provides a collection of methods for connecting and communicating with the system database
  * @author Luke Heavens & Ben Carr
- */
+ *//*
 public class DatabaseConnector {
 	//Database credentials
 	private static final String DBSERVER = "stusql.dcs.shef.ac.uk";
@@ -30,10 +30,10 @@ public class DatabaseConnector {
 	//The database connection
 	Connection dbConnection;	
 	
-	/**
+	*//**
 	 * This function attempts to establish a connection to a database 
 	 * @return returns true if the connection was established else false
-	 */
+	 *//*
 	public boolean establishConnection(){
 	 	try {
 			Class.forName("com.mysql.jdbc.Driver").newInstance();
@@ -47,9 +47,9 @@ public class DatabaseConnector {
 	}
 	
 	
-	/**
+	*//**
 	 * This method closes the database connection
-	 */
+	 *//*
 	public void closeConnection(){
 		try {
 			dbConnection.close();
@@ -59,11 +59,11 @@ public class DatabaseConnector {
 	}
 	
 	
-	/**
+	*//**
 	 * This method takes a user and will add desired fields into the database using a prepared statement
 	 * If the user already exists with this id, the information will be updated
 	 * @param user - The user object to store
-	 */
+	 *//*
 	public void addUsers(User user){
 		try {
 			String sql = "REPLACE INTO Users(userId,fullName,screenName,hometown,profileImgUrl,bigProfileImgUrl,bannerImgUrl,description) VALUES (?,?,?,?,?,?,?,?)";
@@ -84,11 +84,11 @@ public class DatabaseConnector {
 	}
 	
 	
-	/**
+	*//**
 	 * This method takes a venue and will add desired fields into the database using a prepared statement
 	 * If the venue already exists with this id, the information will be updated
 	 * @param venue - the venue object to store
-	 */
+	 *//*
 	public void addVenues(CompleteVenue venue){
 		try {
 			String sql = "REPLACE INTO Locations(locId,name,imageUrl,address,city,websiteUrl,description) VALUES (?,?,?,?,?,?,?)";
@@ -115,12 +115,12 @@ public class DatabaseConnector {
 	}
 
 
-	/**
+	*//**
 	 * This method stores the ids of two twitter users to indicate that there has been some interaction
 	 * If the combination of user ids exists then we ignore the insertion
 	 * @param tweeterId - The id of a user who has tweeted
 	 * @param retweeterId - The id of a user who has retweeted the tweeters tweet
-	 */
+	 *//*
 	public void addContact(long tweeterId, long retweeterId) {
 		try {
 			String sql = "INSERT IGNORE INTO UserUserContact(userA,userB) VALUES (?,?)";
@@ -135,12 +135,12 @@ public class DatabaseConnector {
 	}
 
 
-	/**
+	*//**
 	 * This method adds a frequently used term to the database that doesn't already exist
 	 * Returns the id of the term if it was added
 	 * @param term - The term used
 	 * @return returns wordId of word if added, -1 otherwise
-	 */
+	 *//*
 	public int addWord(String term) {
 		try {
 			String sql = "INSERT IGNORE INTO Keywords(word) VALUES (?)";
@@ -164,14 +164,14 @@ public class DatabaseConnector {
 	}
 
 
-	/**
+	*//**
 	 * This method adds a pairing between a user and a term along with an occurrence count 
 	 * If the pairing already exists, the occurrence count is only updated if it is larger than previously seen
 	 * This allows significant terms to be identified
 	 * @param userId - The id of a user
 	 * @param wordId - The id of a term
 	 * @param userCount - The number of times the user has seen the word
-	 */
+	 *//*
 	public void addUserTermPair(long userId, int wordId, int userCount) {
 		try {		
 			String sql = "INSERT IGNORE INTO UserKeyword SET wordId = ?, userId = ?, count = ? ON DUPLICATE KEY UPDATE count = IF (count < ?, ?, count)";
@@ -189,12 +189,12 @@ public class DatabaseConnector {
 	}
 
 
-	/**
+	*//**
 	 * This method adds a user venue pairing if the pairing doesnt already exist
 	 * This indicates a user has visited a location
 	 * @param userId
 	 * @param venueId
-	 */
+	 *//*
 	public void addUserVenue(long userId, String venueId) {
 		try {		
 			String sql = "INSERT IGNORE INTO UserLocation(userId,locId) VALUES (?,?)";
@@ -209,12 +209,12 @@ public class DatabaseConnector {
 	}
 
 
-	/**
+	*//**
 	 * This method will look up a word in the database and will return the wordId if it exists.
 	 * If it cannot find an index, it will return -1
 	 * @param term - The word to look up
 	 * @return - Index of word or -1 if not found
-	 */
+	 *//*
 	public int getWordId(String term) {
 		try {
 			String sql = "SELECT wordId FROM Keywords WHERE word = ?";
@@ -235,13 +235,13 @@ public class DatabaseConnector {
 	}
 
 
-	/**
+	*//**
 	 * This function takes a username and performs a lookup in the database
 	 * If a user is found, details are stored in a hashmap and returned
 	 * @param username - The user to look for
 	 * @return - A hashmap of details
 	 * @throws DatastoreException
-	 */
+	 *//*
 	public HashMap<String,String> showUser(String username) throws DatastoreException {
 		try {
 			HashMap<String,String> userResult = new HashMap<String,String>();
@@ -267,13 +267,13 @@ public class DatabaseConnector {
 	}
 
 	
-	/**
+	*//**
 	 * This function gets user details for users that have retweeted a given user
 	 * If users are found, details are stored in a list of hashmaps and returned
 	 * @param userId - The tweeter id
 	 * @return A List (one for each retweeter) of hash maps (user details) 
 	 * @throws DatastoreException
-	 */
+	 *//*
 	public LinkedList<HashMap<String,String>> getRetweetersOfUser(long userId) throws DatastoreException {
 		try {
 			LinkedList<HashMap<String,String>> retweeters = new LinkedList<HashMap<String,String>>();
@@ -297,13 +297,13 @@ public class DatabaseConnector {
 	}
 	
 	
-	/**
+	*//**
 	 * This function gets user details for users that have been retweeted by a given user
 	 * If users are found, details are stored in a list of hashmaps and returned
 	 * @param userId - The retweeter id
 	 * @return A list (one for each tweeter) of hash maps (user details)
 	 * @throws DatastoreException
-	 */
+	 *//*
 	public LinkedList<HashMap<String,String>> getUserRetweets(long userId) throws DatastoreException {
 		try {
 			LinkedList<HashMap<String,String>> retweeters = new LinkedList<HashMap<String,String>>();
@@ -327,12 +327,12 @@ public class DatabaseConnector {
 	}
 	
 	
-	/**
+	*//**
 	 * This function takes a userId and gets information of venues they have visited
 	 * @param userId - The if of the user to lookup
 	 * @return - A list of (one for each venue visted) hash maps (venue details)
 	 * @throws DatastoreException
-	 */
+	 *//*
 	public LinkedList<HashMap<String,String>> getUserLocations(long userId) throws DatastoreException {
 		try {
 			LinkedList<HashMap<String,String>> locations = new LinkedList<HashMap<String,String>>();
@@ -359,12 +359,12 @@ public class DatabaseConnector {
 	}
 	
 
-	/**
+	*//**
 	 * This function takes a userId and gets frequently user terms
 	 * @param userId - The if of the user to lookup
 	 * @return - A list of (one for each term used) hash maps (term and count)
 	 * @throws DatastoreException
-	 */
+	 *//*
 	public LinkedList<HashMap<String,String>> getUserKeywords(long userId) throws DatastoreException {
 		try {
 			LinkedList<HashMap<String,String>> keywords = new LinkedList<HashMap<String,String>>();
@@ -387,13 +387,13 @@ public class DatabaseConnector {
 	}	
 	
 	
-	/**
+	*//**
 	 * This function takes a venue name and performs a lookup in the database
 	 * If a venue is found, details are stored in a hashmap and returned
 	 * @param venueName - The venue to look for
 	 * @return - A hashmap of details
 	 * @throws DatastoreException
-	 */
+	 *//*
 	public HashMap<String,String> showVenue(String venueName) throws DatastoreException {
 		try {
 			HashMap<String,String> venue = new HashMap<String,String>();
@@ -419,12 +419,12 @@ public class DatabaseConnector {
 	}	
 	
 	
-	/**
+	*//**
 	 * This function takes a venueId and gets information of users that have visited
 	 * @param venueId - The id of the venue to lookup
 	 * @return - A list of (one for each user who has visited) hash maps (user details)
 	 * @throws DatastoreException
-	 */
+	 *//*
 	public LinkedList<HashMap<String,String>> getVenueVisitors(String venueId) throws DatastoreException {
 		try {
 			LinkedList<HashMap<String,String>> users = new LinkedList<HashMap<String,String>>();
@@ -451,3 +451,4 @@ public class DatabaseConnector {
 	}
 }
 
+*/
