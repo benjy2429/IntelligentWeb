@@ -97,24 +97,23 @@ public class RDFConnector {
 	    
 	    
 	   
-       String queryString = 
+        String queryString = 
 			"PREFIX schema: <" + SCHEMA_NS + "> " +
 			"PREFIX bclh: <" + BCLH_NS + "> " +
-			"SELECT ?name ?photo ?address ?city ?url ?description " +
+			"SELECT ?userId ?name ?screenName ?hometown ?profileImgUrl ?description " +
 			"WHERE {" +
-			"	?user bclh:userId \"userA\" ; " +
-			"		  bclh:visited ?venueUri . " + 
-			"   BIND (URI(?venueUri) AS ?venue) . " +
-			"	?venue schema:name ?name . " +
+			"	?user bclh:visited \"" + uri + "\" ; " +
+			"		  bclh:userId ?userId ; " +
+			"		  schema:name ?name ; " +
+			"		  schema:alternateName ?screenName . " +
 			"	OPTIONAL {" +
-			"		?venue schema:photo ?photo ; " +
-			"			   bclh:address ?address ; " +
-			"			   bclh:city ?city ; " +
-			"			   schema:url ?url ; " +
-			"			   schema:description ?description . " +
+			"		?user bclh:hometown ?hometown ; " +
+			"			  bclh:profileImgUrl ?profileImgUrl ; " +
+			"			  schema:description ?description . " +
 			"	}" +
-			"}";        
-       Query query = QueryFactory.create(queryString);
+			"}";
+        
+        Query query = QueryFactory.create(queryString);
 
 	    QueryExecution qe = QueryExecutionFactory.create(query, rdfModel);
 	    ResultSet results = qe.execSelect();
@@ -258,10 +257,11 @@ public class RDFConnector {
 			"PREFIX bclh: <" + BCLH_NS + "> " +
 			"SELECT ?userId ?name ?screenName ?hometown ?profileImgUrl ?bigProfileImgUrl ?bannerImgUrl ?description " +
 			"WHERE {" +
-			"	?user schema:alternateName \"" + username + "\" ; " +
+			"	?user schema:alternateName ?screenName ; " +
+			"		  a schema:Person ; " +
 			"		  bclh:userId ?userId ; " +
-			"		  schema:name ?name ; " +
-			"		  schema:alternateName ?screenName . " +
+			"		  schema:name ?name . " +
+			"	FILTER (REGEX(?screenName, \"" + username + "\", \"i\")) " +
 			"	OPTIONAL {" +
 			"		?user bclh:hometown ?hometown ; " +
 			"			  bclh:profileImgUrl ?profileImgUrl ; " +
@@ -270,25 +270,26 @@ public class RDFConnector {
 			"			  schema:description ?description . " +
 			"	}" +
 			"}" +
-			"LIMIT 1"; //TODO add LIKE filter 
+			"LIMIT 1";
         
         Query query = QueryFactory.create(queryString);
 
 	    QueryExecution qe = QueryExecutionFactory.create(query, rdfModel);
 	    ResultSet results = qe.execSelect();
-	    QuerySolution userGraph = results.next();
 	    
-	    userResult.put("userId", userGraph.getLiteral("userId").getString());
-		userResult.put("fullName", userGraph.getLiteral("name").getString());
-		userResult.put("screenName", userGraph.getLiteral("screenName").getString());
-		if (userGraph.contains("hometown")) { userResult.put("hometown", userGraph.getLiteral("hometown").getString()); }
-		if (userGraph.contains("profileImgUrl")) { userResult.put("profileImgUrl", userGraph.getLiteral("profileImgUrl").getString()); }
-		if (userGraph.contains("bigProfileImgUrl")) { userResult.put("bigProfileImgUrl", userGraph.getLiteral("bigProfileImgUrl").getString()); }
-		if (userGraph.contains("bannerImgUrl")) { userResult.put("bannerImgUrl", userGraph.getLiteral("bannerImgUrl").getString()); }
-		if (userGraph.contains("description")) { userResult.put("description", userGraph.getLiteral("description").getString()); }
-		
-	    ResultSetFormatter.out(System.out, results, query); //TODO Remove - Debugging purposes
-
+	    if (results.hasNext()) {
+		    QuerySolution userGraph = results.next();
+		    
+		    userResult.put("userId", userGraph.getLiteral("userId").getString());
+			userResult.put("fullName", userGraph.getLiteral("name").getString());
+			userResult.put("screenName", userGraph.getLiteral("screenName").getString());
+			if (userGraph.contains("hometown")) { userResult.put("hometown", userGraph.getLiteral("hometown").getString()); }
+			if (userGraph.contains("profileImgUrl")) { userResult.put("profileImgUrl", userGraph.getLiteral("profileImgUrl").getString()); }
+			if (userGraph.contains("bigProfileImgUrl")) { userResult.put("bigProfileImgUrl", userGraph.getLiteral("bigProfileImgUrl").getString()); }
+			if (userGraph.contains("bannerImgUrl")) { userResult.put("bannerImgUrl", userGraph.getLiteral("bannerImgUrl").getString()); }
+			if (userGraph.contains("description")) { userResult.put("description", userGraph.getLiteral("description").getString()); }
+	    }
+	    
 	    qe.close();
 
 		return userResult;
@@ -305,9 +306,11 @@ public class RDFConnector {
 			"SELECT ?name ?screenName ?profileImgUrl " +
 			"WHERE {" +
 			"	?userA bclh:userId \"" + Long.toString(userId) + "\" ; " +
+			"		   a schema:Person ; " + 
 			"		   schema:knows ?userBUri . " + 
 			"   BIND (URI(?userBUri) AS ?userB) . " +
-			"	?userB schema:name ?name ; " +
+			"	?userB a schema:Person ; " +
+			"		   schema:name ?name ; " + 
 			"		   schema:alternateName ?screenName . " +
 			"	OPTIONAL {" +
 			"		?userB bclh:profileImgUrl ?profileImgUrl . " +
@@ -346,6 +349,7 @@ public class RDFConnector {
 			"SELECT ?name ?screenName ?profileImgUrl " +
 			"WHERE {" +
 			"	?userA schema:knows \"" + userUri + "\" ; " + 
+			"		   a schema:Person ; " +
 			"		   schema:name ?name ; " +
 			"		   schema:alternateName ?screenName . " +
 			"	OPTIONAL {" +
@@ -384,9 +388,11 @@ public class RDFConnector {
    			"SELECT ?name ?photo ?address ?city ?url ?description " +
    			"WHERE {" +
    			"	?user bclh:userId \"" + Long.toString(userId) + "\" ; " +
+   			"		  a schema:Person ; " +
    			"		  bclh:visited ?venueUri . " + 
    			"   BIND (URI(?venueUri) AS ?venue) . " +
-   			"	?venue schema:name ?name . " +
+   			"	?venue a schema:Location ; " +
+   			"		   schema:name ?name . " +
    			"	OPTIONAL {" +
    			"		?venue schema:photo ?photo ; " +
    			"			   bclh:address ?address ; " +
@@ -432,7 +438,8 @@ public class RDFConnector {
 			"PREFIX bclh: <" + BCLH_NS + "> " +
 			"SELECT ?venueId ?name ?photo ?address ?city ?url ?description " +
 			"WHERE {" +
-			"	?venue schema:name ?name ; " +
+			"	?venue a schema:Location ; " + 
+			"		   schema:name ?name ; " +
 			"		   bclh:venueId ?venueId . " +
 			"	FILTER (REGEX(?name, \"" + venueName + "\", \"i\")) " +
 			"	OPTIONAL {" +
@@ -470,9 +477,51 @@ public class RDFConnector {
 	
 	public List<HashMap<String, String>> getVenueVisitors(String venueId) {
 		// TODO Auto-generated method stub
-		return null;
+		LinkedList<HashMap<String,String>> users = new LinkedList<HashMap<String,String>>();
+		String venueUri = FOURSQUARE_LOCATION_URI + venueId;
+		
+        String queryString = 
+			"PREFIX schema: <" + SCHEMA_NS + "> " +
+			"PREFIX bclh: <" + BCLH_NS + "> " +
+			"SELECT ?userId ?name ?screenName ?hometown ?profileImgUrl ?description " +
+			"WHERE {" +
+			"	?user bclh:visited \"" + venueUri + "\" ; " +
+			"		  a schema:Person ; " +
+			"		  bclh:userId ?userId ; " +
+			"		  schema:name ?name ; " +
+			"		  schema:alternateName ?screenName . " +
+			"	OPTIONAL {" +
+			"		?user bclh:hometown ?hometown ; " +
+			"			  bclh:profileImgUrl ?profileImgUrl ; " +
+			"			  schema:description ?description . " +
+			"	}" +
+			"}";
+        
+        Query query = QueryFactory.create(queryString);
+
+	    QueryExecution qe = QueryExecutionFactory.create(query, rdfModel);
+	    ResultSet results = qe.execSelect();
+	    
+	    if (results.hasNext()) { 
+	    	QuerySolution userGraph = results.next();
+	    
+	    	HashMap<String,String> userHashMap = new HashMap<String,String>();
+	    	
+	    	userHashMap.put("userId", userGraph.getLiteral("userId").getString());
+	    	userHashMap.put("name", userGraph.getLiteral("name").getString());
+	    	userHashMap.put("screenName", userGraph.getLiteral("screenName").getString());
+			if (userGraph.contains("hometown")) { userHashMap.put("hometown", userGraph.getLiteral("hometown").getString()); }
+			if (userGraph.contains("profileImgUrl")) { userHashMap.put("profileImgUrl", userGraph.getLiteral("profileImgUrl").getString()); }
+			if (userGraph.contains("description")) { userHashMap.put("description", userGraph.getLiteral("description").getString()); }
+			users.add(userHashMap);
+	    }
+	    
+	    qe.close();
+		
+		return users;
 	}
 
+	
 	public void closeConnection() {
 		// TODO Auto-generated method stub
 		
