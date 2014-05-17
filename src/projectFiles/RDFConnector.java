@@ -29,6 +29,7 @@ import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.ResourceFactory;
 import com.hp.hpl.jena.vocabulary.VCARD;
 
+import exceptions.DatastoreException;
 import fi.foyt.foursquare.api.entities.CompleteVenue;
 import twitter4j.User;
 
@@ -89,9 +90,9 @@ public class RDFConnector {
 	
 	public void test() throws FileNotFoundException{
         // some definitions
-        String keywordURI    = "http://somewhere/rabbit";
-        String name    = "Rabbit";
-        String screenName = "rab";
+        String uri    = "http://somewhere/meadowhall";
+        String name    = "Meadowhall";
+        String city = "Sheffield";
 
         // create an empty model
 		Model model = ModelFactory.createRDFSModel(ontology, ModelFactory.createDefaultModel());
@@ -99,9 +100,9 @@ public class RDFConnector {
         // create the resource
         //   and add the properties cascading style
         Resource helloword 
-          = model.createResource(keywordURI)
-                 .addProperty(ResourceFactory.createProperty("http://schema.org/name"), name)
-        		 .addProperty(ResourceFactory.createProperty("http://schema.org/alternateName"), screenName);        
+          = model.createResource(uri)
+                 .addProperty(ResourceFactory.createProperty(SCHEMA_NS + "name"), name)
+        		 .addProperty(ResourceFactory.createProperty(BCLH_NS + "city"), city);        
         
         putRDF(model);
         
@@ -136,12 +137,13 @@ public class RDFConnector {
 	
 	public void addUsers(User user) {
 		Model model = ModelFactory.createRDFSModel(ontology, ModelFactory.createDefaultModel());	
-		String userUri = TWITTER_USER_URI + user.getId();
+		String userUri = TWITTER_USER_URI + Long.toString(user.getId());
 
         model.createResource(userUri)
+        	.addProperty(ResourceFactory.createProperty(BCLH_NS + "userId"), Long.toString(user.getId()))
         	.addProperty(ResourceFactory.createProperty(SCHEMA_NS + "name"), user.getName())
             .addProperty(ResourceFactory.createProperty(SCHEMA_NS + "alternateName"), user.getScreenName())
-            .addProperty(ResourceFactory.createProperty(SCHEMA_NS + "streetAddress"), user.getLocation())
+            .addProperty(ResourceFactory.createProperty(BCLH_NS + "hometown"), user.getLocation())
             .addProperty(ResourceFactory.createProperty(BCLH_NS + "profileImgUrl"), user.getProfileImageURL())
             .addProperty(ResourceFactory.createProperty(BCLH_NS + "bigProfileImgUrl"), user.getBiggerProfileImageURL())
             .addProperty(ResourceFactory.createProperty(BCLH_NS + "bannerImgUrl"), user.getProfileBannerRetinaURL())
@@ -175,9 +177,9 @@ public class RDFConnector {
 	}
 
 	
-	public void addUserTermPair(long userId, String word, int wordCount) { // TODO Changed from wordId(int) to word(String). Needs changing everywhere
+	public void addUserTermPair(Long userId, String word, Integer wordCount) { // TODO Changed from wordId(int) to word(String). Needs changing everywhere
 		Model model = ModelFactory.createRDFSModel(ontology, ModelFactory.createDefaultModel());	
-		String userUri = TWITTER_USER_URI + String.valueOf(userId);
+		String userUri = TWITTER_USER_URI + Long.toString(userId);
 		String wordUri = KEYWORD_URI + word;
 
         model.createResource(userUri)
@@ -203,10 +205,11 @@ public class RDFConnector {
 		}
 
         model.createResource(venueUri)
+        	.addProperty(ResourceFactory.createProperty(BCLH_NS + "venueId"), venue.getId())
         	.addProperty(ResourceFactory.createProperty(SCHEMA_NS + "name"), venue.getName())
             .addProperty(ResourceFactory.createProperty(SCHEMA_NS + "photo"), photoUrl)
-            .addProperty(ResourceFactory.createProperty(SCHEMA_NS + "streetAddress"), venue.getLocation().getAddress())
-            .addProperty(ResourceFactory.createProperty(SCHEMA_NS + "addressLocality"), venue.getLocation().getCity())
+            .addProperty(ResourceFactory.createProperty(BCLH_NS + "address"), venue.getLocation().getAddress())
+            .addProperty(ResourceFactory.createProperty(BCLH_NS + "city"), venue.getLocation().getCity())
             .addProperty(ResourceFactory.createProperty(SCHEMA_NS + "url"), venue.getUrl())
             .addProperty(ResourceFactory.createProperty(SCHEMA_NS + "description"), venue.getDescription());
         
@@ -217,7 +220,7 @@ public class RDFConnector {
 	
 	public void addUserVenue(long userId, String venueId) {
 		Model model = ModelFactory.createRDFSModel(ontology, ModelFactory.createDefaultModel());	
-		String userUri = TWITTER_USER_URI + String.valueOf(userId);
+		String userUri = TWITTER_USER_URI + Long.toString(userId);
 		String venueUri = FOURSQUARE_LOCATION_URI + venueId;
 
         model.createResource(userUri)
@@ -235,20 +238,21 @@ public class RDFConnector {
         String queryString = 
 			"PREFIX schema: <" + SCHEMA_NS + "> " +
 			"PREFIX bclh: <" + BCLH_NS + "> " +
-			"SELECT ?name ?screenName ?hometown ?profileImgUrl ?bigProfileImgUrl ?bannerImgUrl ?description" +
+			"SELECT ?userId ?name ?screenName ?hometown ?profileImgUrl ?bigProfileImgUrl ?bannerImgUrl ?description" +
 			"WHERE {" +
 			"	?user schema:alternateName \"" + username + "\" ; " +
+			"		  bclh:userId ?userId ; " +
 			"		  schema:name ?name ; " +
 			"		  schema:alternateName ?screenName . " +
 			"	OPTIONAL {" +
-			"		?user schema:streetAddress ?hometown ; " +
+			"		?user bclh:hometown ?hometown ; " +
 			"			  bclh:profileImgUrl ?profileImgUrl ; " +
 			"			  bclh:bigProfileImgUrl ?bigProfileImgUrl ; " +
 			"			  bclh:bannerImgUrl ?bannerImgUrl ; " +
 			"			  schema:description ?description . " +
 			"	}" +
 			"}" +
-			"LIMIT 1";
+			"LIMIT 1"; //TODO add LIKE filter 
         
         Query query = QueryFactory.create(queryString);
 
@@ -256,6 +260,7 @@ public class RDFConnector {
 	    ResultSet results = qe.execSelect();
 	    QuerySolution userGraph = results.next();
 	    
+	    userResult.put("userId", userGraph.getLiteral("userId").getString());
 		userResult.put("fullName", userGraph.getLiteral("name").getString());
 		userResult.put("screenName", userGraph.getLiteral("screenName").getString());
 		if (userGraph.contains("hometown")) { userResult.put("hometown", userGraph.getLiteral("hometown").getString()); }
@@ -271,11 +276,46 @@ public class RDFConnector {
 		return userResult;
 	}
 
+	
 	public List<HashMap<String, String>> getRetweetersOfUser(long userId) {
 		// TODO Auto-generated method stub
-		return null;
+		LinkedList<HashMap<String,String>> retweeters = new LinkedList<HashMap<String,String>>();
+		
+        String queryString = 
+			"PREFIX schema: <" + SCHEMA_NS + "> " +
+			"PREFIX bclh: <" + BCLH_NS + "> " +
+			"SELECT ?name ?screenName ?profileImgUrl" +
+			"WHERE {" +
+			"	?userA bclh:userId \"" + Long.toString(userId) + "\" ; " +
+			"		   schema:knows ?userB ; " + 
+			"	?userB schema:name ?name ; " +
+			"		   schema:alternateName ?screenName . " +
+			"	OPTIONAL {" +
+			"		?userB bclh:profileImgUrl ?profileImgUrl . " +
+			"	}" +
+			"}";
+
+        Query query = QueryFactory.create(queryString);
+
+	    QueryExecution qe = QueryExecutionFactory.create(query, rdfModel);
+	    ResultSet results = qe.execSelect();
+	    
+	    while (results.hasNext()) {
+		    QuerySolution userGraph = results.next();
+		    	    
+		    HashMap<String,String> userHashMap = new HashMap<String,String>();
+		    userHashMap.put("name", userGraph.getLiteral("name").getString());
+		    userHashMap.put("screenName", userGraph.getLiteral("screenName").getString());
+			if (userGraph.contains("profileImgUrl")) { userHashMap.put("profileImgUrl", userGraph.getLiteral("profileImgUrl").getString()); }
+			retweeters.add(userHashMap);
+	    }
+
+	    qe.close();
+
+		return retweeters;
 	}
 
+	
 	public List<HashMap<String, String>> getUserRetweets(long userId) {
 		// TODO Auto-generated method stub
 		return null;
@@ -292,10 +332,48 @@ public class RDFConnector {
 	}
 
 	public HashMap<String, String> showVenue(String venueName) {
-		// TODO Auto-generated method stub
-		return null;
+		HashMap<String,String> venue = new HashMap<String,String>();	
+        String queryString = 
+			"PREFIX schema: <" + SCHEMA_NS + "> " +
+			"PREFIX bclh: <" + BCLH_NS + "> " +
+			"SELECT ?venueId ?name ?photo ?address ?city ?url ?description" +
+			"WHERE {" +
+			"	?venue schema:name ?name ; " +
+			"		   bclh:venueId ?venueId . " +
+			"	FILTER (REGEX(?name, \"" + venueName + "\", \"i\")) " +
+			"	OPTIONAL {" +
+			"		?venue schema:photo ?photo ; " +
+			"			  bclh:address ?address ; " +
+			"			  bclh:city ?city ; " +
+			"			  schema:url ?url ; " +
+			"			  schema:description ?description . " +
+			"	}" +
+			"}" +
+			"LIMIT 1";
+        
+        Query query = QueryFactory.create(queryString);
+
+	    QueryExecution qe = QueryExecutionFactory.create(query, rdfModel);
+	    ResultSet results = qe.execSelect();
+	    
+	    if (results.hasNext()) { 
+	    	QuerySolution venueGraph = results.next();
+	    
+	    	venue.put("venueId", venueGraph.getLiteral("venueId").getString());
+		    venue.put("name", venueGraph.getLiteral("name").getString());
+			if (venueGraph.contains("photo")) { venue.put("photo", venueGraph.getLiteral("photo").getString()); }
+			if (venueGraph.contains("address")) { venue.put("address", venueGraph.getLiteral("address").getString()); }
+			if (venueGraph.contains("city")) { venue.put("city", venueGraph.getLiteral("city").getString()); }
+			if (venueGraph.contains("url")) { venue.put("url", venueGraph.getLiteral("url").getString()); }
+			if (venueGraph.contains("description")) { venue.put("description", venueGraph.getLiteral("description").getString()); }
+	    }
+	    
+	    qe.close();
+	    
+		return venue;
 	}
 
+	
 	public List<HashMap<String, String>> getVenueVisitors(String venueId) {
 		// TODO Auto-generated method stub
 		return null;
