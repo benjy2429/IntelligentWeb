@@ -3,6 +3,8 @@ package projectFiles;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -196,8 +198,16 @@ public class RDFConnector {
 	public void addUserTermPair(User user, String term, Integer wordCount) { 
 		Model model = ModelFactory.createRDFSModel(ontology, ModelFactory.createDefaultModel());	
 		String userUri = TWITTER_USER_URI + Long.toString(user.getId());
-		String userKeywordUri = USER_KEYWORD_URI + Long.toString(user.getId()) + term;
-		String keywordUri = KEYWORD_URI + term;
+		String userKeywordUri = "";
+		String keywordUri = "";
+		try {
+			userKeywordUri = USER_KEYWORD_URI + Long.toString(user.getId()) + URLEncoder.encode(term, "UTF-8");
+			keywordUri = KEYWORD_URI + URLEncoder.encode(term, "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 		
         model.createResource(userUri) //User Node
 	    	.addProperty(ResourceFactory.createProperty(BCLH_NS + "userId"), Long.toString(user.getId()))
