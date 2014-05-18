@@ -116,19 +116,35 @@
 	<rdfs:isDefinedBy rdf:resource="http://tomcat.dcs.shef.ac.uk:41032/aca11bmc/Keyword"/>
 </rdf:Description>
 
+<rdf:Description rdf:about="http://tomcat.dcs.shef.ac.uk:41032/aca11bmc/UserKeyword">
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	<rdfs:label xml:lang="en">Keyword Count node</rdfs:label>
+	<rdfs:comment xml:lang="en"></rdfs:comment>
+	<rdfs:subClassOf rdf:resource="http://schema.org/Thing"/>
+	<rdfs:isDefinedBy rdf:resource="http://tomcat.dcs.shef.ac.uk:41032/aca11bmc/UserKeyword"/>
+</rdf:Description>
+
 <rdf:Description rdf:about="http://tomcat.dcs.shef.ac.uk:41032/aca11bmc/count">
 	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
 	<rdfs:label xml:lang="en">Keyword Count</rdfs:label>
 	<rdfs:comment xml:lang="en"></rdfs:comment>
-	<rdfs:domain rdf:resource="http://tomcat.dcs.shef.ac.uk:41032/aca11bmc/Keyword"/>
+	<rdfs:domain rdf:resource="http://tomcat.dcs.shef.ac.uk:41032/aca11bmc/UserKeyword"/>
 	<rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#integer"/>
 </rdf:Description>
 
-<rdf:Description rdf:about="http://tomcat.dcs.shef.ac.uk:41032/aca11bmc/said">
+<rdf:Description rdf:about="http://tomcat.dcs.shef.ac.uk:41032/aca11bmc/noTimesSaid">
 	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
-	<rdfs:label xml:lang="en">Person Said Keyword</rdfs:label>
+	<rdfs:label xml:lang="en">Person said Keyword number of times</rdfs:label>
 	<rdfs:comment xml:lang="en"></rdfs:comment>
 	<rdfs:domain rdf:resource="http://schema.org/Person"/>
+	<rdfs:range rdf:resource="http://tomcat.dcs.shef.ac.uk:41032/aca11bmc/UserKeyword"/>
+</rdf:Description>
+
+<rdf:Description rdf:about="http://tomcat.dcs.shef.ac.uk:41032/aca11bmc/wordSaid">
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	<rdfs:label xml:lang="en">Keyword said by User</rdfs:label>
+	<rdfs:comment xml:lang="en"></rdfs:comment>
+	<rdfs:domain rdf:resource="http://tomcat.dcs.shef.ac.uk:41032/aca11bmc/UserKeyword"/>
 	<rdfs:range rdf:resource="http://tomcat.dcs.shef.ac.uk:41032/aca11bmc/Keyword"/>
 </rdf:Description>
 

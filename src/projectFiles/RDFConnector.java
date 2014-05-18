@@ -78,9 +78,10 @@ public class RDFConnector {
 	
 	public void test() throws FileNotFoundException{
         // some definitions
-        String uri    = "http://somewhere/meadowhall";
-        String name    = "Meadowhall";
-        String id = "mhall";
+        String uri    = "http://somewhere/alice";
+        String name    = "Alice";
+        String id = "alice123";
+        String hometown = "London";
 
         // create an empty model
 		Model model = ModelFactory.createRDFSModel(ontology, ModelFactory.createDefaultModel());
@@ -90,13 +91,14 @@ public class RDFConnector {
         Resource helloword 
           = model.createResource(uri)
                  .addProperty(ResourceFactory.createProperty(SCHEMA_NS + "name"), name)
-        		 .addProperty(ResourceFactory.createProperty(BCLH_NS + "venueId"), id);
+        		 .addProperty(ResourceFactory.createProperty(BCLH_NS + "userId"), id)
+        		 .addProperty(ResourceFactory.createProperty(BCLH_NS + "hometown"), hometown);
         
-//       putRDF(model);
+       putRDF(model);
    
 	    
 	    
-	   
+/*	   
         String queryString = 
 			"PREFIX schema: <" + SCHEMA_NS + "> " +
 			"PREFIX bclh: <" + BCLH_NS + "> " +
@@ -121,7 +123,7 @@ public class RDFConnector {
 	    ResultSetFormatter.out(System.out, results, query);
 	    
        
-       
+ */      
 	    
         /*
         String queryString = 
