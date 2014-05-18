@@ -22,6 +22,7 @@ import com.hp.hpl.jena.query.QueryExecutionFactory;
 import com.hp.hpl.jena.query.QueryFactory;
 import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
+import com.hp.hpl.jena.query.ResultSetFormatter;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Resource;
@@ -447,6 +448,7 @@ public class RDFConnector {
         String queryString = 
 			"PREFIX schema: <" + SCHEMA_NS + "> " +
 			"PREFIX bclh: <" + BCLH_NS + "> " +
+			"PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> " +
 			"SELECT ?count ?word " +
 			"WHERE {" +
 			"	?user a schema:Person ; " + 
@@ -460,20 +462,21 @@ public class RDFConnector {
 			"	?keyword a bclh:Keyword ; " +
 			"			 schema:name ?word . " +
 			"}" +
-			"LIMIT 10 " +
-        	"ORDER BY DESC(?count)";
+        	"ORDER BY DESC(xsd:integer(?count)) " +
+			"LIMIT 10";
+
 
         Query query = QueryFactory.create(queryString);
 
 	    QueryExecution qe = QueryExecutionFactory.create(query, rdfModel);
 	    ResultSet results = qe.execSelect();
 	    
-	    if (results.hasNext()) { 
+	    while (results.hasNext()) { 
 	    	QuerySolution keywordGraph = results.next();
-	    
+
 			HashMap<String,String> keywordHashMap = new HashMap<String,String>();
-			keywordHashMap.put("word", keywordGraph.getLiteral("photo").getString());
-			keywordHashMap.put("count", keywordGraph.getLiteral("photo").getString());
+			keywordHashMap.put("word", keywordGraph.getLiteral("word").getString());
+			keywordHashMap.put("count", keywordGraph.getLiteral("count").getString());
 			keywords.add(keywordHashMap);
 	    }
 	    
@@ -555,7 +558,7 @@ public class RDFConnector {
 	    QueryExecution qe = QueryExecutionFactory.create(query, rdfModel);
 	    ResultSet results = qe.execSelect();
 	    
-	    if (results.hasNext()) { 
+	    while (results.hasNext()) { 
 	    	QuerySolution userGraph = results.next();
 	    
 	    	HashMap<String,String> userHashMap = new HashMap<String,String>();
