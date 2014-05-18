@@ -483,6 +483,8 @@ public class RDFConnector {
 	
 	public HashMap<String, String> showVenue(String venueName) {
 		HashMap<String,String> venue = new HashMap<String,String>();	
+		String escapedVenueName = venueName.replace("(","\\\\(").replace(")","\\\\)").replace(".","\\\\.").replace(";","\\\\;").replace("*","\\\\*");
+		
         String queryString = 
 			"PREFIX schema: <" + SCHEMA_NS + "> " +
 			"PREFIX bclh: <" + BCLH_NS + "> " +
@@ -491,7 +493,7 @@ public class RDFConnector {
 			"	?venue a schema:Place ; " + 
 			"		   schema:name ?name ; " +
 			"		   bclh:venueId ?venueId . " +
-			"	FILTER (REGEX(?name, \"" + venueName + "\", \"i\")) " +
+			"	FILTER (REGEX(str(?name), \"" + escapedVenueName + "\", \"i\")) " + 
 			"	OPTIONAL { ?venue schema:photo ?photo } " +
 			"	OPTIONAL { ?venue bclh:address ?address } " +
 			"	OPTIONAL { ?venue bclh:city ?city } " +
@@ -501,7 +503,7 @@ public class RDFConnector {
 			"LIMIT 1";
         
         Query query = QueryFactory.create(queryString);
-
+        
 	    QueryExecution qe = QueryExecutionFactory.create(query, rdfModel);
 	    ResultSet results = qe.execSelect();
 
@@ -555,7 +557,7 @@ public class RDFConnector {
 	    	HashMap<String,String> userHashMap = new HashMap<String,String>();
 	    	
 	    	userHashMap.put("userId", userGraph.getLiteral("userId").getString());
-	    	userHashMap.put("name", userGraph.getLiteral("name").getString());
+	    	userHashMap.put("fullName", userGraph.getLiteral("name").getString());
 	    	userHashMap.put("screenName", userGraph.getLiteral("screenName").getString());
 			if (userGraph.contains("hometown")) { userHashMap.put("hometown", userGraph.getLiteral("hometown").getString()); }
 			if (userGraph.contains("profileImgUrl")) { userHashMap.put("profileImgUrl", userGraph.getLiteral("profileImgUrl").getString()); }
