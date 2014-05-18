@@ -45,8 +45,8 @@ public class RDFConnector {
 	private static final String SCHEMA_NS = "http://schema.org/";
 	private static final String BCLH_NS = "http://tomcat.dcs.shef.ac.uk:41032/aca11bmc/";
 	private static final String TWITTER_USER_URI = "https://twitter.com/?profile_id=";
-	private static final String USER_KEYWORD_URI = "http://tomcat.dcs.shef.ac.uk:41032/aca11bmc/UserKeyword#";
-	private static final String KEYWORD_URI = "http://tomcat.dcs.shef.ac.uk:41032/aca11bmc/Keyword#";
+	private static final String USER_KEYWORD_URI = "http://tomcat.dcs.shef.ac.uk:41032/aca11bmc/UserKeyword_";
+	private static final String KEYWORD_URI = "http://tomcat.dcs.shef.ac.uk:41032/aca11bmc/Keyword_";
 	private static final String FOURSQUARE_LOCATION_URI = "http://foursquare.com/v/";
 	
 
