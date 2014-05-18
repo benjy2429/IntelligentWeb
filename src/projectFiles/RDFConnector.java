@@ -8,7 +8,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import org.apache.jena.riot.Lang;
+import org.apache.jena.riot.RiotException;
+
 import com.hp.hpl.jena.ontology.OntModel;
 import com.hp.hpl.jena.ontology.OntModelSpec;
 import com.hp.hpl.jena.query.Query;
@@ -51,7 +54,13 @@ public class RDFConnector {
 		ontology.read(new FileInputStream(fileLocation + ONTOLOGY_FILE_NAME), Lang.RDFXML.getName());
 	
 		rdfModel = ModelFactory.createRDFSModel(ontology, ModelFactory.createDefaultModel());
-        rdfModel.read(new FileInputStream(rdfFilePath), Lang.RDFXML.getName());
+        try {
+        	rdfModel.read(new FileInputStream(rdfFilePath), Lang.RDFXML.getName());
+        } catch (RiotException ex) {
+        	LOGGER.log(Level.WARNING, "File is new or corrupt, creating a new model", ex);
+        	rdfModel.write(new FileOutputStream(rdfFilePath), Lang.RDFXML.getName());
+        }
+        
 	}
 
 	public boolean establishConnection() {
