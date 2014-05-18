@@ -60,7 +60,7 @@ public class RDFConnector {
         try {
         	rdfModel.read(new FileInputStream(rdfFilePath), Lang.RDFXML.getName());
         } catch (RiotException ex) {
-        	LOGGER.log(Level.WARNING, "File is new or corrupt, creating a new model", ex);
+        	LOGGER.log(Level.WARNING, "File is new or corrupt, creating a new model: " + ex.getMessage());
         	rdfModel.write(new FileOutputStream(rdfFilePath), Lang.RDFXML.getName());
         }
         
