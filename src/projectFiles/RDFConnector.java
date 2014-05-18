@@ -43,6 +43,7 @@ public class RDFConnector {
 	private static final String SCHEMA_NS = "http://schema.org/";
 	private static final String BCLH_NS = "http://tomcat.dcs.shef.ac.uk:41032/aca11bmc/";
 	private static final String TWITTER_USER_URI = "https://twitter.com/?profile_id=";
+	private static final String USER_KEYWORD_URI = "http://tomcat.dcs.shef.ac.uk:41032/aca11bmc/UserKeyword#";
 	private static final String KEYWORD_URI = "http://tomcat.dcs.shef.ac.uk:41032/aca11bmc/Keyword#";
 	private static final String FOURSQUARE_LOCATION_URI = "http://foursquare.com/v/";
 	
@@ -190,34 +191,33 @@ public class RDFConnector {
         
         putRDF(model);			
 	}
-	
-
-	public int addWord(String term) {
-		// TODO Not needed anymore? Keywords are per user now
-		return 0;
-	}
 
 	
-	public int getWordId(String term) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	
-	public void addUserTermPair(Long userId, String word, Integer wordCount) { // TODO Changed from wordId(int) to word(String). Needs changing everywhere
+	public void addUserTermPair(User user, String term, Integer wordCount) { 
 		Model model = ModelFactory.createRDFSModel(ontology, ModelFactory.createDefaultModel());	
-		String userUri = TWITTER_USER_URI + Long.toString(userId);
-		String wordUri = KEYWORD_URI + word;
-
-        model.createResource(userUri)
-        	.addProperty(ResourceFactory.createProperty(BCLH_NS + "said"),
-        			model.createResource(wordUri)
-        				.addProperty(ResourceFactory.createProperty(SCHEMA_NS + "name"), word)
-        				.addProperty(ResourceFactory.createProperty(BCLH_NS + "count"), Integer.toString(wordCount))
-        );
-        
-        putRDF(model);
+		String userUri = TWITTER_USER_URI + Long.toString(user.getId());
+		String userKeywordUri = USER_KEYWORD_URI + Long.toString(user.getId()) + term;
+		String keywordUri = KEYWORD_URI + term;
 		
+        model.createResource(userUri) //User Node
+	    	.addProperty(ResourceFactory.createProperty(BCLH_NS + "userId"), Long.toString(user.getId()))
+	    	.addProperty(ResourceFactory.createProperty(SCHEMA_NS + "name"), user.getName())
+	        .addProperty(ResourceFactory.createProperty(SCHEMA_NS + "alternateName"), user.getScreenName())
+	        .addProperty(ResourceFactory.createProperty(BCLH_NS + "hometown"), user.getLocation())
+	        .addProperty(ResourceFactory.createProperty(BCLH_NS + "profileImgUrl"), user.getProfileImageURL())
+	        .addProperty(ResourceFactory.createProperty(BCLH_NS + "bigProfileImgUrl"), user.getBiggerProfileImageURL())
+	        .addProperty(ResourceFactory.createProperty(BCLH_NS + "bannerImgUrl"), user.getProfileBannerRetinaURL())
+	        .addProperty(ResourceFactory.createProperty(SCHEMA_NS + "description"), user.getDescription())
+	        .addProperty(ResourceFactory.createProperty(BCLH_NS + "noTimesSaid"), 
+	        		model.createResource(userKeywordUri) //UserKeyword Node (count)
+	        			.addProperty(ResourceFactory.createProperty(BCLH_NS + "count"), wordCount.toString())
+	        			.addProperty(ResourceFactory.createProperty(BCLH_NS + "wordSaid"),
+	        					model.createResource(keywordUri) //Keyword Node (term name)
+	        						.addProperty(ResourceFactory.createProperty(SCHEMA_NS + "name"), term)
+	        			)
+	        );
+
+        putRDF(model);
 	}
 
 	
