@@ -436,11 +436,50 @@ public class RDFConnector {
 	    return locations;
 	}
 
+	
 	public List<HashMap<String, String>> getUserKeywords(long userId) {
 		// TODO Auto-generated method stub
-		return null;
+		LinkedList<HashMap<String,String>> keywords = new LinkedList<HashMap<String,String>>();	
+        String queryString = 
+			"PREFIX schema: <" + SCHEMA_NS + "> " +
+			"PREFIX bclh: <" + BCLH_NS + "> " +
+			"SELECT ?count ?word " +
+			"WHERE {" +
+			"	?user a schema:Person ; " + 
+			"		  bclh:userId \"" + Long.toString(userId) + "\" ; " +
+			"		  bclh:noTimesSaid ?userKeywordUri . " +
+			"   BIND (URI(?userKeywordUri) AS ?userKeyword) . " +
+			"	?userKeyword a bclh:UserKeyword ; " +
+			"				 bclh:count ?count ; " +
+			"				 bclh:wordSaid ?keywordUri . " +
+			"   BIND (URI(?keywordUri) AS ?keyword) . " +
+			"	?keyword a bclh:Keyword ; " +
+			"			 schema:name ?word . " +
+			"}" +
+			"LIMIT 10 " +
+        	"ORDER BY DESC(?count)";
+
+        Query query = QueryFactory.create(queryString);
+
+	    QueryExecution qe = QueryExecutionFactory.create(query, rdfModel);
+	    ResultSet results = qe.execSelect();
+	    
+	    if (results.hasNext()) { 
+	    	QuerySolution keywordGraph = results.next();
+	    
+			HashMap<String,String> keywordHashMap = new HashMap<String,String>();
+			keywordHashMap.put("word", keywordGraph.getLiteral("photo").getString());
+			keywordHashMap.put("count", keywordGraph.getLiteral("photo").getString());
+			keywords.add(keywordHashMap);
+	    }
+	    
+	    qe.close();
+	    
+		return keywords;
+
 	}
 
+	
 	public HashMap<String, String> showVenue(String venueName) {
 		HashMap<String,String> venue = new HashMap<String,String>();	
         String queryString = 
