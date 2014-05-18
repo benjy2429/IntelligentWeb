@@ -400,26 +400,13 @@ public class WebServlet extends HttpServlet {
 				public void run() {
 					LOGGER.log(Level.FINE, "Starting background thread for term datastore storage");
 					if (datastoreConn.establishConnection()) { 
-						//Add users to datastore
-						for(User user : users){
-							datastoreConn.addUsers(user);
-						}
 						for(Term term : allTerms){
-							//Add terms to datastore and get id
-							int wordId = datastoreConn.addWord(term.term);
-							
-							//If already exists, then look it up
-							if (wordId == -1) {wordId = datastoreConn.getWordId(term.term);}
-							
-							//If we still don't have an id then something has gone wrong
-							if (wordId != -1){
-								//Add the pairings of user to word in the datastore
-								for(Pair<Long, Integer> userCount : term.userCounts){
-									//datastoreConn.addUserTermPair(userCount.t, wordId, userCount.u);
-									//TODO fix
+							for(Pair<Long, Integer> userCount : term.userCounts){
+								for(User user : users){
+									if (user.getId() == userCount.t.longValue()){
+										datastoreConn.addUserTermPair(user, term.term, userCount.u);
+									}
 								}
-							} else {
-								LOGGER.log(Level.WARNING, "A term exists in the datastore but its id could not be obtained. Term: " + term.term);
 							}
 						}
 						datastoreConn.closeConnection();

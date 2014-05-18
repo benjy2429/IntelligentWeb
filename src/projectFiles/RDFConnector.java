@@ -82,7 +82,6 @@ public class RDFConnector {
 		} catch (FileNotFoundException ex) {
 			LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
 		}
-		rdfModel.write(System.out);
 	}
 	
 	public void test() throws FileNotFoundException{
