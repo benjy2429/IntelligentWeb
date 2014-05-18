@@ -61,20 +61,17 @@ public class DatastoreServlet extends HttpServlet {
     			String username = request.getParameter("username");
 
     			//Open datastore connection
-    			datastoreConn.establishConnection();
-    			
-    			//Get user and id
-    			user = datastoreConn.showUser(username);
-    			long userId = Long.parseLong(user.get("userId"));
-    			
-    			//Run datastore queries and store results
-    			retweetersOfUser = datastoreConn.getRetweetersOfUser(userId);
-    			userRetweets = datastoreConn.getUserRetweets(userId);
-    			userLocations = datastoreConn.getUserLocations(userId);
-    			userKeywords = datastoreConn.getUserKeywords(userId);
-    			
-    			//Close datastore connection
-    			datastoreConn.closeConnection();
+    			if (datastoreConn.establishConnection()) {
+	    			//Get user and id
+	    			user = datastoreConn.showUser(username);
+	    			long userId = Long.parseLong(user.get("userId"));
+	    			
+	    			//Run datastore queries and store results
+	    			retweetersOfUser = datastoreConn.getRetweetersOfUser(userId);
+	    			userRetweets = datastoreConn.getUserRetweets(userId);
+	    			userLocations = datastoreConn.getUserLocations(userId);
+	    			userKeywords = datastoreConn.getUserKeywords(userId);
+    			}
     			
     			//Store results for JASON
     			json = gson.toJson(user);
@@ -103,17 +100,14 @@ public class DatastoreServlet extends HttpServlet {
     			String venueName = request.getParameter("venueName");
 
     			//Open datastore connection
-    			datastoreConn.establishConnection();
-    			
-    			//Get venue and id
-    			venue = datastoreConn.showVenue(venueName);
-    			String venueId = venue.get("locId");
-    			
-    			//Run datastore queries
-    			users = datastoreConn.getVenueVisitors(venueId);
-    			
-    			//Close datastore connection
-    			datastoreConn.closeConnection();
+    			if (datastoreConn.establishConnection()) {
+	    			//Get venue and id
+	    			venue = datastoreConn.showVenue(venueName);
+	    			String venueId = venue.get("locId");
+	    			
+	    			//Run datastore queries
+	    			users = datastoreConn.getVenueVisitors(venueId);
+    			}
     			
     			//Store results for JASON
     			json = gson.toJson(venue);
