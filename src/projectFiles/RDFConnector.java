@@ -277,13 +277,11 @@ public class RDFConnector {
 			"		  bclh:userId ?userId ; " +
 			"		  schema:name ?name . " +
 			"	FILTER (REGEX(?screenName, \"" + username + "\", \"i\")) " +
-			"	OPTIONAL {" +
-			"		?user bclh:hometown ?hometown ; " +
-			"			  bclh:profileImgUrl ?profileImgUrl ; " +
-			"			  bclh:bigProfileImgUrl ?bigProfileImgUrl ; " +
-			"			  bclh:bannerImgUrl ?bannerImgUrl ; " +
-			"			  schema:description ?description . " +
-			"	}" +
+			"	OPTIONAL { ?user bclh:hometown ?hometown } " +
+			"	OPTIONAL { ?user bclh:profileImgUrl ?profileImgUrl } " +
+			"	OPTIONAL { ?user bclh:bigProfileImgUrl ?bigProfileImgUrl } " +
+			"	OPTIONAL { ?user bclh:bannerImgUrl ?bannerImgUrl } " +
+			"	OPTIONAL { ?user schema:description ?description } " +
 			"}" +
 			"LIMIT 1";
         
@@ -327,9 +325,7 @@ public class RDFConnector {
 			"	?userB a schema:Person ; " +
 			"		   schema:name ?name ; " + 
 			"		   schema:alternateName ?screenName . " +
-			"	OPTIONAL {" +
-			"		?userB bclh:profileImgUrl ?profileImgUrl . " +
-			"	}" +
+			"	OPTIONAL { ?userB bclh:profileImgUrl ?profileImgUrl } " +
 			"}";
         
         Query query = QueryFactory.create(queryString);
@@ -367,9 +363,7 @@ public class RDFConnector {
 			"		   a schema:Person ; " +
 			"		   schema:name ?name ; " +
 			"		   schema:alternateName ?screenName . " +
-			"	OPTIONAL {" +
-			"		?userA bclh:profileImgUrl ?profileImgUrl . " +
-			"	}" +
+			"	OPTIONAL { ?userA bclh:profileImgUrl ?profileImgUrl } " +
 			"}";
         
         Query query = QueryFactory.create(queryString);
@@ -409,13 +403,11 @@ public class RDFConnector {
    			"	?venue a schema:Place ; " +
    			"		   schema:name ?name ; " +
    			"		   bclh:venueId ?venueId . " +
-   			"	OPTIONAL {" +
-   			"		?venue schema:photo ?photo ; " +
-   			"			   bclh:address ?address ; " +
-   			"			   bclh:city ?city ; " +
-   			"			   schema:url ?url ; " +
-   			"			   schema:description ?description . " +
-   			"	}" +
+   			"	OPTIONAL { ?venue schema:photo ?photo } " +
+   			"	OPTIONAL { ?venue bclh:address ?address } " +
+   			"	OPTIONAL { ?venue bclh:city ?city } " +
+   			"	OPTIONAL { ?venue schema:url ?url } " +
+   			"	OPTIONAL { ?venue schema:description ?description } " +
    			"}";    
 	       
 	    Query query = QueryFactory.create(queryString);
@@ -500,13 +492,11 @@ public class RDFConnector {
 			"		   schema:name ?name ; " +
 			"		   bclh:venueId ?venueId . " +
 			"	FILTER (REGEX(?name, \"" + venueName + "\", \"i\")) " +
-			"	OPTIONAL {" +
-			"		?venue schema:photo ?photo ; " +
-			"			  bclh:address ?address ; " +
-			"			  bclh:city ?city ; " +
-			"			  schema:url ?url ; " +
-			"			  schema:description ?description . " +
-			"	}" +
+			"	OPTIONAL { ?venue schema:photo ?photo } " +
+			"	OPTIONAL { ?venue bclh:address ?address } " +
+			"	OPTIONAL { ?venue bclh:city ?city } " +
+			"	OPTIONAL { ?venue schema:url ?url } " +
+			"	OPTIONAL { ?venue schema:description ?description } " +
 			"}" +
 			"LIMIT 1";
         
@@ -514,6 +504,7 @@ public class RDFConnector {
 
 	    QueryExecution qe = QueryExecutionFactory.create(query, rdfModel);
 	    ResultSet results = qe.execSelect();
+
 	    
 	    if (results.hasNext()) { 
 	    	QuerySolution venueGraph = results.next();
@@ -548,11 +539,9 @@ public class RDFConnector {
 			"		  bclh:userId ?userId ; " +
 			"		  schema:name ?name ; " +
 			"		  schema:alternateName ?screenName . " +
-			"	OPTIONAL {" +
-			"		?user bclh:hometown ?hometown ; " +
-			"			  bclh:profileImgUrl ?profileImgUrl ; " +
-			"			  schema:description ?description . " +
-			"	}" +
+			"	OPTIONAL { ?user bclh:hometown ?hometown } " +
+			"	OPTIONAL { ?user bclh:profileImgUrl ?profileImgUrl } " +
+			"	OPTIONAL { ?user schema:description ?description } " +
 			"}";
         
         Query query = QueryFactory.create(queryString);
