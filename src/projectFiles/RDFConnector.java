@@ -22,12 +22,10 @@ import com.hp.hpl.jena.query.QueryExecutionFactory;
 import com.hp.hpl.jena.query.QueryFactory;
 import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
-import com.hp.hpl.jena.query.ResultSetFormatter;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.ResourceFactory;
-import com.hp.hpl.jena.sparql.resultset.ResultsFormat;
 
 import fi.foyt.foursquare.api.entities.CompleteVenue;
 import twitter4j.User;
@@ -80,11 +78,6 @@ public class RDFConnector {
 
 	public void putRDF(Model newModel) {
 		rdfModel.add(newModel);
-		try {
-			rdfModel.write(new FileOutputStream(rdfFilePath), Lang.RDFXML.getName());
-		} catch (FileNotFoundException ex) {
-			LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
-		}
 	}
 	
 	public void test() throws FileNotFoundException{
@@ -582,7 +575,12 @@ public class RDFConnector {
 
 	
 	public void closeConnection() {
-		// TODO Auto-generated method stub
-		
+		System.out.println("Writing to file");
+		try {
+			rdfModel.write(new FileOutputStream(rdfFilePath), Lang.RDFXML.getName());
+		} catch (FileNotFoundException ex) {
+			LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
+		}
+		System.out.println("File written");
 	}
 }

@@ -1,10 +1,6 @@
 package servlets;
 
-import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -16,37 +12,26 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import org.apache.jena.riot.Lang;
-import org.apache.jena.riot.RDFDataMgr;
-
 import projectFiles.Pair;
 import projectFiles.RDFConnector;
 import projectFiles.Term;
 import queries.Queries;
 import queries.StreamingQueries;
-
 import com.google.gson.*;
 import com.hp.hpl.jena.ontology.*;
-import com.hp.hpl.jena.query.*;
-import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.rdf.model.*;
-import com.hp.hpl.jena.tdb.*;
 import com.hp.hpl.jena.util.iterator.ExtendedIterator;
-import com.hp.hpl.jena.vocabulary.VCARD;
-
 import twitter4j.*;
 import twitter4j.conf.*;
 import exceptions.*;
 import exceptions.QueryException;
 import fi.foyt.foursquare.api.*;
 import fi.foyt.foursquare.api.entities.*;
-
 import com.claygregory.api.google.places.Place;
 
 

@@ -257,7 +257,7 @@ $(window).load(function() {
 						result += "<div class='wordRank'>" + this.rank +".</div>";
 						result += "<div class='termStats'>";
 						result += "<span class='term'>\"" + this.term  + "\"</span>";
-						result += "<span class='termCount'>Number of occurances: " + this.totalCount + "</span>";
+						result += "<span class='termCount'>Number of occurrences: " + this.totalCount + "</span>";
 						result += "<a href='#' class='viewUserCounts'>Show individual user counts</a>";
 						result += "</div>";
 						result += "<div class='userCounts'>";
