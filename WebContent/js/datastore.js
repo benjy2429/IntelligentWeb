@@ -1,5 +1,5 @@
 /*
- * database.js - Handles all the javascript for the database interface 
+ * datastore.js - Handles all the javascript for the datastore interface 
  * This includes all AJAX calls to the servlet, and all JSON parsing
  * Author: Ben Carr & Luke Heavens
  * Last Updated: 20/03/2014
@@ -9,7 +9,7 @@ $(window).load(function() {
 	
 	var FADESPEED = 250;
 	var LOADING_IMG_BIG = "<div style='margin-top:20px;'><img src='./img/big_loading.gif' style='vertical-align:middle;margin-right:10px;' /> Loading..</div>";
-	var SERVLET = "DatabaseServlet";
+	var SERVLET = "DatastoreServlet";
 	
 	
 	// Prevent forms from performing default action

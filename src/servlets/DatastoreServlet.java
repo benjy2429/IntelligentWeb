@@ -15,7 +15,7 @@ import projectFiles.RDFConnector;
 import com.google.gson.Gson;
 
 /**
- * This servlet deals with interactions between the web interface for querying the database and the database
+ * This servlet deals with interactions between the web interface for querying the datastore and the datastore
  * @author Luke Heavens & Ben Carr
  */
 public class DatastoreServlet extends HttpServlet {
@@ -25,13 +25,13 @@ public class DatastoreServlet extends HttpServlet {
 	private RDFConnector datastoreConn;
 	
 	/**
-	 * When the servlet receives a get request, it delivers the databaseInterface html file
+	 * When the servlet receives a get request, it delivers the datastoreInterface html file
 	 * @param request - HttpServletRequest object
 	 * @param response - HttpServletResponse object
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		response.sendRedirect("databaseInterface.html");
+		response.sendRedirect("datastoreInterface.html");
 	}
 
 	
@@ -60,21 +60,20 @@ public class DatastoreServlet extends HttpServlet {
     			List<HashMap<String, String>> userKeywords = new LinkedList<HashMap<String, String>>();
     			String username = request.getParameter("username");
 
-    			//Open database connection
-    			//DatabaseConnector datastoreConn = new DatabaseConnector(); //TODO remove
+    			//Open datastore connection
     			datastoreConn.establishConnection();
     			
     			//Get user and id
     			user = datastoreConn.showUser(username);
     			long userId = Long.parseLong(user.get("userId"));
     			
-    			//Run database queries and store results
+    			//Run datastore queries and store results
     			retweetersOfUser = datastoreConn.getRetweetersOfUser(userId);
     			userRetweets = datastoreConn.getUserRetweets(userId);
     			userLocations = datastoreConn.getUserLocations(userId);
     			userKeywords = datastoreConn.getUserKeywords(userId);
     			
-    			//Close database connection
+    			//Close datastore connection
     			datastoreConn.closeConnection();
     			
     			//Store results for JASON
@@ -103,18 +102,17 @@ public class DatastoreServlet extends HttpServlet {
     			List<HashMap<String, String>> users = new LinkedList<HashMap<String, String>>();
     			String venueName = request.getParameter("venueName");
 
-    			//Open database connection
-    			//DatabaseConnector datastoreConn = new DatabaseConnector(); //TODO remove
+    			//Open datastore connection
     			datastoreConn.establishConnection();
     			
     			//Get venue and id
     			venue = datastoreConn.showVenue(venueName);
     			String venueId = venue.get("locId");
     			
-    			//Run database queries
+    			//Run datastore queries
     			users = datastoreConn.getVenueVisitors(venueId);
     			
-    			//Close database connection
+    			//Close datastore connection
     			datastoreConn.closeConnection();
     			
     			//Store results for JASON
