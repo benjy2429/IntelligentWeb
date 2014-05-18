@@ -1,4 +1,6 @@
-<!DOCTYPE html>
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
 <!--
  * queryInterface.html - HTML file for the social web query interface
  * Content for this page is created dynamically using AJAX calls in the javascript
@@ -6,14 +8,14 @@
  * Last Updated: 20/03/2014
 -->
 
-<html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" xmlns:schema="http://schema.org/" xmlns:bclh="http://tomcat.dcs.shef.ac.uk:41032/aca11bmc/" xmlns:xsd="http://www.w3.org/2001/XMLSchema#">
 <head>
-	<meta charset="UTF-8">
+	<meta charset="UTF-8"/>
 	<title>Query Interface</title>
 
 	<!-- Stylesheets -->
-	<link rel="stylesheet" type="text/css" href="./css/application.css">
-	<link rel="stylesheet" type="text/css" href="./css/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="./css/application.css"/>
+	<link rel="stylesheet" type="text/css" href="./css/bootstrap.min.css"/>
 
 </head>
 
@@ -28,12 +30,12 @@
 	        <span class="icon-bar"></span>
 	        <span class="icon-bar"></span>
 	      </button>
-	      <a class="navbar-brand" href="queryInterface.html">COM3504: The Intelligent Web - Ben Carr &amp; Luke Heavens</a>
+	      <a class="navbar-brand" href="queryInterface.xhtml">COM3504: The Intelligent Web - Ben Carr &amp; Luke Heavens</a>
 	    </div>
 	    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
 	      <ul class="nav navbar-nav navbar-right">
-	        <li class="active"><a href="queryInterface.html">Query the Web</a></li>
-	        <li><a href="datastoreInterface.html">Query RDF Datastore</a></li>
+	        <li class="active"><a href="queryInterface.xhtml">Query the Web</a></li>
+	        <li><a href="datastoreInterface.xhtml">Query RDF Datastore</a></li>
 	      </ul>
 	    </div>
 	  </div>
@@ -56,29 +58,29 @@
 			      <div class="panel-body">
 			        			
 					<form id="tweetForm" class="forms" method="post" action="">
-						<input name="requestId" id="tweetFormRequest" type="hidden" value="tweetFormRequest">
+						<input name="requestId" id="tweetFormRequest" type="hidden" value="tweetFormRequest"/>
 						<div class="form-group">
 							<label for="queryTweet" class="control-label">Enter a search query:</label>
-							<input name="queryTweet" id="queryTweet" type="text" class="form-control">
+							<input name="queryTweet" id="queryTweet" type="text" class="form-control"/>
 						</div>	
 						<div class="form-group">
 							<label for="enableLocTweet" class="control-label">Filter by location:</label>
-							<input name="enableLocTweet" id="enableLocTweet" type="checkbox" style="vertical-align: text-bottom;">
+							<input name="enableLocTweet" id="enableLocTweet" type="checkbox" style="vertical-align: text-bottom;"/>
 						</div>
 						<div id="locationFieldsTweet" style="display:none;">
 							<div class="form-group">
 								<label for="latTweet" class="control-label">Enter latitude: </label>
-								<input name="latTweet" id="latTweet" type="number" class="form-control">
+								<input name="latTweet" id="latTweet" type="number" class="form-control"/>
 							</div>
 							<div class="form-group">
 								<label for="lonTweet" class="control-label">Enter longitude: </label>
-								<input name="lonTweet" id="lonTweet" type="number" class="form-control">
+								<input name="lonTweet" id="lonTweet" type="number" class="form-control"/>
 							</div>
 							<div class="form-group">
 								<label for="radiusTweet" class="control-label">Acceptable radius:</label>
 								
 								<div class="input-group">
-	  								<input name="radiusTweet" id="radiusTweet" type="number" class="form-control">
+	  								<input name="radiusTweet" id="radiusTweet" type="number" class="form-control"/>
 	  								<span class="input-group-addon">km</span>
 								</div>
 							</div>
@@ -105,18 +107,18 @@
 			      <div class="panel-body">
 			      			      	
 					<form id="keywordForm" class="forms" method="post" action="">
-						<input name="requestId" id="keywordFormRequest" type="hidden" value="keywordFormRequest">
+						<input name="requestId" id="keywordFormRequest" type="hidden" value="keywordFormRequest"/>
 						<div class="form-group">
 							<label for="usernamesKeyword" class="control-label">Usernames (separated by spaces)</label>
-							<input name="usernamesKeyword" id="usernamesKeyword" type="text" class="form-control">
+							<input name="usernamesKeyword" id="usernamesKeyword" type="text" class="form-control"/>
 						</div>
 						<div class="form-group">
 							<label for="keywordsKeyword" class="control-label">Keywords to find:</label>
-							<input name="keywordsKeyword" id="keywordsKeyword" type="number" class="form-control">
+							<input name="keywordsKeyword" id="keywordsKeyword" type="number" class="form-control"/>
 						</div>
 						<div class="form-group">
 							<label for="daysKeyword" class="control-label">Number of days to search:</label>
-							<input name="daysKeyword" id="daysKeyword" type="number" class="form-control">
+							<input name="daysKeyword" id="daysKeyword" type="number" class="form-control"/>
 						</div>
 						<div class="form-group">
 							<button type="submit" id="keywordFormSubmit" class="btn btn-default">Submit</button>
@@ -140,18 +142,18 @@
 			      <div class="panel-body">
 
 					<form id="checkinForm" class="forms" method="post" action="">
-						<input name="requestId" id="checkinFormRequest" type="hidden" value="checkinFormRequest">
-						<input name="userRequest" id="userRequest" type="hidden" value="1">
+						<input name="requestId" id="checkinFormRequest" type="hidden" value="checkinFormRequest"/>
+						<input name="userRequest" id="userRequest" type="hidden" value="1"/>
 						<div class="form-group">
 							<label for="usernameCheckin" class="control-label">Username:</label>
 							<div class="input-group">
 								<span class="input-group-addon">@</span>			
-								<input name="usernameCheckin" id="usernameCheckin" type="text" class="form-control">					
+								<input name="usernameCheckin" id="usernameCheckin" type="text" class="form-control"/>					
 							</div>
 						</div>
 						<div class="form-group">
 							<label for="daysCheckin" class="control-label">Days to search:</label>
-							<input name="daysCheckin" id="daysCheckin" type="number" class="form-control">
+							<input name="daysCheckin" id="daysCheckin" type="number" class="form-control"/>
 						</div>
 						<div class="form-group">
 							<button type="submit" id="checkinFormSubmit" class="btn btn-default">Submit</button>
@@ -175,42 +177,42 @@
 			      <div class="panel-body">
 
 					<form id="venueForm" class="forms" method="post" action="">
-						<input name="requestId" id="venuesFormRequest" type="hidden" value="venuesFormRequest">
+						<input name="requestId" id="venuesFormRequest" type="hidden" value="venuesFormRequest"/>
 						<div class="form-group">
 							<label for="enableNameVenue" class="control-label">Search by venue name:</label>
-							<input name="enableNameVenue" id="enableNameVenue" type="checkbox" style="vertical-align: text-bottom;" checked>
+							<input name="enableNameVenue" id="enableNameVenue" type="checkbox" style="vertical-align: text-bottom;" checked="checked" />
 						</div>
 						<div id="nameFieldsVenue">
 							<div class="form-group">
 								<label for="venueNameVenue" class="control-label">Venue Name:</label>
-								<input name="venueNameVenue" id="venueNameVenue" type="text" class="form-control">
+								<input name="venueNameVenue" id="venueNameVenue" type="text" class="form-control"/>
 							</div>
 						</div>				
 						<div class="form-group">
 							<label for="enableLocVenue" class="control-label">Search by location:</label>
-							<input name="enableLocVenue" id="enableLocVenue" type="checkbox" style="vertical-align: text-bottom;">
+							<input name="enableLocVenue" id="enableLocVenue" type="checkbox" style="vertical-align: text-bottom;"/>
 						</div>	
 						<div id="locationFieldsVenue" style="display:none;">
 							<div class="form-group">
 								<label for="latVenue" class="control-label">Enter latitude:</label>
-								<input name="latVenue" id="latVenue" type="number" class="form-control">
+								<input name="latVenue" id="latVenue" type="number" class="form-control"/>
 							</div>
 							<div class="form-group">
 								<label for="lonVenue" class="control-label">Enter longitude:</label>
-								<input name="lonVenue" id="lonVenue" type="number" class="form-control">
+								<input name="lonVenue" id="lonVenue" type="number" class="form-control"/>
 							</div>
 							<div class="form-group">
 								<label for="radiusVenue" class="control-label">Acceptable radius:</label>
 								
 								<div class="input-group">
-	  								<input name="radiusVenue" id="radiusVenue" type="number" class="form-control">
+	  								<input name="radiusVenue" id="radiusVenue" type="number" class="form-control"/>
 	  								<span class="input-group-addon">km</span>
 								</div>
 							</div>
 						</div>
 						<div class="form-group">
 							<label for="daysVenue" class="control-label">Days to search:</label>
-							<input name="daysVenue" id="daysVenue" type="number" class="form-control">
+							<input name="daysVenue" id="daysVenue" type="number" class="form-control"/>
 						</div>
 						<div class="form-group">
 							<button type="submit" id="venueFormSubmit" class="btn btn-default">Submit</button>
@@ -239,7 +241,7 @@
 	<!-- Javascript -->
 	<script type="text/javascript" src="./js/jquery-2.1.0.min.js"></script>
 	<script type="text/javascript" src="./js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAQSRWiDPQTAeFTilEGZuyouNaF0biz7ks&sensor=false"></script>
+    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAQSRWiDPQTAeFTilEGZuyouNaF0biz7ks&amp;sensor=false"></script>
 	<script type="text/javascript" src="./js/application.js"></script>
 	
 	<div id="modalWindows"></div>

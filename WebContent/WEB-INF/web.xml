@@ -19,8 +19,8 @@
   <servlet>
   	<description>
   	</description>
-  	<display-name>DatabaseServlet</display-name>
-  	<servlet-name>DatabaseServlet</servlet-name>
+  	<display-name>DatastoreServlet</display-name>
+  	<servlet-name>DatastoreServlet</servlet-name>
   	<servlet-class>servlets.DatastoreServlet</servlet-class>
   </servlet>
   <servlet-mapping>
@@ -28,8 +28,8 @@
     <url-pattern>/WebServlet</url-pattern>
   </servlet-mapping>
   <servlet-mapping>
-  	<servlet-name>DatabaseServlet</servlet-name>
-  	<url-pattern>/DatabaseServlet</url-pattern>
+  	<servlet-name>DatastoreServlet</servlet-name>
+  	<url-pattern>/DatastoreServlet</url-pattern>
   </servlet-mapping>
   <listener>
     <listener-class>servlets.ServletListener</listener-class>

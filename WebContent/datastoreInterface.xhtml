@@ -1,18 +1,21 @@
-<!DOCTYPE html>
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
 <!--
  * queryInterface.html - HTML file for the social web query interface
  * Content for this page is created dynamically using AJAX calls in the javascript
  * Author: Ben Carr & Luke Heavens
  * Last Updated: 20/03/2014
 -->
-<html>
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" xmlns:schema="http://schema.org/" xmlns:bclh="http://tomcat.dcs.shef.ac.uk:41032/aca11bmc/" xmlns:xsd="http://www.w3.org/2001/XMLSchema#">
 <head>
-	<meta charset="UTF-8">
+	<meta charset="UTF-8"/>
 	<title>Query Interface</title>
 
 	<!-- Stylesheets -->
-	<link rel="stylesheet" type="text/css" href="./css/application.css">
-	<link rel="stylesheet" type="text/css" href="./css/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="./css/application.css"/>
+	<link rel="stylesheet" type="text/css" href="./css/bootstrap.min.css"/>
 
 </head>
 
@@ -27,12 +30,12 @@
 	        <span class="icon-bar"></span>
 	        <span class="icon-bar"></span>
 	      </button>
-	      <a class="navbar-brand" href="queryInterface.html">COM3504: The Intelligent Web - Ben Carr &amp; Luke Heavens</a>
+	      <a class="navbar-brand" href="queryInterface.xhtml">COM3504: The Intelligent Web - Ben Carr &amp; Luke Heavens</a>
 	    </div>
 	    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
 	      <ul class="nav navbar-nav navbar-right">
-	        <li><a href="queryInterface.html">Query the Web</a></li>
-	        <li class="active"><a href="datastoreInterface.html">Query RDF Datastore</a></li>
+	        <li><a href="queryInterface.xhtml">Query the Web</a></li>
+	        <li class="active"><a href="datastoreInterface.xhtml">Query RDF Datastore</a></li>
 	      </ul>
 	    </div>
 	  </div>
@@ -55,12 +58,12 @@
 			      <div class="panel-body">
 			        			
 					<form id="showUserForm" class="forms" method="post" action="">
-						<input name="requestId" id="showUser" type="hidden" value="showUser">
+						<input name="requestId" id="showUser" type="hidden" value="showUser"/>
 						<div class="form-group">
 							<label for="username" class="control-label">Enter a username:</label>
 							<div class="input-group">
 								<span class="input-group-addon">@</span>			
-								<input name="username" id="username" type="text" class="form-control">								
+								<input name="username" id="username" type="text" class="form-control"/>								
 							</div>
 						</div>
 						<div class="form-group">
@@ -84,10 +87,10 @@
 			      <div class="panel-body">
 			        			
 					<form id="showVenueForm" class="forms" method="post" action="">
-						<input name="requestId" id="showVenue" type="hidden" value="showVenue">
+						<input name="requestId" id="showVenue" type="hidden" value="showVenue"/>
 						<div class="form-group">
 							<label for="venueName" class="control-label">Enter a venue name:</label>
-							<input name="venueName" id="venueName" type="text" class="form-control">
+							<input name="venueName" id="venueName" type="text" class="form-control"/>
 						</div>	
 						<div class="form-group">
 							<button type="submit" id="showVenueFormSubmit" class="btn btn-default">Submit</button>
