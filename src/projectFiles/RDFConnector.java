@@ -164,15 +164,15 @@ public class RDFConnector {
 		Model model = ModelFactory.createRDFSModel(ontology, ModelFactory.createDefaultModel());	
 		String userUri = TWITTER_USER_URI + Long.toString(user.getId());
 
-        model.createResource(userUri)
-        	.addProperty(ResourceFactory.createProperty(BCLH_NS + "userId"), Long.toString(user.getId()))
-        	.addProperty(ResourceFactory.createProperty(SCHEMA_NS + "name"), user.getName())
-            .addProperty(ResourceFactory.createProperty(SCHEMA_NS + "alternateName"), user.getScreenName())
-            .addProperty(ResourceFactory.createProperty(BCLH_NS + "hometown"), user.getLocation())
-            .addProperty(ResourceFactory.createProperty(BCLH_NS + "profileImgUrl"), user.getProfileImageURL())
-            .addProperty(ResourceFactory.createProperty(BCLH_NS + "bigProfileImgUrl"), user.getBiggerProfileImageURL())
-            .addProperty(ResourceFactory.createProperty(BCLH_NS + "bannerImgUrl"), user.getProfileBannerRetinaURL())
-            .addProperty(ResourceFactory.createProperty(SCHEMA_NS + "description"), user.getDescription());
+        Resource userResource = model.createResource(userUri);
+		userResource.addProperty(ResourceFactory.createProperty(BCLH_NS + "userId"), Long.toString(user.getId()));
+    	userResource.addProperty(ResourceFactory.createProperty(SCHEMA_NS + "name"), user.getName());
+        userResource.addProperty(ResourceFactory.createProperty(SCHEMA_NS + "alternateName"), user.getScreenName());
+        if (user.getLocation() != null) { userResource.addProperty(ResourceFactory.createProperty(BCLH_NS + "hometown"), user.getLocation()); }
+        if (user.getProfileImageURL() != null) { userResource.addProperty(ResourceFactory.createProperty(BCLH_NS + "profileImgUrl"), user.getProfileImageURL()); }
+        if (user.getBiggerProfileImageURL() != null) { userResource.addProperty(ResourceFactory.createProperty(BCLH_NS + "bigProfileImgUrl"), user.getBiggerProfileImageURL()); }      
+        if (user.getProfileBannerRetinaURL() != null) { userResource.addProperty(ResourceFactory.createProperty(BCLH_NS + "bannerImgUrl"), user.getProfileBannerRetinaURL()); }
+        if (user.getDescription() != null) { userResource.addProperty(ResourceFactory.createProperty(SCHEMA_NS + "description"), user.getDescription()); }
         
         putRDF(model);	//TODO exception handling
 	}
@@ -236,14 +236,14 @@ public class RDFConnector {
 			// No venue photos available. Defaulting to empty string
 		}
 
-        model.createResource(venueUri)
-        	.addProperty(ResourceFactory.createProperty(BCLH_NS + "venueId"), venue.getId())
-        	.addProperty(ResourceFactory.createProperty(SCHEMA_NS + "name"), venue.getName())
-            .addProperty(ResourceFactory.createProperty(SCHEMA_NS + "photo"), photoUrl)
-            .addProperty(ResourceFactory.createProperty(BCLH_NS + "address"), venue.getLocation().getAddress())
-            .addProperty(ResourceFactory.createProperty(BCLH_NS + "city"), venue.getLocation().getCity())
-            .addProperty(ResourceFactory.createProperty(SCHEMA_NS + "url"), venue.getUrl())
-            .addProperty(ResourceFactory.createProperty(SCHEMA_NS + "description"), venue.getDescription());
+        Resource venueResource = model.createResource(venueUri);
+        venueResource.addProperty(ResourceFactory.createProperty(BCLH_NS + "venueId"), venue.getId());
+    	venueResource.addProperty(ResourceFactory.createProperty(SCHEMA_NS + "name"), venue.getName());
+        if (!photoUrl.equals("")) { venueResource.addProperty(ResourceFactory.createProperty(SCHEMA_NS + "photo"), photoUrl); }
+        if (venue.getLocation().getAddress() != null) { venueResource.addProperty(ResourceFactory.createProperty(BCLH_NS + "address"), venue.getLocation().getAddress()); }
+        if (venue.getLocation().getCity() != null) { venueResource.addProperty(ResourceFactory.createProperty(BCLH_NS + "city"), venue.getLocation().getCity()); }
+        if (venue.getUrl() != null) { venueResource.addProperty(ResourceFactory.createProperty(SCHEMA_NS + "url"), venue.getUrl()); }
+        if (venue.getDescription() != null) { venueResource.addProperty(ResourceFactory.createProperty(SCHEMA_NS + "description"), venue.getDescription()); }
         
         putRDF(model);	
 		
@@ -263,7 +263,7 @@ public class RDFConnector {
 	}
 	
 	
-	public HashMap<String, String> showUser(String username) { //TODO NEEDS USERID IN SCHEMA!!
+	public HashMap<String, String> showUser(String username) {
 		
 		HashMap<String,String> userResult = new HashMap<String,String>();
 		
@@ -400,14 +400,15 @@ public class RDFConnector {
         String queryString = 
         	"PREFIX schema: <" + SCHEMA_NS + "> " +
    			"PREFIX bclh: <" + BCLH_NS + "> " +
-   			"SELECT ?name ?photo ?address ?city ?url ?description " +
+   			"SELECT ?venueId ?name ?photo ?address ?city ?url ?description " +
    			"WHERE {" +
    			"	?user bclh:userId \"" + Long.toString(userId) + "\" ; " +
    			"		  a schema:Person ; " +
    			"		  bclh:visited ?venueUri . " + 
    			"   BIND (URI(?venueUri) AS ?venue) . " +
-   			"	?venue a schema:Location ; " +
-   			"		   schema:name ?name . " +
+   			"	?venue a schema:Place ; " +
+   			"		   schema:name ?name ; " +
+   			"		   bclh:venueId ?venueId . " +
    			"	OPTIONAL {" +
    			"		?venue schema:photo ?photo ; " +
    			"			   bclh:address ?address ; " +
@@ -421,6 +422,7 @@ public class RDFConnector {
 
 	    QueryExecution qe = QueryExecutionFactory.create(query, rdfModel);
 	    ResultSet results = qe.execSelect();
+	    
 	    
 	    while (results.hasNext()) {
 		    QuerySolution venueGraph = results.next();
@@ -494,7 +496,7 @@ public class RDFConnector {
 			"PREFIX bclh: <" + BCLH_NS + "> " +
 			"SELECT ?venueId ?name ?photo ?address ?city ?url ?description " +
 			"WHERE {" +
-			"	?venue a schema:Location ; " + 
+			"	?venue a schema:Place ; " + 
 			"		   schema:name ?name ; " +
 			"		   bclh:venueId ?venueId . " +
 			"	FILTER (REGEX(?name, \"" + venueName + "\", \"i\")) " +
@@ -516,9 +518,9 @@ public class RDFConnector {
 	    if (results.hasNext()) { 
 	    	QuerySolution venueGraph = results.next();
 	    
-	    	venue.put("venueId", venueGraph.getLiteral("venueId").getString());
+	    	venue.put("locId", venueGraph.getLiteral("venueId").getString());
 		    venue.put("name", venueGraph.getLiteral("name").getString());
-			if (venueGraph.contains("photo")) { venue.put("photo", venueGraph.getLiteral("photo").getString()); }
+			if (venueGraph.contains("photo")) { venue.put("imageUrl", venueGraph.getLiteral("photo").getString()); }
 			if (venueGraph.contains("address")) { venue.put("address", venueGraph.getLiteral("address").getString()); }
 			if (venueGraph.contains("city")) { venue.put("city", venueGraph.getLiteral("city").getString()); }
 			if (venueGraph.contains("url")) { venue.put("url", venueGraph.getLiteral("url").getString()); }

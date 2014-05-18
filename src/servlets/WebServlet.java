@@ -128,25 +128,8 @@ public class WebServlet extends HttpServlet {
 			datastoreConn.test();
 		}
 		
-
-        
-
-	     
-	     // ONTOLOGY TEST //
-	     
-	     String filePath = getServletConfig().getServletContext().getRealPath("") + "\\ontology.rdfs";
-	     OntModel ontology = ModelFactory.createOntologyModel(OntModelSpec.RDFS_MEM);
-	     ontology.read(new FileInputStream(filePath), Lang.RDFXML.getName());
-	     ExtendedIterator<OntClass> clas = ontology.listClasses();
-	     while (clas.hasNext()) {
-	    	 System.out.println(clas.next().toString());
-	     }
-	     /*
-	     Property sa = ontology.getProperty("streetAddress");
-	     System.out.println(sa.getLocalName());
-	     System.out.println(sa.getComment("EN"));
-	     */
-	     
+		
+		
 	     
 	     
         // ORIGINAL CODE BELOW //

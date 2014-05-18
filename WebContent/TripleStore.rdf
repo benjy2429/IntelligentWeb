@@ -166,17 +166,17 @@
 
 <rdf:Description rdf:about="http://tomcat.dcs.shef.ac.uk:41032/aca11bmc/address">
 	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
-	<rdfs:label xml:lang="en">Address of a Location</rdfs:label>
+	<rdfs:label xml:lang="en">Address of a Place</rdfs:label>
 	<rdfs:comment xml:lang="en"></rdfs:comment>
-	<rdfs:domain rdf:resource="http://schema.org/Location"/>
+	<rdfs:domain rdf:resource="http://schema.org/Place"/>
 	<rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
 </rdf:Description>
 
 <rdf:Description rdf:about="http://tomcat.dcs.shef.ac.uk:41032/aca11bmc/city">
 	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
-	<rdfs:label xml:lang="en">City of a Location</rdfs:label>
+	<rdfs:label xml:lang="en">City of a Place</rdfs:label>
 	<rdfs:comment xml:lang="en"></rdfs:comment>
-	<rdfs:domain rdf:resource="http://schema.org/Location"/>
+	<rdfs:domain rdf:resource="http://schema.org/Place"/>
 	<rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
 </rdf:Description>
 
@@ -190,9 +190,9 @@
 
 <rdf:Description rdf:about="http://tomcat.dcs.shef.ac.uk:41032/aca11bmc/venueId">
 	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
-	<rdfs:label xml:lang="en">Foursquare ID of a Location</rdfs:label>
+	<rdfs:label xml:lang="en">Foursquare ID of a Place</rdfs:label>
 	<rdfs:comment xml:lang="en"></rdfs:comment>
-	<rdfs:domain rdf:resource="http://schema.org/Location"/>
+	<rdfs:domain rdf:resource="http://schema.org/Place"/>
 	<rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
 </rdf:Description>
 
