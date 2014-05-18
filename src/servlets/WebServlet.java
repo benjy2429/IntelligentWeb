@@ -165,7 +165,6 @@ public class WebServlet extends HttpServlet {
 	     
 	     
         // ORIGINAL CODE BELOW //
-        /*
 		PrintWriter out = response.getWriter();		
 		try {
 			String requestId = request.getParameter("requestId");    	
@@ -187,13 +186,12 @@ public class WebServlet extends HttpServlet {
 		    out.println(ex.getMessage());
 		}
 		out.close();
-		*/
 	}
 
 	
 	/**
 	 * Performs a twitter query using request data and returns tweets and their Ids in the form of a JSON string 
-	 * Saves examined data in the system database in a background thread
+	 * Saves examined data in the system datastore in a background thread
 	 * @param request - The HttpServletRequest object
 	 * @return - JSON string
 	 * @throws FatalInternalException
@@ -242,18 +240,18 @@ public class WebServlet extends HttpServlet {
 				tweetIds.add(String.valueOf(status.getId()));
 			}
 			
-			//Create a new thread to store data in the database in the background without delaying response from webpage
+			//Create a new thread to store data in the datastore in the background without delaying response from webpage
 			Thread thread = new Thread(new Runnable() {
 				@Override
 				public void run() {
-					LOGGER.log(Level.FINE, "Starting background thread for database storage");
+					LOGGER.log(Level.FINE, "Starting background thread for datastore storage");
 					if (datastoreConn.establishConnection()) { 
 						for(Status status : result) {
 							datastoreConn.addUsers(status.getUser());
 						}
 						datastoreConn.closeConnection();
 					}
-					LOGGER.log(Level.FINE, "Ending background thread for database storage");
+					LOGGER.log(Level.FINE, "Ending background thread for datastore storage");
 				}
 			});
 			thread.start();
@@ -277,7 +275,7 @@ public class WebServlet extends HttpServlet {
 
 	/**
 	 * Gets a tweet from a tweetId and then finds a list of users who retweeted it in the form of a JSON string
-	 * Saves examined data in the system database in a background thread
+	 * Saves examined data in the system datastore in a background thread
 	 * @param request - The HttpServletRequest object
 	 * @return - JSON string
 	 * @throws FatalInternalException
@@ -307,11 +305,11 @@ public class WebServlet extends HttpServlet {
 				throw new FatalInternalException("An internal error has occured whilst dealing with a query");
 			}
 			
-			//Create a new thread to store data in the database in the background without delaying response from web page
+			//Create a new thread to store data in the datastore in the background without delaying response from web page
 			Thread thread = new Thread(new Runnable() {
 				@Override
 				public void run() {
-					LOGGER.log(Level.FINE, "Starting background thread for database storage");
+					LOGGER.log(Level.FINE, "Starting background thread for datastore storage");
 					if(datastoreConn.establishConnection()) { 			
 						datastoreConn.addUsers(tweeter);
 						for(User user : retweeters){
@@ -320,7 +318,7 @@ public class WebServlet extends HttpServlet {
 						}
 						datastoreConn.closeConnection();
 					}
-					LOGGER.log(Level.FINE, "Ending background thread for database storage");
+					LOGGER.log(Level.FINE, "Ending background thread for datastore storage");
 				}
 			});
 			thread.start();
@@ -341,7 +339,7 @@ public class WebServlet extends HttpServlet {
 	
 	/**
 	 * Gets frequently used terms amongst several users in the form of a JSON string
-	 * Saves examined data in the system database in a background thread
+	 * Saves examined data in the system datastore in a background thread
 	 * @param request - The HttpServletRequest object
 	 * @return - JSON string
 	 * @throws FatalInternalException
@@ -391,23 +389,23 @@ public class WebServlet extends HttpServlet {
 			List<Term> rankedTerms = new LinkedList<Term>();
 			rankedTerms.addAll(terms.t);
 
-			//Get the list of all terms used (ranked and unranked) for storage in the database
+			//Get the list of all terms used (ranked and unranked) for storage in the datastore
 			final List<Term> allTerms = new LinkedList<Term>();
 			allTerms.addAll(terms.t);
 			allTerms.addAll(terms.u);
 
-			//Create a new thread to store data in the database in the background without delaying response from web page
+			//Create a new thread to store data in the datastore in the background without delaying response from web page
 			Thread thread = new Thread(new Runnable() {
 				@Override
 				public void run() {
-					LOGGER.log(Level.FINE, "Starting background thread for term database storage");
+					LOGGER.log(Level.FINE, "Starting background thread for term datastore storage");
 					if (datastoreConn.establishConnection()) { 
-						//Add users to database
+						//Add users to datastore
 						for(User user : users){
 							datastoreConn.addUsers(user);
 						}
 						for(Term term : allTerms){
-							//Add terms to database and get id
+							//Add terms to datastore and get id
 							int wordId = datastoreConn.addWord(term.term);
 							
 							//If already exists, then look it up
@@ -415,18 +413,18 @@ public class WebServlet extends HttpServlet {
 							
 							//If we still don't have an id then something has gone wrong
 							if (wordId != -1){
-								//Add the pairings of user to word in the database
+								//Add the pairings of user to word in the datastore
 								for(Pair<Long, Integer> userCount : term.userCounts){
 									//datastoreConn.addUserTermPair(userCount.t, wordId, userCount.u);
 									//TODO fix
 								}
 							} else {
-								LOGGER.log(Level.WARNING, "A term exists in the database but its id could not be obtained. Term: " + term.term);
+								LOGGER.log(Level.WARNING, "A term exists in the datastore but its id could not be obtained. Term: " + term.term);
 							}
 						}
 						datastoreConn.closeConnection();
 					}
-					LOGGER.log(Level.FINE, "Ending background thread for term database storage");
+					LOGGER.log(Level.FINE, "Ending background thread for term datastore storage");
 				}
 			});
 			thread.start();
@@ -451,7 +449,7 @@ public class WebServlet extends HttpServlet {
 	/**
 	 * Gets venues visited by a user over a number of days and return in the form of a JSON string
 	 * The user is also returned if it is the first request
-	 * Saves examined data in the system database in a background thread
+	 * Saves examined data in the system datastore in a background thread
 	 * @param request - The HttpServletRequest object
 	 * @return - JSON string
 	 * @throws FatalInternalException
@@ -547,24 +545,24 @@ public class WebServlet extends HttpServlet {
 			//Determine whether this is the first time this request has been made
 			final boolean firstTime = request.getParameter("userRequest").equals("1");
 			
-			//Create a new thread to store data in the database in the background without delaying response from web page
+			//Create a new thread to store data in the datastore in the background without delaying response from web page
 			Thread thread = new Thread(new Runnable() {
 				@Override
 				public void run() {
-					LOGGER.log(Level.FINE, "Starting background thread for term database storage");
+					LOGGER.log(Level.FINE, "Starting background thread for term datastore storage");
 					if (datastoreConn.establishConnection()) { 
-						//Add users to database
+						//Add users to datastore
 						if (firstTime) {
 							datastoreConn.addUsers(user);
 						}
-						//Add venues to database
+						//Add venues to datastore
 						for(CompleteVenue venue : result){
 							datastoreConn.addVenues(venue);
 							datastoreConn.addUserVenue(user.getId(),venue.getId());
 						}
 						datastoreConn.closeConnection();
 					}
-					LOGGER.log(Level.FINE, "Ending background thread for term database storage");
+					LOGGER.log(Level.FINE, "Ending background thread for term datastore storage");
 				}
 			});
 			thread.start();
@@ -595,7 +593,7 @@ public class WebServlet extends HttpServlet {
 	
 	/**
 	 * Gets venues that match the conditions of the search and tweets from people who have checked into these venues in the form of a JSON string
-	 * Saves examined data in the system database in a background thread
+	 * Saves examined data in the system datastore in a background thread
 	 * @param request - The HttpServletRequest object
 	 * @return - JSON string
 	 * @throws FatalInternalException
@@ -699,11 +697,11 @@ public class WebServlet extends HttpServlet {
 				}  
 			} 
 	
-			//Create a new thread to store data in the database in the background without delaying response from web page
+			//Create a new thread to store data in the datastore in the background without delaying response from web page
 			Thread thread = new Thread(new Runnable() {
 				@Override
 				public void run() {
-					LOGGER.log(Level.FINE, "Starting background thread for term database storage");
+					LOGGER.log(Level.FINE, "Starting background thread for term datastore storage");
 					if (datastoreConn.establishConnection()) { 
 						for (Entry<String, CompleteVenue> entry : venues.entrySet()) {
 							datastoreConn.addVenues(entry.getValue());
@@ -714,7 +712,7 @@ public class WebServlet extends HttpServlet {
 						}
 						datastoreConn.closeConnection();
 					}
-					LOGGER.log(Level.FINE, "Ending background thread for term database storage");
+					LOGGER.log(Level.FINE, "Ending background thread for term datastore storage");
 				}
 			});
 			thread.start();
