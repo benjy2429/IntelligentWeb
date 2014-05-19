@@ -73,8 +73,8 @@ $(window).load(function() {
 						result += "<div class='bigUserProfile' style='background-image:url(\"" + user.bannerImgUrl + "\");'>";
 						result += "<span property='bclh:bannerImgUrl' content='" + user.bannerImgUrl + "'/>";
 						result += "<div class='bigUserProfileDark'>";
-						result += "<div class='userProfileImg' style='background-image:url(\"" + user.bigProfileImgUrl + "\");'></div>";
-						result += "<span property='bclh:bigProfileImgUrl' content='" + user.bigProfileImgUrl + "'/>";
+						result += (user.bigProfileImgUrl) ? "<div class='userProfileImg' style='background-image:url(\"" + user.bigProfileImgUrl + "\");'></div>" : "<div class='userProfileImg'></div>";
+						result += (user.bigProfileImgUrl) ? "<span property='bclh:bigProfileImgUrl' content='" + user.bigProfileImgUrl + "'/>" : "";
 						result += "<div>";
 						result += "<h2 property='schema:name'>" + user.fullName + "</h2>";
 						result += "<h4><b>@<span property='schema:alternateName'>" + user.screenName + "</span></b></h4>";
@@ -120,7 +120,7 @@ $(window).load(function() {
 												
 								result += "<div class='userProfileVenue'>";
 								// Link to the showVenue page for this venue
-								result += (this.imageUrl) ? "<a href='' data-venue-name='" + this.name.replace(/'/g, "%27") + "' class='visitVenueProfile userProfileVenueImg' style='background-image:url(\"" + this.imageUrl + "\");' title='See more information about this venue'></a>" : "";
+								result += (this.imageUrl) ? "<a href='' data-venue-name='" + this.name.replace(/'/g, "%27") + "' class='visitVenueProfile userProfileVenueImg' style='background-image:url(\"" + this.imageUrl + "\");' title='See more information about this venue'></a>" : "<a href='' data-venue-name='" + this.name.replace(/'/g, "%27") + "' class='visitVenueProfile userProfileVenueImg' title='See more information about this venue'></a>";
 								result += (this.imageUrl) ? "<span property='schema:photo' content='" + this.imageUrl + "'/>" : "";
 								
 								result += "<div class='venueContent'>";
@@ -256,8 +256,8 @@ $(window).load(function() {
 						// Write the venue information
 						result += "<div class='bigUserProfile'>";
 						result += "<div class='bigUserProfileDark'>";
-						result += "<div class='userProfileImg' style='background-image:url(\"" + venue.imageUrl + "\");'></div>";
-						result += "<span property='schema:photo' content='" + venue.imageUrl + "' />";
+						result += (venue.imageUrl) ? "<div class='userProfileImg' style='background-image:url(\"" + venue.imageUrl + "\");'></div>" : "<div class='userProfileImg'></div>";
+						result += (venue.imageUrl) ? "<span property='schema:photo' content='" + venue.imageUrl + "' />" : "";
 						result += "<div>";
 						result += "<h2 property='schema:name'>" + venue.name + "</h2>";
 						result += "<h4><b>";

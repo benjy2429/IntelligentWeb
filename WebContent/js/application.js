@@ -421,7 +421,7 @@ $(window).load(function() {
 				// Iterate through the venues and display their information
 				$.each( venues, function() {
 					result += "<div class='venue'>";
-					result += (this.photos && this.photos.groups[1] && this.photos.groups[1].items.length > 0) ? "<div class='venueImg' style='background-image:url(\"" + this.photos.groups[1].items[0].url + "\");'/>" : "";
+					result += (this.photos && this.photos.groups[1] && this.photos.groups[1].items.length > 0) ? "<div class='venueImg' style='background-image:url(\"" + this.photos.groups[1].items[0].url + "\");'/>" : "<div class='venueImg'/>";
 					result += "<div class='venueContent'>";
 					result += "<span class='venueName'>" + this.name + ", </span>";
 					result += (this.location.address) ? this.location.address : "";
@@ -809,11 +809,13 @@ $(window).load(function() {
 			type: 'post',
 			datatype: 'json',
 			data: tweet.find('.retweetersForm').serialize(),
-			success: function(data){
+			success: function(data){				
 				var result = " ";
 				// Parse the users and write their profile pictures to the page
 				$.each( JSON.parse(data), function() {
-					result += "<a href='#' data-toggle='tooltip' title='" + this.name + "'><img class='tweetImgSmall' src='" + this.profileImageUrl + "'/></a>";
+					result += "<a href='#' data-screen-name='" + this.screenName + "' data-modal-generated='false' data-tweets-populated='false' data-toggle='tooltip' data-target='#userProfile" + this.screenName + "' class='visitProfile' title='" + this.name + "'>";
+					result += (this.profileImageUrl) ? "<img class='tweetImgSmall' src='" + this.profileImageUrl + "'/>" : "<span class='tweetImgSmall'/>";
+					result += "</a>";
 					//result += this.name + " @" + this.screenName + "<br>";
 				});				
 				// If there are more than 10 retweets, add a "+XX more" message
