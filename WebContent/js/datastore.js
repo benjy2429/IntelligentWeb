@@ -140,11 +140,13 @@ $(window).load(function() {
 							$.each( retweets, function() {
 								result += "<li class='list-group-item clearfix'>";
 								// Link to the showUser page for this user
-								result += "<a href='' data-screen-name='" + this.screenName.replace(/'/g, "%27") + "' class='visitUserProfile' title='See more information about this user'>";
-								result += "<img class='tweetImg' src='" + this.profileImgUrl + "'/>";							
+								result += "<a about='twitter:" + this.userId + "' href='' data-screen-name='" + this.screenName.replace(/'/g, "%27") + "' class='visitUserProfile' title='See more information about this user'>";
+								result += "<span property='bclh:userId' content='" + this.userId + "' />";
+								result += "<img class='tweetImg' src='" + this.profileImgUrl + "'/>";
+								result += "<span property='bclh:profileImgUrl' content='" + this.profileImgUrl + "'/>";
 								result += "<div class='tweetContent' style='padding-top:8px;'>";
-								result += "<div class='tweetUser'>" + this.fullName + "</div>";
-								result += "<div class='tweetText'>@<span class='tweetScreenName'>" + this.screenName + "</span></div>";
+								result += "<div property='schema:name' class='tweetUser'>" + this.fullName + "</div>";
+								result += "<div class='tweetText'>@<span property='schema:alternateName' class='tweetScreenName'>" + this.screenName + "</span></div>";
 								result += "</div>";
 								result += "</a>";
 								result += "</li>";
@@ -158,11 +160,10 @@ $(window).load(function() {
 						// If retweeters are available, display them, otherwise show an error
 						if (retweetersOfUser.length > 0) {
 							$.each( retweetersOfUser, function() {
-								result += "<div about='twitter:" + this.userId + "'>";
 								result += "<li class='list-group-item clearfix'>";
-								result += "<span property='bclh:userId' content='" + this.userId + "'/>";
 								// Link to the showUser page for this user
-								result += "<a href='' data-screen-name='" + this.screenName.replace(/'/g, "%27") + "' class='visitUserProfile' title='See more information about this user'>";
+								result += "<a about='twitter:" + this.userId + "' href='' data-screen-name='" + this.screenName.replace(/'/g, "%27") + "' class='visitUserProfile' title='See more information about this user'>";
+								result += "<span property='bclh:userId' content='" + this.userId + "'/>";
 								result += "<img class='tweetImg' src='" + this.profileImgUrl + "'/>";	
 								result += "<span property='bclh:profileImgUrl' content='" + this.profileImgUrl + "'/>";
 								result += "<div class='tweetContent' style='padding-top:8px;'>";
@@ -171,7 +172,6 @@ $(window).load(function() {
 								result += "</div>";
 								result += "</a>";
 								result += "</li>";
-								result += "</div>";
 							});
 						} else {
 							result += "<li class='list-group-item'>No-one retweeted " + user.fullName + "</li>";
