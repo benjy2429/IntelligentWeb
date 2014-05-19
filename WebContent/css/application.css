@@ -55,7 +55,6 @@ body {
 	width: 50px;
 	height: 50px;
 	float: left;
-	border: 1px solid #ddd;
 	border-radius: 5px;
 	background-size: cover;
 	background-position: center;
@@ -146,7 +145,6 @@ body {
 	height: 80px;
 	width: 80px;
 	float: left;
-	border: 1px solid #ddd;
 	border-radius: 5px;
 	background-color: #eee;
 	background-size: cover;
@@ -277,7 +275,6 @@ button.close {
 	width: 128px;
 	height: 128px;
 	box-shadow: 0 1px 2px rgba(0,0,0,0.2);
-	border: 1px solid #ddd;
 	border-radius: 10px;
 	background-size: cover;
 	background-position: center;
@@ -295,7 +292,6 @@ button.close {
 	float: left;
 	width: 80px;
 	height: 80px;
-	border: 1px solid #ddd;
 	border-radius: 5px;
 	background-size: cover;
 	background-position: center;
