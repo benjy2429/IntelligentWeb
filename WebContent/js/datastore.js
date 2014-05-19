@@ -115,18 +115,22 @@ $(window).load(function() {
 						// If venues visited are available, display them, otherwise show an error
 						if (locations.length > 0) {
 							$.each( locations, function() {
-								result += "<li class='list-group-item clearfix'>";
+								result += "<span property='bclh:visited' resource='foursquare:" + this.venueId + "' />";
+								result += "<li about='foursquare:" + this.venueId + "' class='list-group-item clearfix'>";
+												
 								result += "<div class='userProfileVenue'>";
 								// Link to the showVenue page for this venue
 								result += (this.imageUrl) ? "<a href='' data-venue-name='" + this.name.replace(/'/g, "%27") + "' class='visitVenueProfile userProfileVenueImg' style='background-image:url(\"" + this.imageUrl + "\");' title='See more information about this venue'></a>" : "";
+								result += (this.imageUrl) ? "<span property='schema:photo' content='" + this.imageUrl + "'/>" : "";
+								
 								result += "<div class='venueContent'>";
-								result += "<span class='venueName'><a href='' data-venue-name='" + this.name.replace(/'/g, "%27") + "' class='visitVenueProfile' title='See more information about this venue'>" + this.name + "</a>, </span>";
-								result += (this.address) ? this.address : "";
+								result += "<span class='venueName'><a href='' about='foursquare:" + this.venueId + "' data-venue-name='" + this.name.replace(/'/g, "%27") + "' class='visitVenueProfile' title='See more information about this venue'><span property='schema:name'>" + this.name + "</span></a>, </span>";
+								result += (this.address) ? "<span property='bclh:address'>"+  this.address + "</span>" : "";
 								result += (this.address && this.city) ? ", " : "";
-								result += (this.city) ? this.city : "";
+								result += (this.city) ? "<span property='bclh:city'>"+  this.city + "</span>" : "";
 								result += "<br>";			
-								result += (this.websiteUrl) ? "<a href='" + this.websiteUrl + "'>" + this.websiteUrl + "</a><br>" : "";
-								result += (this.description) ? this.description : "";
+								result += (this.websiteUrl) ? "<a href='" + this.websiteUrl + "' about='foursquare:" + this.venueId + "'><span property='schema:url'>" + this.websiteUrl + "</span></a><br>" : "";
+								result += (this.description) ? "<span property='schema:description'>"+ this.description + "</span>" : "";
 								result += "</div>";
 								result += "</div>";
 								result += "</li>";

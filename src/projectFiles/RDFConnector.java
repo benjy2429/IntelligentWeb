@@ -426,6 +426,7 @@ public class RDFConnector {
 		    HashMap<String,String> locationHashMap = new HashMap<String,String>();
 		    
 		    locationHashMap.put("name", venueGraph.getLiteral("name").getString());
+		    locationHashMap.put("venueId", venueGraph.getLiteral("venueId").getString());
 		    if (venueGraph.contains("photo")) { locationHashMap.put("imageUrl", venueGraph.getLiteral("photo").getString()); }
 		    if (venueGraph.contains("address")) { locationHashMap.put("address", venueGraph.getLiteral("address").getString()); }
 		    if (venueGraph.contains("city")) { locationHashMap.put("city", venueGraph.getLiteral("city").getString()); }
