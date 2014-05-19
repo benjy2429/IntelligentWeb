@@ -141,6 +141,7 @@ $(window).load(function() {
 								result += "<li class='list-group-item clearfix'>";
 								// Link to the showUser page for this user
 								result += "<a about='twitter:" + this.userId + "' href='' data-screen-name='" + this.screenName.replace(/'/g, "%27") + "' class='visitUserProfile' title='See more information about this user'>";
+								result += "<span property='schema:knows' resource='twitter:" + user.userId + "' />";
 								result += "<span property='bclh:userId' content='" + this.userId + "' />";
 								result += "<img class='tweetImg' src='" + this.profileImgUrl + "'/>";
 								result += "<span property='bclh:profileImgUrl' content='" + this.profileImgUrl + "'/>";
@@ -161,6 +162,7 @@ $(window).load(function() {
 						if (retweetersOfUser.length > 0) {
 							$.each( retweetersOfUser, function() {
 								result += "<li class='list-group-item clearfix'>";
+								result += "<span property='schema:knows' resource='twitter:" + this.userId + "' />";
 								// Link to the showUser page for this user
 								result += "<a about='twitter:" + this.userId + "' href='' data-screen-name='" + this.screenName.replace(/'/g, "%27") + "' class='visitUserProfile' title='See more information about this user'>";
 								result += "<span property='bclh:userId' content='" + this.userId + "'/>";
