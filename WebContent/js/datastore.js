@@ -246,19 +246,23 @@ $(window).load(function() {
 					var result = "";
 					// If data was recieved
 					if (!$.isEmptyObject(venue)) {	
+						result += "<div about='foursquare:" + venue.venueId + "'>";
+						result += "<span property='bclh:venueId' content='" + venue.venueId + "'/>";
+						
 						// Write the venue information
 						result += "<div class='bigUserProfile'>";
 						result += "<div class='bigUserProfileDark'>";
 						result += "<div class='userProfileImg' style='background-image:url(\"" + venue.imageUrl + "\");'></div>";
+						result += "<span property='schema:photo' content='" + venue.imageUrl + "' />";
 						result += "<div>";
-						result += "<h2>" + venue.name + "</h2>";
+						result += "<h2 property='schema:name'>" + venue.name + "</h2>";
 						result += "<h4><b>";
-						result += (venue.address) ? venue.address : "";
+						result += (venue.address) ? "<span property='bclh:address'>" + venue.address + "</span>" : "";
 						result += (venue.address && venue.city) ? ", " : "";
-						result += (venue.city) ? venue.city : "";
+						result += (venue.city) ? "<span property='bclh:city'>" + venue.city + "</span>" : "";
 						result += "</b></h4>";
-						result += (venue.description) ? "<p>" + venue.description + "</p>" : "";
-						result += (venue.websiteUrl) ? "<a href='" + venue.websiteUrl + "'>" + venue.websiteUrl + "</a>" : "";
+						result += (venue.description) ? "<p property='schema:description'>" + venue.description + "</p>" : "";
+						result += (venue.websiteUrl) ? "<a about='foursquare:" + venue.venueId + "' href='" + venue.websiteUrl + "'><span property='schema:url'>" + venue.websiteUrl + "</span></a>" : "";
 						result += "</div>";
 						result += "</div>";
 						result += "</div>";
@@ -269,11 +273,17 @@ $(window).load(function() {
 							// Iterate through the users and write their information
 							$.each( users, function() {
 								// Link to the showUser page for this user
+								result += "<span about='twitter:" + this.userId + "'>";
+								result += "<span property='bclh:visited' resource='foursquare:" + venue.venueId + "' />";
+								result += "<span property='schema:alternateName' content='" + this.screenName + "' />";
+								result += "<span property='bclh:profileImgUrl' content='" + this.profileImgUrl + "' />";
 								result += "<a href='' class='visitUserProfile visitUserProfileSmall' data-screen-name='" + this.screenName.replace(/'/g, "%27") + "' data-toggle='tooltip' title='" + this.fullName + "'><img class='venueVisitorImg' src='" + this.profileImgUrl + "'/></a>";
+								result += "</span>";
 							});
 						} else {
 							result += "No users have visited " + venue.name;
 						}
+						result += "</div>";
 					} else {
 						result += "No matching venues found.";
 					}
