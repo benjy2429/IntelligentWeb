@@ -316,13 +316,14 @@ public class RDFConnector {
         String queryString = 
 			"PREFIX schema: <" + SCHEMA_NS + "> " +
 			"PREFIX bclh: <" + BCLH_NS + "> " +
-			"SELECT ?name ?screenName ?profileImgUrl " +
+			"SELECT ?userId ?name ?screenName ?profileImgUrl " +
 			"WHERE {" +
 			"	?userA bclh:userId \"" + Long.toString(userId) + "\" ; " +
 			"		   a schema:Person ; " + 
 			"		   schema:knows ?userBUri . " + 
 			"   BIND (URI(?userBUri) AS ?userB) . " +
 			"	?userB a schema:Person ; " +
+			"		   bclh:userId ?userId ; " + 
 			"		   schema:name ?name ; " + 
 			"		   schema:alternateName ?screenName . " +
 			"	OPTIONAL { ?userB bclh:profileImgUrl ?profileImgUrl } " +
@@ -337,6 +338,7 @@ public class RDFConnector {
 		    QuerySolution userGraph = results.next();
 		    	    
 		    HashMap<String,String> userHashMap = new HashMap<String,String>();
+		    userHashMap.put("userId", userGraph.getLiteral("userId").getString());
 		    userHashMap.put("fullName", userGraph.getLiteral("name").getString());
 		    userHashMap.put("screenName", userGraph.getLiteral("screenName").getString());
 			if (userGraph.contains("profileImgUrl")) { userHashMap.put("profileImgUrl", userGraph.getLiteral("profileImgUrl").getString()); }

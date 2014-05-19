@@ -65,17 +65,22 @@ $(window).load(function() {
 
 					var result = "";
 					// If data was recieved
-					if (!$.isEmptyObject(user)) {	
+					if (!$.isEmptyObject(user)) {
+						result += "<div about='twitter:" + user.userId + "'>";
+						result += "<span property='bclh:userId' content='" + user.userId + "'/>";
+						
 						// Write the user information
 						result += "<div class='bigUserProfile' style='background-image:url(\"" + user.bannerImgUrl + "\");'>";
+						result += "<span property='bclh:bannerImgUrl' content='" + user.bannerImgUrl + "'/>";
 						result += "<div class='bigUserProfileDark'>";
 						result += "<div class='userProfileImg' style='background-image:url(\"" + user.bigProfileImgUrl + "\");'></div>";
+						result += "<span property='bclh:bigProfileImgUrl' content='" + user.bigProfileImgUrl + "'/>";
 						result += "<div>";
-						result += "<h2>" + user.fullName + "</h2>";
-						result += "<h4><b>@" + user.screenName + "</b></h4>";
-						result += (user.description) ? "<p>" + user.description + "</p>" : "";
+						result += "<h2 property='schema:name'>" + user.fullName + "</h2>";
+						result += "<h4><b>@<span property='schema:alternateName'>" + user.screenName + "</span></b></h4>";
+						result += (user.description) ? "<p property='schema:description'>" + user.description + "</p>" : "";
 						result += "<p>";
-						result += (user.hometown) ? "Hometown: " + user.hometown + " | " : "";
+						result += (user.hometown) ? "Hometown: <span property='bclh:hometown'>" + user.hometown + "</span> | " : "";
 						result += "<a href='http://twitter.com/" + user.screenName + "'>Visit " + user.fullName + "'s profile on Twitter</a></p>";
 						result += "</div>";
 						result += "</div>";
@@ -153,21 +158,26 @@ $(window).load(function() {
 						// If retweeters are available, display them, otherwise show an error
 						if (retweetersOfUser.length > 0) {
 							$.each( retweetersOfUser, function() {
+								result += "<div about='twitter:" + this.userId + "'>";
 								result += "<li class='list-group-item clearfix'>";
+								result += "<span property='bclh:userId' content='" + this.userId + "'/>";
 								// Link to the showUser page for this user
 								result += "<a href='' data-screen-name='" + this.screenName.replace(/'/g, "%27") + "' class='visitUserProfile' title='See more information about this user'>";
-								result += "<img class='tweetImg' src='" + this.profileImgUrl + "'/>";							
+								result += "<img class='tweetImg' src='" + this.profileImgUrl + "'/>";	
+								result += "<span property='bclh:profileImgUrl' content='" + this.profileImgUrl + "'/>";
 								result += "<div class='tweetContent' style='padding-top:8px;'>";
-								result += "<div class='tweetUser'>" + this.fullName + "</div>";
-								result += "<div class='tweetText'>@<span class='tweetScreenName'>" + this.screenName + "</span></div>";
+								result += "<div property='schema:name' class='tweetUser'>" + this.fullName + "</div>";
+								result += "<div class='tweetText'>@<span property='schema:alternateName' class='tweetScreenName'>" + this.screenName + "</span></div>";
 								result += "</div>";
 								result += "</a>";
 								result += "</li>";
+								result += "</div>";
 							});
 						} else {
 							result += "<li class='list-group-item'>No-one retweeted " + user.fullName + "</li>";
 						}
 						result += "</ul>";
+						result += "</div>";
 						result += "</div>";
 							
 					// If no data was recieved, show an error
