@@ -94,9 +94,13 @@ $(window).load(function() {
 						if (keywords.length > 0) {
 							var i = 1;
 							$.each( keywords, function() {
-								result += "<li class='list-group-item clearfix'>";
-								result += "<span class='term'>" + i + ". \"" + this.word  + "\"</span>";
-								result += " (" + this.count + ")";
+								result += "<span property='bclh:noTimesSaid' resource='bclhuserkeyword:" + user.userId + "" + this.word + "' />";
+								result += "<li about='bclhkeyword:" + this.word + "' class='list-group-item clearfix'>";
+								result += "<span class='term'>" + i + ". \"<span property='schema:name'>" + this.word  + "</span>\"</span>";
+								result += "<span about='bclhuserkeyword:" + user.userId + "" + this.word + "'>";
+								result += " (<span property='bclh:count'>" + this.count + "</span>)";
+								result += "<span property='bclh:wordSaid' resource='bclhkeyword:" + this.word + "' />";
+								result += "</span>";
 								result += "</li>";
 								i++;
 							});
