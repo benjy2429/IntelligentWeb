@@ -516,7 +516,7 @@ public class RDFConnector {
 	    if (results.hasNext()) { 
 	    	QuerySolution venueGraph = results.next();
 	    
-	    	venue.put("locId", venueGraph.getLiteral("venueId").getString());
+	    	venue.put("venueId", venueGraph.getLiteral("venueId").getString());
 		    venue.put("name", venueGraph.getLiteral("name").getString());
 			if (venueGraph.contains("photo")) { venue.put("imageUrl", venueGraph.getLiteral("photo").getString()); }
 			if (venueGraph.contains("address")) { venue.put("address", venueGraph.getLiteral("address").getString()); }

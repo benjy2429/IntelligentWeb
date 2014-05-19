@@ -103,7 +103,7 @@ public class DatastoreServlet extends HttpServlet {
     			if (datastoreConn.establishConnection()) {
 	    			//Get venue and id
 	    			venue = datastoreConn.showVenue(venueName);
-	    			String venueId = venue.get("locId");
+	    			String venueId = venue.get("venueId");
 	    			
 	    			//Run datastore queries
 	    			users = datastoreConn.getVenueVisitors(venueId);
