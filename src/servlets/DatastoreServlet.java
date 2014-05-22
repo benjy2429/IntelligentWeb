@@ -64,13 +64,16 @@ public class DatastoreServlet extends HttpServlet {
     			if (datastoreConn.establishConnection()) {
 	    			//Get user and id
 	    			user = datastoreConn.showUser(username);
-	    			long userId = Long.parseLong(user.get("userId"));
 	    			
-	    			//Run datastore queries and store results
-	    			retweetersOfUser = datastoreConn.getRetweetersOfUser(userId);
-	    			userRetweets = datastoreConn.getUserRetweets(userId);
-	    			userLocations = datastoreConn.getUserLocations(userId);
-	    			userKeywords = datastoreConn.getUserKeywords(userId);
+    				if (!user.isEmpty()) {
+		    			long userId = Long.parseLong(user.get("userId"));
+		    			
+		    			//Run datastore queries and store results
+		    			retweetersOfUser = datastoreConn.getRetweetersOfUser(userId);
+		    			userRetweets = datastoreConn.getUserRetweets(userId);
+		    			userLocations = datastoreConn.getUserLocations(userId);
+		    			userKeywords = datastoreConn.getUserKeywords(userId);
+    				}
     			}
     			
     			//Store results for JASON
@@ -103,10 +106,13 @@ public class DatastoreServlet extends HttpServlet {
     			if (datastoreConn.establishConnection()) {
 	    			//Get venue and id
 	    			venue = datastoreConn.showVenue(venueName);
-	    			String venueId = venue.get("locId");
 	    			
-	    			//Run datastore queries
-	    			users = datastoreConn.getVenueVisitors(venueId);
+	    			if (!venue.isEmpty()) {
+		    			String venueId = venue.get("venueId");
+		    			
+		    			//Run datastore queries
+		    			users = datastoreConn.getVenueVisitors(venueId);
+	    			}
     			}
     			
     			//Store results for JASON

@@ -66,15 +66,15 @@ $(window).load(function() {
 					var result = "";
 					// If data was recieved
 					if (!$.isEmptyObject(user)) {
-						result += "<div about='twitter:" + user.userId + "'>";
+						result += "<div typeof='schema:Person' about='twitter:" + user.userId + "'>";
 						result += "<span property='bclh:userId' content='" + user.userId + "'/>";
 						
 						// Write the user information
 						result += "<div class='bigUserProfile' style='background-image:url(\"" + user.bannerImgUrl + "\");'>";
 						result += "<span property='bclh:bannerImgUrl' content='" + user.bannerImgUrl + "'/>";
 						result += "<div class='bigUserProfileDark'>";
-						result += "<div class='userProfileImg' style='background-image:url(\"" + user.bigProfileImgUrl + "\");'></div>";
-						result += "<span property='bclh:bigProfileImgUrl' content='" + user.bigProfileImgUrl + "'/>";
+						result += (user.bigProfileImgUrl) ? "<div class='userProfileImg' style='background-image:url(\"" + user.bigProfileImgUrl + "\");'></div>" : "<div class='userProfileImg'></div>";
+						result += (user.bigProfileImgUrl) ? "<span property='bclh:bigProfileImgUrl' content='" + user.bigProfileImgUrl + "'/>" : "";
 						result += "<div>";
 						result += "<h2 property='schema:name'>" + user.fullName + "</h2>";
 						result += "<h4><b>@<span property='schema:alternateName'>" + user.screenName + "</span></b></h4>";
@@ -95,9 +95,9 @@ $(window).load(function() {
 							var i = 1;
 							$.each( keywords, function() {
 								result += "<span property='bclh:noTimesSaid' resource='bclhuserkeyword:" + user.userId + "" + this.word + "' />";
-								result += "<li about='bclhkeyword:" + this.word + "' class='list-group-item clearfix'>";
+								result += "<li typeof='bclh:Keyword' about='bclhkeyword:" + this.word + "' class='list-group-item clearfix'>";
 								result += "<span class='term'>" + i + ". \"<span property='schema:name'>" + this.word  + "</span>\"</span>";
-								result += "<span about='bclhuserkeyword:" + user.userId + "" + this.word + "'>";
+								result += "<span typeof='bclh:UserKeyword' about='bclhuserkeyword:" + user.userId + "" + this.word + "'>";
 								result += " (<span property='bclh:count'>" + this.count + "</span>)";
 								result += "<span property='bclh:wordSaid' resource='bclhkeyword:" + this.word + "' />";
 								result += "</span>";
@@ -116,20 +116,20 @@ $(window).load(function() {
 						if (locations.length > 0) {
 							$.each( locations, function() {
 								result += "<span property='bclh:visited' resource='foursquare:" + this.venueId + "' />";
-								result += "<li about='foursquare:" + this.venueId + "' class='list-group-item clearfix'>";
+								result += "<li typeof='schema:Place' about='foursquare:" + this.venueId + "' class='list-group-item clearfix'>";
 												
 								result += "<div class='userProfileVenue'>";
 								// Link to the showVenue page for this venue
-								result += (this.imageUrl) ? "<a href='' data-venue-name='" + this.name.replace(/'/g, "%27") + "' class='visitVenueProfile userProfileVenueImg' style='background-image:url(\"" + this.imageUrl + "\");' title='See more information about this venue'></a>" : "";
+								result += (this.imageUrl) ? "<a href='' data-venue-name='" + this.name.replace(/'/g, "%27") + "' class='visitVenueProfile userProfileVenueImg' style='background-image:url(\"" + this.imageUrl + "\");' title='See more information about this venue'></a>" : "<a href='' data-venue-name='" + this.name.replace(/'/g, "%27") + "' class='visitVenueProfile userProfileVenueImg' title='See more information about this venue'></a>";
 								result += (this.imageUrl) ? "<span property='schema:photo' content='" + this.imageUrl + "'/>" : "";
 								
 								result += "<div class='venueContent'>";
-								result += "<span class='venueName'><a href='' about='foursquare:" + this.venueId + "' data-venue-name='" + this.name.replace(/'/g, "%27") + "' class='visitVenueProfile' title='See more information about this venue'><span property='schema:name'>" + this.name + "</span></a>, </span>";
+								result += "<span class='venueName'><a href='' typeof='schema:Place' about='foursquare:" + this.venueId + "' data-venue-name='" + this.name.replace(/'/g, "%27") + "' class='visitVenueProfile' title='See more information about this venue'><span property='schema:name'>" + this.name + "</span></a>, </span>";
 								result += (this.address) ? "<span property='bclh:address'>"+  this.address + "</span>" : "";
 								result += (this.address && this.city) ? ", " : "";
 								result += (this.city) ? "<span property='bclh:city'>"+  this.city + "</span>" : "";
 								result += "<br>";			
-								result += (this.websiteUrl) ? "<a href='" + this.websiteUrl + "' about='foursquare:" + this.venueId + "'><span property='schema:url'>" + this.websiteUrl + "</span></a><br>" : "";
+								result += (this.websiteUrl) ? "<a href='" + this.websiteUrl + "' typeof='schema:Place' about='foursquare:" + this.venueId + "'><span property='schema:url'>" + this.websiteUrl + "</span></a><br>" : "";
 								result += (this.description) ? "<span property='schema:description'>"+ this.description + "</span>" : "";
 								result += "</div>";
 								result += "</div>";
@@ -148,7 +148,7 @@ $(window).load(function() {
 							$.each( retweets, function() {
 								result += "<li class='list-group-item clearfix'>";
 								// Link to the showUser page for this user
-								result += "<a about='twitter:" + this.userId + "' href='' data-screen-name='" + this.screenName.replace(/'/g, "%27") + "' class='visitUserProfile' title='See more information about this user'>";
+								result += "<a typeof='schema:Person' about='twitter:" + this.userId + "' href='' data-screen-name='" + this.screenName.replace(/'/g, "%27") + "' class='visitUserProfile' title='See more information about this user'>";
 								result += "<span property='schema:knows' resource='twitter:" + user.userId + "' />";
 								result += "<span property='bclh:userId' content='" + this.userId + "' />";
 								result += "<img class='tweetImg' src='" + this.profileImgUrl + "'/>";
@@ -172,7 +172,7 @@ $(window).load(function() {
 								result += "<li class='list-group-item clearfix'>";
 								result += "<span property='schema:knows' resource='twitter:" + this.userId + "' />";
 								// Link to the showUser page for this user
-								result += "<a about='twitter:" + this.userId + "' href='' data-screen-name='" + this.screenName.replace(/'/g, "%27") + "' class='visitUserProfile' title='See more information about this user'>";
+								result += "<a typeof='schema:Person' about='twitter:" + this.userId + "' href='' data-screen-name='" + this.screenName.replace(/'/g, "%27") + "' class='visitUserProfile' title='See more information about this user'>";
 								result += "<span property='bclh:userId' content='" + this.userId + "'/>";
 								result += "<img class='tweetImg' src='" + this.profileImgUrl + "'/>";	
 								result += "<span property='bclh:profileImgUrl' content='" + this.profileImgUrl + "'/>";
@@ -250,19 +250,23 @@ $(window).load(function() {
 					var result = "";
 					// If data was recieved
 					if (!$.isEmptyObject(venue)) {	
+						result += "<div typeof='schema:Place' about='foursquare:" + venue.venueId + "'>";
+						result += "<span property='bclh:venueId' content='" + venue.venueId + "'/>";
+						
 						// Write the venue information
 						result += "<div class='bigUserProfile'>";
 						result += "<div class='bigUserProfileDark'>";
-						result += "<div class='userProfileImg' style='background-image:url(\"" + venue.imageUrl + "\");'></div>";
+						result += (venue.imageUrl) ? "<div class='userProfileImg' style='background-image:url(\"" + venue.imageUrl + "\");'></div>" : "<div class='userProfileImg'></div>";
+						result += (venue.imageUrl) ? "<span property='schema:photo' content='" + venue.imageUrl + "' />" : "";
 						result += "<div>";
-						result += "<h2>" + venue.name + "</h2>";
+						result += "<h2 property='schema:name'>" + venue.name + "</h2>";
 						result += "<h4><b>";
-						result += (venue.address) ? venue.address : "";
+						result += (venue.address) ? "<span property='bclh:address'>" + venue.address + "</span>" : "";
 						result += (venue.address && venue.city) ? ", " : "";
-						result += (venue.city) ? venue.city : "";
+						result += (venue.city) ? "<span property='bclh:city'>" + venue.city + "</span>" : "";
 						result += "</b></h4>";
-						result += (venue.description) ? "<p>" + venue.description + "</p>" : "";
-						result += (venue.websiteUrl) ? "<a href='" + venue.websiteUrl + "'>" + venue.websiteUrl + "</a>" : "";
+						result += (venue.description) ? "<p property='schema:description'>" + venue.description + "</p>" : "";
+						result += (venue.websiteUrl) ? "<a typeof='schema:Place' about='foursquare:" + venue.venueId + "' href='" + venue.websiteUrl + "'><span property='schema:url'>" + venue.websiteUrl + "</span></a>" : "";
 						result += "</div>";
 						result += "</div>";
 						result += "</div>";
@@ -273,11 +277,17 @@ $(window).load(function() {
 							// Iterate through the users and write their information
 							$.each( users, function() {
 								// Link to the showUser page for this user
+								result += "<span typeof='schema:Person' about='twitter:" + this.userId + "'>";
+								result += "<span property='bclh:visited' resource='foursquare:" + venue.venueId + "' />";
+								result += "<span property='schema:alternateName' content='" + this.screenName + "' />";
+								result += "<span property='bclh:profileImgUrl' content='" + this.profileImgUrl + "' />";
 								result += "<a href='' class='visitUserProfile visitUserProfileSmall' data-screen-name='" + this.screenName.replace(/'/g, "%27") + "' data-toggle='tooltip' title='" + this.fullName + "'><img class='venueVisitorImg' src='" + this.profileImgUrl + "'/></a>";
+								result += "</span>";
 							});
 						} else {
 							result += "No users have visited " + venue.name;
 						}
+						result += "</div>";
 					} else {
 						result += "No matching venues found.";
 					}

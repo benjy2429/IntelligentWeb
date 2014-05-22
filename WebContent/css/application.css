@@ -56,6 +56,10 @@ body {
 	height: 50px;
 	float: left;
 	border-radius: 5px;
+	background-size: cover;
+	background-position: center;
+	background-image: url("../img/nophoto.png");
+	background-color: #eee;
 	margin: 4px 0px;
 }
 
@@ -65,6 +69,10 @@ body {
 	vertical-align: middle;
 	margin: 2px 5px 5px 0px;
 	border-radius: 5px;
+	background-color: #eee;
+	background-size: cover;
+	background-position: center;
+	background-image: url("../img/nophoto.png");
 }
 
 .tweetContent {
@@ -141,6 +149,7 @@ body {
 	background-color: #eee;
 	background-size: cover;
 	background-position: center;
+	background-image: url("../img/nophoto.png");
 }
 
 .venueContent {
@@ -269,7 +278,8 @@ button.close {
 	border-radius: 10px;
 	background-size: cover;
 	background-position: center;
-	background-color: #fff;
+	background-image: url("../img/nophoto.png");
+	background-color: #eee;
 	display: inline-block;
 }
 
@@ -285,6 +295,8 @@ button.close {
 	border-radius: 5px;
 	background-size: cover;
 	background-position: center;
+	background-image: url("../img/nophoto.png");
+	background-color: #eee;
 }
 
 .userProfileVenue .venueContent {
