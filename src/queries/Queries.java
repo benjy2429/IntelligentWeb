@@ -206,10 +206,9 @@ public class Queries {
 		Calendar cal = Calendar.getInstance();
 		cal.add(Calendar.DAY_OF_YEAR, -daySpan);
 		Date sinceDate = cal.getTime();
-		String formattedDate = new SimpleDateFormat("yyyy-MM-dd").format(sinceDate);
 		
 		//Generate an inverted index of terms. Each term maps to a pair containing the total occurrence count and an user count map. The user count map, maps a user name to their individual occurrence count
-		Map<String, Pair<Integer,Map<Long,Integer>>> termUserMap = makeInvertedIndexOfTerms(users, formattedDate);
+		Map<String, Pair<Integer,Map<Long,Integer>>> termUserMap = makeInvertedIndexOfTerms(users, sinceDate);
 		
 		//All the words have been appropriately added to the data structure so now we find the most frequent terms
 		LinkedList<Term> frequentTerms = new LinkedList<Term>();
@@ -257,21 +256,25 @@ public class Queries {
 	 * @return - Inverted index
 	 * @throws QueryException
 	 */
-	private Map<String, Pair<Integer,Map<Long,Integer>>> makeInvertedIndexOfTerms(LinkedList<User> users, String formattedDate) throws QueryException{
+	private Map<String, Pair<Integer,Map<Long,Integer>>> makeInvertedIndexOfTerms(LinkedList<User> users, Date sinceDate) throws QueryException{
 		//Define data structure to hold inverted index
 		Map<String, Pair<Integer,Map<Long,Integer>>> termUserMap = new HashMap<String, Pair<Integer,Map<Long,Integer>>>();
 		
 		try {
 			//For each of the passed users
-			for(User user : users){
-				//Get all their tweets in the last "daySpan" days
-				Query query = new Query("from:" + user.getScreenName()).since(formattedDate);
-				query.setCount(100);
-				QueryResult result = twitter.search(query);
-				while(query!=null){
-					List<Status> statuses = result.getTweets();
-					//For each tweet
-					for(Status status : statuses){
+			for(User user : users){				
+				// Create a list of tweets from the user
+				int pageNo = 1;
+				boolean finished = false;
+				
+				while (!finished) {
+					// Iterate through blocks of 100 tweets
+					for (Status status : twitter.getUserTimeline(user.getScreenName(), new Paging(pageNo,100))) {
+						// If a tweet is before the days parameter, stop fetching tweets
+						if (status.getCreatedAt().before(sinceDate)) {
+							finished = true;
+							break;
+						}			
 						//Remove undesired characters and separate tweet into separate words
 						String[] words = status.getText().replaceAll("[^\\w #@']", "").toLowerCase().split("\\s+");
 						//For each of the words
@@ -310,11 +313,7 @@ public class Queries {
 							}
 						}
 					}
-					//Get next set of tweets if possible
-					query=result.nextQuery();
-					if(query!=null) {
-						result=twitter.search(query);
-					}
+					pageNo++;
 				}
 			}
 			return termUserMap;
