@@ -122,10 +122,14 @@ public class Queries {
 	 */
 	public List<Status> getUsersTweets(String screenName) throws QueryException{
 		try {
-			Query query = new Query("from:" + screenName);
-			query.setCount(100);
-			QueryResult result = twitter.search(query);
-			return result.getTweets();
+			List<Status> tweets = new LinkedList<Status>();
+			Paging page = new Paging (1, 100);
+			
+			for (Status tweet : twitter.getUserTimeline(screenName, page)) {
+				tweets.add(tweet);
+			}
+			
+			return tweets;
 		} catch (Exception ex) {
 			//Catch any errors, log them, then throw a query exception
 			LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
@@ -349,28 +353,36 @@ public class Queries {
 			
 			// Calculate date minus days parameter
 			Calendar cal = Calendar.getInstance();
-			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 			if (days > 0) {
 				cal.add(Calendar.DAY_OF_YEAR, -days);
 			}
 			
-			Query query = new Query("from:" + username + " foursquare").since(dateFormat.format(cal.getTime()));
-			QueryResult result = twitter.search(query);
+			// Create a list of tweets from the user
+			List<Status> tweets = new LinkedList<Status>();
+			int pageNo = 1;
+			boolean finished = false;
 			
-			while(query!=null){
-				// Cycle through matching tweets
-				for (Status tweet : result.getTweets()) {
-					CompleteVenue venue = getVenueFromTweet(tweet);
-					if(venue!=null){
-						resultList.add(venue);
+			while (!finished) {
+				// Iterate through blocks of 100 tweets
+				for (Status tweet : twitter.getUserTimeline(username, new Paging(pageNo,100))) {
+					// If a tweet is before the days parameter, stop fetching tweets
+					if (tweet.getCreatedAt().before(cal.getTime())) {
+						finished = true;
+						break;
 					}
+					tweets.add(tweet);
 				}
-				//Get next set of tweets if possible
-				query=result.nextQuery();
-				if(query!=null) {
-					result=twitter.search(query);
+				pageNo++;
+			}
+			
+			// Cycle through matching tweets
+			for (Status tweet : tweets) {
+				CompleteVenue venue = getVenueFromTweet(tweet);
+				if(venue!=null){
+					resultList.add(venue);
 				}
 			}
+			
 			return resultList;
 		} catch (Exception ex) {
 			//Catch any errors, log them, then throw a query exception
