@@ -252,7 +252,7 @@ public class Queries {
  	 * Each term maps to a pair containing the total occurrence count and an user count map. 
  	 * The user count map, maps a user name to their individual occurrence count
 	 * @param users - A list of users whose tweets should be collected
-	 * @param formattedDate - A date from which tweets should start to be collected
+	 * @param sinceDate - A date from which tweets should start to be collected
 	 * @return - Inverted index
 	 * @throws QueryException
 	 */
