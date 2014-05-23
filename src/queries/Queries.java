@@ -357,8 +357,6 @@ public class Queries {
 				cal.add(Calendar.DAY_OF_YEAR, -days);
 			}
 			
-			// Create a list of tweets from the user
-			List<Status> tweets = new LinkedList<Status>();
 			int pageNo = 1;
 			boolean finished = false;
 			
@@ -370,17 +368,13 @@ public class Queries {
 						finished = true;
 						break;
 					}
-					tweets.add(tweet);
+					CompleteVenue venue = getVenueFromTweet(tweet);
+					if(venue!=null){
+						resultList.add(venue);
+					}
+
 				}
 				pageNo++;
-			}
-			
-			// Cycle through matching tweets
-			for (Status tweet : tweets) {
-				CompleteVenue venue = getVenueFromTweet(tweet);
-				if(venue!=null){
-					resultList.add(venue);
-				}
 			}
 			
 			return resultList;
@@ -405,17 +399,16 @@ public class Queries {
 				try {
 					String[] fsParams = expandFoursquareUrl(url.getExpandedURL());
 					Result<Checkin> fsResult = foursquare.checkin(fsParams[0], fsParams[1]);
-					
 					// Get venue data from foursquare checkin
 					if (fsResult.getMeta().getCode() == 200) {
 						//resultList.add(fsResult.getResult());
 						
 						Result<CompleteVenue> venues = foursquare.venue(fsResult.getResult().getVenue().getId());
-						
 						if (venues.getMeta().getCode() == 200) {
 							return venues.getResult();
 						}
 					}
+
 				} catch (InvalidFoursquareUrlException ex) {
 					//This type of error is expected frequently as not all urls searched will be foursquare
 					LOGGER.log(Level.FINE, ex.getMessage(), ex);
@@ -444,7 +437,6 @@ public class Queries {
 	        String[] expandedUrl = {"",""};
 	        
 	        if (url.getHost().equals("4sq.com")) {
-	        
 		        HttpURLConnection connection = (HttpURLConnection) url.openConnection(Proxy.NO_PROXY);
 		        connection.setInstanceFollowRedirects(false);
 		        connection.connect();
@@ -454,9 +446,11 @@ public class Queries {
 		        expandedUrl[0] = longUrl.getPath().replace("?s=", "/").split("/")[3];
 	    		expandedUrl[1] = longUrl.getQuery().substring(2,29);
 	        
+	        } else {
+	        	throw new InvalidFoursquareUrlException("");
 	        }
 			return expandedUrl;
-		} catch (NullPointerException | MalformedURLException ex) {
+		} catch (NullPointerException | MalformedURLException | InvalidFoursquareUrlException ex) {
 			//Expected, If the url doesnt contain the desired parameters then its not a valid url
 			throw new InvalidFoursquareUrlException("Not a valid foursquare url: " + shortUrl);
 		} catch (Exception ex) {
