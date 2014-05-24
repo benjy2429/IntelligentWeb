@@ -1024,7 +1024,7 @@ $(window).load(function() {
 	function populateModalTweets(screenName, tweets){
 		lastLocationFound = false;
 		result = "";
-		result += "<h3>Latest Tweets</h3>";
+		result += "<h3>100 Latest Tweets</h3>";
 		$.each( tweets, function() {
 			result += "<div class='modalTweet'>" + this.text + "</div>";
 			if (!lastLocationFound && this.place) {
