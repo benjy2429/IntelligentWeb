@@ -491,10 +491,12 @@ public class Queries {
 			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 			cal.add(Calendar.DAY_OF_YEAR, -days);
 			query.since(dateFormat.format(cal.getTime()));
-			
+			query.setCount(15);
+			query.setResultType(Query.RECENT);
 			QueryResult result = twitter.search(query);
-	
-			getUserVenuesFromTweets(result.getTweets(), venueName, venues, venueTweets);	
+
+			getUserVenuesFromTweets(result.getTweets(), venueName, venues, venueTweets);
+
 		} catch (Exception ex) {
 			//Catch any errors, log them, then throw a query exception
 			LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
