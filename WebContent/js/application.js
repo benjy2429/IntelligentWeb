@@ -125,7 +125,7 @@ $(window).load(function() {
 					var tweetIds = JSON.parse(json[0]);
 					var tweets = JSON.parse(json[1]);
 					$("#resultsTitle").text("Results");
-					$("#resultsInfo").text("Below are the most recent results for your query:");
+					$("#resultsInfo").text("Below are the 10 most recent results for your query:");
 					var result = "";
 					
 					// Check if data was recieved
@@ -597,7 +597,14 @@ $(window).load(function() {
 				if ( !$.isEmptyObject(venues) ) {
 					if ( $("#pageContent").find(".venue").length == 0 ) {
 						result += ($("#enableLocVenue").is(":checked")) ? "<div class='row'><div class='col-md-8'>" : "";
-						result += "<h2 style='margin:20px 0;'>Check-ins in this area</h2>";
+						//Count how many checkins were detected
+						checkInCount = 0;
+						for (var prop in venueTweetsMap) {
+							  if (venueTweetsMap.hasOwnProperty(prop)) {
+								  checkInCount += venueTweetsMap[prop].length;
+							  }
+						}
+						result += "<h2 style='margin:20px 0;'>" + (($("#daysVenue").val() == "0") ? "Recent check-ins in this area" : ("Most recent " + checkInCount + " check-ins in this area")) + "</h2>";
 						result += "<a href='#' id='expandAllCheckins'>Expand all venue check-ins</a> | ";
 						result += "<a href='#' id='collapseAllCheckins'>Collapse all venue check-ins</a>";
 						result += "<div class='venueSection'>";

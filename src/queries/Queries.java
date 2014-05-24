@@ -441,8 +441,11 @@ public class Queries {
 		        connection.connect();
 		        URL longUrl = new URL(connection.getHeaderField("Location"));
 		        connection.getInputStream().close();
-		        
-		        expandedUrl[0] = longUrl.getPath().replace("?s=", "/").split("/")[3];
+		        try {
+		        	expandedUrl[0] = longUrl.getPath().replace("?s=", "/").split("/")[3];
+		        } catch (Exception ex) {
+		        	throw new InvalidFoursquareUrlException("");
+		        }
 	    		expandedUrl[1] = longUrl.getQuery().substring(2,29);
 	        
 	        } else {
