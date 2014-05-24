@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF
+	xmlns:schema="http://schema.org/"
+	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+	xmlns:owl="http://www.w3.org/2002/07/owl#"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+	xmlns:foaf="http://xmlns.com/foaf/0.1/"
+	xmlns:dct="http://purl.org/dc/terms/"
+	xmlns:bclh="http://tomcat.dcs.shef.ac.uk:41032/aca11bmc/">
+
+<rdf:Description rdf:about="http://schema.org/Thing">
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	<rdfs:label xml:lang="en">Thing</rdfs:label>
+	<rdfs:comment xml:lang="en"></rdfs:comment>
+	<rdfs:isDefinedBy rdf:resource="http://schema.org/Thing"/>
+</rdf:Description>
+
+<rdf:Description rdf:about="http://schema.org/Place">
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	<rdfs:label xml:lang="en">Place</rdfs:label>
+	<rdfs:comment xml:lang="en"></rdfs:comment>
+	<rdfs:subClassOf rdf:resource="http://schema.org/Thing"/>
+	<rdfs:isDefinedBy rdf:resource="http://schema.org/Place"/>
+</rdf:Description>
+
+<rdf:Description rdf:about="http://schema.org/Person">
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	<rdfs:label xml:lang="en">Person</rdfs:label>
+	<rdfs:comment xml:lang="en"></rdfs:comment>
+	<rdfs:subClassOf rdf:resource="http://schema.org/Thing"/>
+	<rdfs:isDefinedBy rdf:resource="http://schema.org/Person"/>
+</rdf:Description>
+
+<rdf:Description rdf:about="http://schema.org/name">
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	<rdfs:label xml:lang="en">Name</rdfs:label>
+	<rdfs:comment xml:lang="en">The name of the item.</rdfs:comment>
+	<rdfs:domain rdf:resource="http://schema.org/Thing"/>
+	<rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+	<rdfs:isDefinedBy rdf:resource="http://schema.org/Thing"/>
+</rdf:Description>
+
+<rdf:Description rdf:about="http://schema.org/photo">
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	<rdfs:label xml:lang="en">Photo</rdfs:label>
+	<rdfs:comment xml:lang="en">A photograph of this place.</rdfs:comment>
+	<rdfs:domain rdf:resource="http://schema.org/Place"/>
+</rdf:Description>
+
+<rdf:Description rdf:about="http://schema.org/url">
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	<rdfs:label xml:lang="en">URL</rdfs:label>
+	<rdfs:comment xml:lang="en">URL of the item.</rdfs:comment>
+	<rdfs:domain rdf:resource="http://schema.org/Place"/>
+	<rdfs:range rdf:resource="http://www.w3.org/2000/01/rdf-schema#Resource"/>
+</rdf:Description>
+
+<rdf:Description rdf:about="http://schema.org/description">
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	<rdfs:label xml:lang="en">Description</rdfs:label>
+	<rdfs:comment xml:lang="en">A short description of the item.</rdfs:comment>
+	<rdfs:domain rdf:resource="http://schema.org/Thing"/>
+	<rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+	<rdfs:isDefinedBy rdf:resource="http://schema.org/Thing"/>
+</rdf:Description>
+
+<rdf:Description rdf:about="http://schema.org/alternateName">
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	<rdfs:label xml:lang="en">Alternate Name</rdfs:label>
+	<rdfs:comment xml:lang="en">An alias for the item.</rdfs:comment>
+	<rdfs:domain rdf:resource="http://schema.org/Person"/>
+	<rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+</rdf:Description>
+
+<rdf:Description rdf:about="http://schema.org/knows">
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	<rdfs:label xml:lang="en">Knows</rdfs:label>
+	<rdfs:comment xml:lang="en">The most generic bi-directional social/work relation.</rdfs:comment>
+	<rdfs:domain rdf:resource="http://schema.org/Person"/>
+	<rdfs:range rdf:resource="http://schema.org/Person"/>
+	<rdfs:isDefinedBy rdf:resource="http://schema.org/Person"/>
+</rdf:Description>
+
+
+
+<rdf:Description rdf:about="http://tomcat.dcs.shef.ac.uk:41032/aca11bmc/profileImgUrl">
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	<rdfs:label xml:lang="en">Twitter Profile Image URL</rdfs:label>
+	<rdfs:comment xml:lang="en"></rdfs:comment>
+	<rdfs:domain rdf:resource="http://schema.org/Person"/>
+	<rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+</rdf:Description>
+
+<rdf:Description rdf:about="http://tomcat.dcs.shef.ac.uk:41032/aca11bmc/bigProfileImgUrl">
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	<rdfs:label xml:lang="en">Big Twitter Profile Image URL</rdfs:label>
+	<rdfs:comment xml:lang="en"></rdfs:comment>
+	<rdfs:domain rdf:resource="http://schema.org/Person"/>
+	<rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+</rdf:Description>
+
+<rdf:Description rdf:about="http://tomcat.dcs.shef.ac.uk:41032/aca11bmc/bannerImgUrl">
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	<rdfs:label xml:lang="en">Twitter Banner Image URL</rdfs:label>
+	<rdfs:comment xml:lang="en"></rdfs:comment>
+	<rdfs:domain rdf:resource="http://schema.org/Person"/>
+	<rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+</rdf:Description>
+
+<rdf:Description rdf:about="http://tomcat.dcs.shef.ac.uk:41032/aca11bmc/Keyword">
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	<rdfs:label xml:lang="en">Keyword</rdfs:label>
+	<rdfs:comment xml:lang="en"></rdfs:comment>
+	<rdfs:subClassOf rdf:resource="http://schema.org/Thing"/>
+	<rdfs:isDefinedBy rdf:resource="http://tomcat.dcs.shef.ac.uk:41032/aca11bmc/Keyword"/>
+</rdf:Description>
+
+<rdf:Description rdf:about="http://tomcat.dcs.shef.ac.uk:41032/aca11bmc/UserKeyword">
+	<rdf:type rdf:resource="http://www.w3.org/2000/01/rdf-schema#Class"/>
+	<rdfs:label xml:lang="en">Keyword Count node</rdfs:label>
+	<rdfs:comment xml:lang="en"></rdfs:comment>
+	<rdfs:subClassOf rdf:resource="http://schema.org/Thing"/>
+	<rdfs:isDefinedBy rdf:resource="http://tomcat.dcs.shef.ac.uk:41032/aca11bmc/UserKeyword"/>
+</rdf:Description>
+
+<rdf:Description rdf:about="http://tomcat.dcs.shef.ac.uk:41032/aca11bmc/count">
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	<rdfs:label xml:lang="en">Keyword Count</rdfs:label>
+	<rdfs:comment xml:lang="en"></rdfs:comment>
+	<rdfs:domain rdf:resource="http://tomcat.dcs.shef.ac.uk:41032/aca11bmc/UserKeyword"/>
+	<rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#integer"/>
+</rdf:Description>
+
+<rdf:Description rdf:about="http://tomcat.dcs.shef.ac.uk:41032/aca11bmc/noTimesSaid">
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	<rdfs:label xml:lang="en">Person said Keyword number of times</rdfs:label>
+	<rdfs:comment xml:lang="en"></rdfs:comment>
+	<rdfs:domain rdf:resource="http://schema.org/Person"/>
+	<rdfs:range rdf:resource="http://tomcat.dcs.shef.ac.uk:41032/aca11bmc/UserKeyword"/>
+</rdf:Description>
+
+<rdf:Description rdf:about="http://tomcat.dcs.shef.ac.uk:41032/aca11bmc/wordSaid">
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	<rdfs:label xml:lang="en">Keyword said by User</rdfs:label>
+	<rdfs:comment xml:lang="en"></rdfs:comment>
+	<rdfs:domain rdf:resource="http://tomcat.dcs.shef.ac.uk:41032/aca11bmc/UserKeyword"/>
+	<rdfs:range rdf:resource="http://tomcat.dcs.shef.ac.uk:41032/aca11bmc/Keyword"/>
+</rdf:Description>
+
+<rdf:Description rdf:about="http://tomcat.dcs.shef.ac.uk:41032/aca11bmc/visited">
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	<rdfs:label xml:lang="en">Person Visited Place</rdfs:label>
+	<rdfs:comment xml:lang="en"></rdfs:comment>
+	<rdfs:domain rdf:resource="http://schema.org/Person"/>
+	<rdfs:range rdf:resource="http://schema.org/Place"/>
+</rdf:Description>
+
+<rdf:Description rdf:about="http://tomcat.dcs.shef.ac.uk:41032/aca11bmc/hometown">
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	<rdfs:label xml:lang="en">Hometown of a Person</rdfs:label>
+	<rdfs:comment xml:lang="en"></rdfs:comment>
+	<rdfs:domain rdf:resource="http://schema.org/Person"/>
+	<rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+</rdf:Description>
+
+<rdf:Description rdf:about="http://tomcat.dcs.shef.ac.uk:41032/aca11bmc/address">
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	<rdfs:label xml:lang="en">Address of a Place</rdfs:label>
+	<rdfs:comment xml:lang="en"></rdfs:comment>
+	<rdfs:domain rdf:resource="http://schema.org/Place"/>
+	<rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+</rdf:Description>
+
+<rdf:Description rdf:about="http://tomcat.dcs.shef.ac.uk:41032/aca11bmc/city">
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	<rdfs:label xml:lang="en">City of a Place</rdfs:label>
+	<rdfs:comment xml:lang="en"></rdfs:comment>
+	<rdfs:domain rdf:resource="http://schema.org/Place"/>
+	<rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+</rdf:Description>
+
+<rdf:Description rdf:about="http://tomcat.dcs.shef.ac.uk:41032/aca11bmc/userId">
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	<rdfs:label xml:lang="en">Twitter ID of a Person</rdfs:label>
+	<rdfs:comment xml:lang="en"></rdfs:comment>
+	<rdfs:domain rdf:resource="http://schema.org/Person"/>
+	<rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+</rdf:Description>
+
+<rdf:Description rdf:about="http://tomcat.dcs.shef.ac.uk:41032/aca11bmc/venueId">
+	<rdf:type rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#Property"/>
+	<rdfs:label xml:lang="en">Foursquare ID of a Place</rdfs:label>
+	<rdfs:comment xml:lang="en"></rdfs:comment>
+	<rdfs:domain rdf:resource="http://schema.org/Place"/>
+	<rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+</rdf:Description>
+
+</rdf:RDF>
