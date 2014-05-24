@@ -668,7 +668,18 @@ $(window).load(function() {
 				        
 				        // Add the infoWindow to a click event listener
 				        google.maps.event.addListener(marker, 'click', function() {
-				        	infowindow.open(map,marker);
+			                if(!marker.open){
+			                    infowindow.open(map,marker);
+			                    marker.open = true;
+			                }
+			                else{
+			                    infowindow.close();
+			                    marker.open = false;
+			                }
+			                google.maps.event.addListener(map, 'click', function() {
+			                    infowindow.close();
+			                    marker.open = false;
+			                });
 			        	});
 				        
 				        // Extend the map bounds so all markers are in the initial view
