@@ -605,7 +605,7 @@ $(window).load(function() {
 					// Iterate through the venues and write their information
 					$.each(venues, function(venueId,venueObj){	
 						result += "<div class='venue venueDark'>";
-						result += (venueObj.photos.groups[1] && venueObj.photos.groups[1].items.length > 0) ? "<div class='venueImg' style='background-image:url(\"" + venueObj.photos.groups[1].items[0].url + "\");'/>" : "";
+						result += (venueObj.photos.groups[1] && venueObj.photos.groups[1].items.length > 0) ? "<div class='venueImg' style='background-image:url(\"" + venueObj.photos.groups[1].items[0].url + "\");'/>" : "<div class='venueImg'/>";
 						result += "<div class='venueContent'>";
 						result += "<span class='venueName'>" + venueObj.name + ", </span>";
 						result += (venueObj.location.address) ? venueObj.location.address : "";
