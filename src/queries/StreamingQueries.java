@@ -28,7 +28,7 @@ public class StreamingQueries {
 	
 	/**
 	 * Queries Constructor for a new Twitter stream connection
-	 * @param twitter
+	 * @param twitterStream - The Twitter stream object
 	 */
 	public StreamingQueries(TwitterStream twitterStream){
 		this.twitterStream = twitterStream;
