@@ -121,18 +121,7 @@ public class WebServlet extends HttpServlet {
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		datastoreConn = (RDFConnector) getServletConfig().getServletContext().getAttribute("rdfConnector");
-		//TODO some check to make sure that the attribute exists/ initialiased correctly
-		// RDF TEST CODE //
 
-		if (datastoreConn.establishConnection()) { 
-			datastoreConn.test();
-		}
-		
-		
-		
-	     
-	     
-        // ORIGINAL CODE BELOW //
 		PrintWriter out = response.getWriter();		
 		try {
 			String requestId = request.getParameter("requestId");    	
